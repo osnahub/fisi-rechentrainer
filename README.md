@@ -1,6 +1,8 @@
-# FiSi Dualmaster – Binär-, Dezimal- & Hex-Übungshilfe
+# FiSi-Dec-Bin-Hex-Trainer – Binär-, Dezimal- & Hex-Übungshilfe
 
 Ein interaktives Trainingswerkzeug für Umschüler und Auszubildende zum **Fachinformatiker für Systemintegration (FiSi)** zur sicheren Beherrschung des Dualsystems, des Hexadezimalsystems, von IPv4-Oktetten und IHK-Prüfungsaufgaben.
+
+🔗 **Live-Version:** [https://osnahub.github.io/fisi-dec-bin-hex-trainer/](https://osnahub.github.io/fisi-dec-bin-hex-trainer/)
 
 ---
 
@@ -55,11 +57,39 @@ Dieses Tool trainiert gezielt:
 
 ---
 
-## 🚀 Schnelle Inbetriebnahme
+## 🛠️ Tech-Stack
+* **Framework:** [Next.js 15](https://nextjs.org/) (App Router, React 19, TypeScript)
+* **Styling:** [Tailwind CSS](https://tailwindcss.com/) mit dynamischem Dark- und Light-Theme
+* **Audio:** Web Audio API (100% synthetisiert, keine externen Sound-Assets erforderlich)
+* **Icons & Effekte:** Lucide React & Canvas-Confetti
 
-1. Keine Installation, kein Server, kein Node.js oder npm erforderlich!
-2. Die Datei [`index.html`](index.html) einfach per Doppelklick im Webbrowser (Chrome, Firefox, Edge, Safari) öffnen.
-3. Funktioniert vollständig **offline** (ideal für Schulungsrechner im Unterricht).
+---
+
+## 🚀 Lokale Entwicklung & Build
+
+1. **Abhängigkeiten installieren:**
+   ```bash
+   npm install
+   ```
+2. **Entwicklungsserver starten:**
+   ```bash
+   npm run dev
+   ```
+   Die App ist anschließend unter [http://localhost:3000](http://localhost:3000) erreichbar.
+
+3. **Produktions-Build erstellen:**
+   ```bash
+   npm run build
+   ```
+
+---
+
+## ☁️ Deployment auf Vercel
+
+1. Repository auf GitHub pushen ([osnahub/fisi-dec-bin-hex-trainer](https://github.com/osnahub/fisi-dec-bin-hex-trainer)).
+2. Bei [Vercel](https://vercel.com) einloggen und auf **Add New... ➔ Project** klicken.
+3. Das Repository `osnahub/fisi-dec-bin-hex-trainer` auswählen und auf **Deploy** klicken.
+4. Vercel erkennt das Next.js-Projekt automatisch und stellt es in wenigen Sekunden bereit!
 
 ---
 
@@ -68,3 +98,4 @@ Dieses Tool trainiert gezielt:
 * **Dark & Light Mode:** Wechsel per Klick auf die Sonne/Mond-Schaltfläche (wird im Browser gespeichert).
 * **Audio-Feedback:** Dezentes Ton-Feedback für Klicks, richtige und falsche Antworten (abschaltbar).
 * **Responsiv:** Optimiert für Smartphones, Laptops und Beamer-Projektionen im Klassenraum.
+* **Tastaturbedienung:** Schnelle Bestätigung über die <kbd>Enter</kbd>-Taste in allen Modulen.

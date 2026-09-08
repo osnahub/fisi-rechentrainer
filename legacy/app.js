@@ -1,5 +1,5 @@
 /**
- * FiSi Dualmaster - Anwendungslogik & Didaktischer Trainer
+ * FiSi-Dec-Bin-Hex-Trainer - Anwendungslogik & Didaktischer Trainer
  * Entwickelt für Fachinformatiker für Systemintegration
  * Module: Dezimal, Dual (Binär), Hexadezimal, Subnetting & Prüfungs-Sprint
  */
