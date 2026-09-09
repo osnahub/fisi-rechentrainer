@@ -159,33 +159,40 @@ export function BinToDecModule({
                     key={originalIndex}
                     className="flex flex-col items-center gap-1 min-w-[34px] sm:min-w-[44px]"
                   >
-                    <div className="flex flex-col items-center min-h-[30px] justify-end">
-                      {showPowersHelper && isMSB && (
-                        <span className="text-[8px] font-mono font-bold tracking-tight text-amber-400 bg-amber-400/10 px-1 py-0.5 rounded border border-amber-400/20 leading-none mb-0.5">
-                          MSB
-                        </span>
-                      )}
-                      {showPowersHelper && isLSB && (
-                        <span className="text-[8px] font-mono font-bold tracking-tight text-indigo-400 bg-indigo-400/10 px-1 py-0.5 rounded border border-indigo-400/20 leading-none mb-0.5">
-                          LSB
-                        </span>
-                      )}
-                      {showPowersHelper && !isMSB && !isLSB && (
-                        <span className="text-[9px] font-mono text-[var(--text-muted)] opacity-60 leading-none mb-0.5">
-                          {formatExponent(exponent)}
-                        </span>
-                      )}
-                      <span
-                        className={`text-[10px] sm:text-xs font-mono font-medium transition-opacity ${
+                    {/* Feste Höhe (h-9 = 36px): Verhindert jegliche Höhenänderung oder Springen beim Umschalten */}
+                    <div className="h-9 w-full flex flex-col items-center justify-end">
+                      <div
+                        className={`flex flex-col items-center justify-end transition-opacity duration-200 ${
                           showPowersHelper
-                            ? isOn
-                              ? "text-sky-400 font-bold opacity-100"
-                              : "text-[var(--text-muted)] opacity-60"
-                            : "opacity-0 select-none"
+                            ? "opacity-100"
+                            : "opacity-0 select-none pointer-events-none"
                         }`}
                       >
-                        {powerVal}
-                      </span>
+                        {isMSB && (
+                          <span className="text-[8px] font-mono font-bold tracking-tight text-amber-400 bg-amber-400/10 px-1 py-0.5 rounded border border-amber-400/20 leading-none mb-0.5">
+                            MSB
+                          </span>
+                        )}
+                        {isLSB && (
+                          <span className="text-[8px] font-mono font-bold tracking-tight text-indigo-400 bg-indigo-400/10 px-1 py-0.5 rounded border border-indigo-400/20 leading-none mb-0.5">
+                            LSB
+                          </span>
+                        )}
+                        {!isMSB && !isLSB && (
+                          <span className="text-[9px] font-mono text-[var(--text-muted)] opacity-60 leading-none mb-0.5">
+                            {formatExponent(exponent)}
+                          </span>
+                        )}
+                        <span
+                          className={`text-[10px] sm:text-xs font-mono font-medium ${
+                            isOn
+                              ? "text-sky-400 font-bold"
+                              : "text-[var(--text-muted)] opacity-70"
+                          }`}
+                        >
+                          {powerVal}
+                        </span>
+                      </div>
                     </div>
                     <div
                       className={`w-8.5 h-11 xs:w-9.5 xs:h-12 sm:w-11 sm:h-14 rounded-xl font-mono text-base sm:text-xl font-bold border flex items-center justify-center select-none transition-all ${

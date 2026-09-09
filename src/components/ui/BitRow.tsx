@@ -102,8 +102,8 @@ export function BitRow({
                     key={originalIndex}
                     className="flex flex-col items-center gap-1 min-w-[34px] sm:min-w-[44px]"
                   >
-                    {/* Exponent & Stellenwert & MSB/LSB Badge */}
-                    <div className="flex flex-col items-center min-h-[30px] justify-end">
+                    {/* Exponent & Stellenwert & MSB/LSB Badge (feste 36px Höhe) */}
+                    <div className="h-9 w-full flex flex-col items-center justify-end">
                       {isMSB && (
                         <span className="text-[8px] font-mono font-bold tracking-tight text-amber-400 bg-amber-400/10 px-1 py-0.5 rounded border border-amber-400/20 leading-none mb-0.5">
                           MSB
