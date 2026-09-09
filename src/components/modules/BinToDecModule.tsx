@@ -231,32 +231,31 @@ export function BinToDecModule({
           />
         </div>
 
-        {/* Aktionsleiste (Mobile First mit voller Touch-Breite) */}
-        <div className="flex flex-col xs:flex-row items-center justify-center gap-2.5 sm:gap-3 mt-5">
+        {/* Aktionsleiste */}
+        <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5 mt-5">
           <button
             onClick={checkAnswer}
-            className="w-full xs:w-auto min-h-[44px] flex items-center justify-center gap-2 px-7 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-600 hover:to-sky-700 text-white font-semibold transition-all cursor-pointer shadow-md shadow-sky-500/25"
+            className="min-h-[42px] flex items-center justify-center gap-1.5 sm:gap-2 px-5 sm:px-6 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-600 hover:to-sky-700 text-white text-xs sm:text-sm font-semibold transition-all cursor-pointer shadow-md shadow-sky-500/25"
           >
-            <Check size={18} />
+            <Check size={16} />
             <span>Ergebnis prüfen</span>
           </button>
 
-          <div className="flex items-center gap-2 w-full xs:w-auto">
-            <button
-              onClick={() => generateNewTask()}
-              className="flex-1 xs:flex-none min-h-[44px] flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-hover)] transition-all cursor-pointer text-xs font-medium"
-            >
-              <RefreshCw size={15} />
-              <span>Neues Muster</span>
-            </button>
-            <button
-              onClick={() => setShowSolution(true)}
-              className="flex-1 xs:flex-none min-h-[44px] flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-sky-600 dark:hover:text-sky-400 hover:border-sky-500/40 transition-all cursor-pointer text-xs font-medium"
-            >
-              <Eye size={15} />
-              <span>Lösungsweg</span>
-            </button>
-          </div>
+          <button
+            onClick={() => generateNewTask()}
+            className="min-h-[42px] flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-hover)] transition-all cursor-pointer text-xs font-medium"
+          >
+            <RefreshCw size={14} />
+            <span>Neues Muster</span>
+          </button>
+
+          <button
+            onClick={() => setShowSolution(true)}
+            className="min-h-[42px] flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-sky-600 dark:hover:text-sky-400 hover:border-sky-500/40 transition-all cursor-pointer text-xs font-medium"
+          >
+            <Eye size={14} />
+            <span>Lösungsweg</span>
+          </button>
         </div>
 
         {/* Feedback Alert */}
