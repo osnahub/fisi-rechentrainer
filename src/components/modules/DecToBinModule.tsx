@@ -18,10 +18,9 @@ export function DecToBinModule({
   onStreakUpdate,
 }: DecToBinModuleProps) {
   const bitRange = 8;
-  const [inputMode, setInputMode] = useState<"buttons" | "text">("buttons");
+  const [showPowersHelper, setShowPowersHelper] = useState<boolean>(true);
   const [targetDec, setTargetDec] = useState<number>(0);
   const [bits, setBits] = useState<number[]>(new Array(8).fill(0));
-  const [textInput, setTextInput] = useState<string>("");
   const [feedback, setFeedback] = useState<{ isCorrect: boolean; message: string } | null>(null);
   const [showSolution, setShowSolution] = useState<boolean>(false);
   const [solutionSteps, setSolutionSteps] = useState<StellenwertStep[]>([]);
@@ -33,7 +32,6 @@ export function DecToBinModule({
 
     setTargetDec(nextVal);
     setBits(new Array(8).fill(0));
-    setTextInput("");
     setFeedback(null);
     setShowSolution(false);
     setSolutionSteps([]);
@@ -49,13 +47,7 @@ export function DecToBinModule({
   );
 
   const checkAnswer = () => {
-    let userBinary = "";
-    if (inputMode === "buttons") {
-      userBinary = bits.join("");
-    } else {
-      userBinary = textInput.replace(/\s+/g, "").padStart(bitRange, "0");
-    }
-
+    const userBinary = bits.join("");
     const targetBinary = Conversions.decToBin(targetDec, bitRange);
     const isCorrect = userBinary === targetBinary;
 
@@ -86,7 +78,7 @@ export function DecToBinModule({
 
   return (
     <div className="space-y-4 sm:space-y-6">
-      {/* Steuerungsleiste: Eingabemodus */}
+      {/* Steuerungsleiste: Stellenwerte an/aus */}
       <div className="flex items-center justify-between gap-2.5 p-2.5 sm:p-3 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-color)]">
         <div className="flex items-center gap-1.5 text-xs font-mono font-medium text-[var(--text-secondary)]">
           <span className="px-2.5 py-1 rounded-xl bg-sky-500/10 border border-sky-500/30 text-sky-700 dark:text-sky-300 font-bold">
@@ -97,28 +89,17 @@ export function DecToBinModule({
           </span>
         </div>
 
-        <div className="flex items-center gap-1 p-0.5 rounded-xl bg-[var(--bg-input)] border border-[var(--border-color)]">
-          <button
-            onClick={() => setInputMode("buttons")}
-            className={`text-xs px-3 py-1 rounded-lg transition-all cursor-pointer font-medium ${
-              inputMode === "buttons"
-                ? "bg-sky-600 dark:bg-sky-500 text-white font-semibold shadow-sm"
-                : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-            }`}
-          >
-            Schalter
-          </button>
-          <button
-            onClick={() => setInputMode("text")}
-            className={`text-xs px-3 py-1 rounded-lg transition-all cursor-pointer font-medium ${
-              inputMode === "text"
-                ? "bg-sky-600 dark:bg-sky-500 text-white font-semibold shadow-sm"
-                : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-            }`}
-          >
-            Tastatur
-          </button>
-        </div>
+        <button
+          onClick={() => setShowPowersHelper((prev) => !prev)}
+          className={`text-xs px-3 py-1.5 rounded-xl border transition-all cursor-pointer font-medium flex items-center gap-1.5 ${
+            showPowersHelper
+              ? "bg-sky-600 dark:bg-sky-500 text-white border-sky-600 dark:border-sky-400 font-semibold shadow-sm"
+              : "border-[var(--border-color)] text-[var(--text-secondary)] hover:border-[var(--border-hover)]"
+          }`}
+        >
+          <span>Stellenwerte {showPowersHelper ? "an" : "aus"}</span>
+          <span>💡</span>
+        </button>
       </div>
 
       {/* Haupt-Aufgaben-Karte */}
@@ -142,48 +123,27 @@ export function DecToBinModule({
         </div>
 
         {/* Schalter-Eingabe mit didaktischer BitRow */}
-        {inputMode === "buttons" && bitRange <= 8 ? (
-          <div className="my-4 sm:my-6">
-            <BitRow bits={bits} onChange={setBits} />
-            
-            {/* Live-Summenanzeige */}
-            <div className="mt-3 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-[var(--bg-input)] border border-[var(--border-color)] text-xs font-mono">
-              <span className="text-[var(--text-muted)]">Aktuelle Summe:</span>
-              <span
-                className={`font-bold text-sm ${
-                  currentSum === targetDec
-                    ? "text-emerald-600 dark:text-emerald-400"
-                    : currentSum > targetDec
-                    ? "text-rose-600 dark:text-rose-400"
-                    : "text-sky-600 dark:text-sky-400"
-                }`}
-              >
-                {currentSum}
-              </span>
-              <span className="text-[var(--text-muted)]">/</span>
-              <span className="text-[var(--text-secondary)]">Ziel: {targetDec}</span>
-            </div>
+        <div className="my-4 sm:my-6">
+          <BitRow bits={bits} onChange={setBits} showPowers={showPowersHelper} />
+          
+          {/* Live-Summenanzeige */}
+          <div className="mt-3 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-[var(--bg-input)] border border-[var(--border-color)] text-xs font-mono">
+            <span className="text-[var(--text-muted)]">Aktuelle Summe:</span>
+            <span
+              className={`font-bold text-sm ${
+                currentSum === targetDec
+                  ? "text-emerald-600 dark:text-emerald-400"
+                  : currentSum > targetDec
+                  ? "text-rose-600 dark:text-rose-400"
+                  : "text-sky-600 dark:text-sky-400"
+              }`}
+            >
+              {currentSum}
+            </span>
+            <span className="text-[var(--text-muted)]">/</span>
+            <span className="text-[var(--text-secondary)]">Ziel: {targetDec}</span>
           </div>
-        ) : (
-          /* Mobile-optimierte Tastatur-Eingabe */
-          <div className="my-4 sm:my-6 max-w-sm mx-auto">
-            <input
-              type="text"
-              inputMode="numeric"
-              pattern="[01\s]*"
-              autoComplete="off"
-              autoCorrect="off"
-              value={textInput}
-              onChange={(e) => setTextInput(e.target.value.replace(/[^01\s]/g, ""))}
-              onKeyDown={(e) => e.key === "Enter" && checkAnswer()}
-              placeholder="8 Bits eingeben (z. B. 10100000)"
-              className="w-full text-center font-mono text-xl sm:text-2xl py-3 px-4 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-input)] text-[var(--text-primary)] focus:outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-500/20 transition-all"
-            />
-            <p className="text-[11px] text-[var(--text-muted)] mt-2">
-              💡 Leerzeichen zur Nibble-Trennung sind erlaubt. Drücke Enter zum Prüfen.
-            </p>
-          </div>
-        )}
+        </div>
 
         {/* Aktionsleiste */}
         <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5 mt-5">

@@ -9,6 +9,7 @@ interface BitRowProps {
   onBitClick?: () => void;
   powers?: number[]; // e.g. [128, 64, 32, 16, 8, 4, 2, 1]
   showQuickActions?: boolean;
+  showPowers?: boolean;
 }
 
 export function BitRow({
@@ -17,6 +18,7 @@ export function BitRow({
   onBitClick,
   powers,
   showQuickActions = true,
+  showPowers = true,
 }: BitRowProps) {
   const triggerHaptic = () => {
     if (typeof window !== "undefined" && "vibrate" in navigator) {
@@ -104,29 +106,37 @@ export function BitRow({
                   >
                     {/* Exponent & Stellenwert & MSB/LSB Badge (feste 36px Höhe) */}
                     <div className="h-9 w-full flex flex-col items-center justify-end">
-                      {isMSB && (
-                        <span className="text-[9px] sm:text-[10px] font-mono font-bold tracking-wider text-amber-800 bg-amber-100 border border-amber-300 dark:text-amber-300 dark:bg-amber-950/50 dark:border-amber-500/40 px-0.5 sm:px-1 py-0.5 rounded leading-none mb-0.5">
-                          MSB
-                        </span>
-                      )}
-                      {isLSB && (
-                        <span className="text-[9px] sm:text-[10px] font-mono font-bold tracking-wider text-indigo-800 bg-indigo-100 border border-indigo-300 dark:text-indigo-300 dark:bg-indigo-950/50 dark:border-indigo-500/40 px-0.5 sm:px-1 py-0.5 rounded leading-none mb-0.5">
-                          LSB
-                        </span>
-                      )}
-                      {!isMSB && !isLSB && (
-                        <span className="text-[9px] sm:text-[10px] font-mono text-[var(--text-muted)] font-medium leading-none mb-0.5">
-                          {formatExponent(exponent)}
-                        </span>
-                      )}
-                      <span
-                        className={`text-[10px] sm:text-xs font-mono transition-colors ${
-                          isOn ? "text-sky-600 dark:text-sky-400 font-bold" : "text-[var(--text-muted)] font-medium"
+                      <div
+                        className={`flex flex-col items-center justify-end transition-opacity duration-200 ${
+                          showPowers
+                            ? "opacity-100"
+                            : "opacity-0 select-none pointer-events-none"
                         }`}
-                        title={`Stellenwert 2^${exponent} = ${powerVal}`}
                       >
-                        {powerVal}
-                      </span>
+                        {isMSB && (
+                          <span className="text-[9px] sm:text-[10px] font-mono font-bold tracking-wider text-amber-800 bg-amber-100 border border-amber-300 dark:text-amber-300 dark:bg-amber-950/50 dark:border-amber-500/40 px-0.5 sm:px-1 py-0.5 rounded leading-none mb-0.5">
+                            MSB
+                          </span>
+                        )}
+                        {isLSB && (
+                          <span className="text-[9px] sm:text-[10px] font-mono font-bold tracking-wider text-indigo-800 bg-indigo-100 border border-indigo-300 dark:text-indigo-300 dark:bg-indigo-950/50 dark:border-indigo-500/40 px-0.5 sm:px-1 py-0.5 rounded leading-none mb-0.5">
+                            LSB
+                          </span>
+                        )}
+                        {!isMSB && !isLSB && (
+                          <span className="text-[9px] sm:text-[10px] font-mono text-[var(--text-muted)] font-medium leading-none mb-0.5">
+                            {formatExponent(exponent)}
+                          </span>
+                        )}
+                        <span
+                          className={`text-[10px] sm:text-xs font-mono transition-colors ${
+                            isOn ? "text-sky-600 dark:text-sky-400 font-bold" : "text-[var(--text-muted)] font-medium"
+                          }`}
+                          title={`Stellenwert 2^${exponent} = ${powerVal}`}
+                        >
+                          {powerVal}
+                        </span>
+                      </div>
                     </div>
 
                     <button
