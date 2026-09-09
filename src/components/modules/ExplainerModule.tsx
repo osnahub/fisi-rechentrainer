@@ -4,10 +4,6 @@ import React, { useState } from "react";
 import { Conversions } from "@/lib/conversions";
 import { ArrowUp, Calculator, Sparkles } from "lucide-react";
 
-interface ExplainerModuleProps {
-  onPlayClick: () => void;
-}
-
 type InputFormat = "dec" | "bin";
 
 const SUPERSCRIPTS: Record<number, string> = {
@@ -20,7 +16,7 @@ const formatExponent = (exp: number) => {
   return "2" + s.split("").map((c) => SUPERSCRIPTS[Number(c)] ?? c).join("");
 };
 
-export function ExplainerModule({ onPlayClick }: ExplainerModuleProps) {
+export function ExplainerModule() {
   const [format, setFormat] = useState<InputFormat>("dec");
   const [inputValue, setInputValue] = useState<string>("173");
 
@@ -29,13 +25,11 @@ export function ExplainerModule({ onPlayClick }: ExplainerModuleProps) {
   if (format === "dec") {
     currentDec = Math.max(0, parseInt(inputValue, 10) || 0);
   } else if (format === "bin") {
-    currentDec = Conversions.binToDec(inputValue);
+    currentDec = Conversions.binToDec(inputValue.replace(/[^01]/g, ""));
   }
 
-  // Cap at 65535 for sanity
-  if (currentDec > 65535) currentDec = 65535;
-
-  const bitCount = currentDec > 255 ? 16 : 8;
+  // Calculate bit count dynamically (defaulting to standard 8-bit byte)
+  const bitCount = currentDec > 255 ? (currentDec > 65535 ? 32 : 16) : 8;
   const currentBin = Conversions.decToBin(currentDec, bitCount);
 
   const stellenwertSteps = Conversions.getStellenwertSteps(currentDec, bitCount);
@@ -44,7 +38,6 @@ export function ExplainerModule({ onPlayClick }: ExplainerModuleProps) {
   const activeBitsCount = currentBin.split("").filter((b) => b === "1").length;
 
   const setPreset = (val: number) => {
-    onPlayClick();
     setFormat("dec");
     setInputValue(String(val));
   };
@@ -78,7 +71,6 @@ export function ExplainerModule({ onPlayClick }: ExplainerModuleProps) {
               <button
                 key={f.id}
                 onClick={() => {
-                  onPlayClick();
                   setFormat(f.id);
                   if (f.id === "dec") setInputValue(String(currentDec));
                   if (f.id === "bin") setInputValue(currentBin);

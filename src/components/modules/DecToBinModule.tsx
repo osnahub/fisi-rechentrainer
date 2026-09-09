@@ -6,16 +6,15 @@ import { Conversions, StellenwertStep } from "@/lib/conversions";
 import { Check, RefreshCw, Eye, Sparkles, AlertCircle, CheckCircle2 } from "lucide-react";
 
 interface DecToBinModuleProps {
-  onSuccess: () => void;
-  onError: () => void;
-  onPlayClick: () => void;
+  onSuccess?: () => void;
+  onError?: () => void;
+  onPlayClick?: () => void;
   onStreakUpdate?: (correct: boolean) => void;
 }
 
 export function DecToBinModule({
   onSuccess,
   onError,
-  onPlayClick,
   onStreakUpdate,
 }: DecToBinModuleProps) {
   const bitRange = 8;
@@ -65,7 +64,7 @@ export function DecToBinModule({
         isCorrect: true,
         message: `Perfekt! ${targetDec}₁₀ ist exakt ${Conversions.formatNibbles(targetBinary)}₂ binär.`,
       });
-      onSuccess();
+      onSuccess?.();
       onStreakUpdate?.(true);
     } else {
       const userDec = Conversions.binToDec(userBinary);
@@ -74,13 +73,12 @@ export function DecToBinModule({
         isCorrect: false,
         message: `Noch nicht ganz: Deine Bits ergeben aktuell ${userDec} (Differenz: ${diff > 0 ? "+" : ""}${diff}).`,
       });
-      onError();
+      onError?.();
       onStreakUpdate?.(false);
     }
   };
 
   const handleRevealSolution = () => {
-    onPlayClick();
     const steps = Conversions.getStellenwertSteps(targetDec, bitRange);
     setSolutionSteps(steps);
     setShowSolution(true);
@@ -101,10 +99,7 @@ export function DecToBinModule({
 
         <div className="flex items-center gap-1 p-0.5 rounded-xl bg-[var(--bg-input)] border border-[var(--border-color)]">
           <button
-            onClick={() => {
-              onPlayClick();
-              setInputMode("buttons");
-            }}
+            onClick={() => setInputMode("buttons")}
             className={`text-xs px-3 py-1 rounded-lg transition-all cursor-pointer font-medium ${
               inputMode === "buttons"
                 ? "bg-sky-500 text-white font-semibold shadow-sm"
@@ -114,10 +109,7 @@ export function DecToBinModule({
             Schalter
           </button>
           <button
-            onClick={() => {
-              onPlayClick();
-              setInputMode("text");
-            }}
+            onClick={() => setInputMode("text")}
             className={`text-xs px-3 py-1 rounded-lg transition-all cursor-pointer font-medium ${
               inputMode === "text"
                 ? "bg-sky-500 text-white font-semibold shadow-sm"
@@ -152,7 +144,7 @@ export function DecToBinModule({
         {/* Schalter-Eingabe mit didaktischer BitRow */}
         {inputMode === "buttons" && bitRange <= 8 ? (
           <div className="my-4 sm:my-6">
-            <BitRow bits={bits} onChange={setBits} onBitClick={onPlayClick} />
+            <BitRow bits={bits} onChange={setBits} />
             
             {/* Live-Summenanzeige */}
             <div className="mt-3 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-[var(--bg-input)] border border-[var(--border-color)] text-xs font-mono">
@@ -205,10 +197,7 @@ export function DecToBinModule({
           
           <div className="flex items-center gap-2 w-full xs:w-auto">
             <button
-              onClick={() => {
-                onPlayClick();
-                generateNewTask();
-              }}
+              onClick={() => generateNewTask()}
               className="flex-1 xs:flex-none min-h-[44px] flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-hover)] transition-all cursor-pointer text-xs font-medium"
             >
               <RefreshCw size={15} />

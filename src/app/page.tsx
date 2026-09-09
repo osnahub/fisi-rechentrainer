@@ -7,17 +7,14 @@ import { DecToBinModule } from "@/components/modules/DecToBinModule";
 import { BinToDecModule } from "@/components/modules/BinToDecModule";
 import { SubnetModule } from "@/components/modules/SubnetModule";
 import { ExplainerModule } from "@/components/modules/ExplainerModule";
-import { SprintModule } from "@/components/modules/SprintModule";
-import { useSound } from "@/hooks/useSound";
 import { useTheme } from "@/hooks/useTheme";
-import { Binary, Network, Calculator, Zap, ArrowRightLeft } from "lucide-react";
+import { Binary, Network, Calculator, ArrowRightLeft } from "lucide-react";
 
-type ModuleType = "dec2bin" | "bin2dec" | "subnet" | "explainer" | "sprint";
+type ModuleType = "dec2bin" | "bin2dec" | "subnet" | "explainer";
 
 export default function Home() {
   const [activeModule, setActiveModule] = useState<ModuleType>("dec2bin");
   const [streak, setStreak] = useState<number>(0);
-  const { enabled: soundEnabled, toggle: toggleSound, playClick, playSuccess, playError, playTrophy } = useSound();
   const { theme, toggleTheme } = useTheme();
 
   const handleStreakUpdate = (isCorrect: boolean) => {
@@ -29,28 +26,19 @@ export default function Home() {
     { id: "bin2dec", label: "Bin ➔ Dez", fullLabel: "Binär ➔ Dezimal", icon: ArrowRightLeft },
     { id: "subnet", label: "Subnetz", fullLabel: "Subnetz & CIDR", icon: Network },
     { id: "explainer", label: "Rechner", fullLabel: "Rechenhelfer", icon: Calculator },
-    { id: "sprint", label: "⚡ Sprint", fullLabel: "Prüfungs-Sprint", icon: Zap },
   ] as const;
 
   return (
     <div className="max-w-5xl mx-auto w-full px-3 sm:px-6 py-3 sm:py-6 flex-1 flex flex-col min-h-screen">
       {/* Header */}
       <Header
-        soundEnabled={soundEnabled}
-        onToggleSound={() => {
-          playClick();
-          toggleSound();
-        }}
         theme={theme}
-        onToggleTheme={() => {
-          playClick();
-          toggleTheme();
-        }}
+        onToggleTheme={toggleTheme}
         streak={streak}
       />
 
       {/* Didaktischer Spickzettel (Mobile First als Akkordeon) */}
-      <ReferenceBar onPlayClick={playClick} />
+      <ReferenceBar />
 
       {/* Hauptnavigation / Modul-Tabs (Mobile-optimiert mit horizontalem Scroll-Snap) */}
       <nav className="relative mb-5 sm:mb-6">
@@ -61,10 +49,7 @@ export default function Home() {
             return (
               <button
                 key={item.id}
-                onClick={() => {
-                  playClick();
-                  setActiveModule(item.id as ModuleType);
-                }}
+                onClick={() => setActiveModule(item.id as ModuleType)}
                 className={`snap-start flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm font-medium whitespace-nowrap transition-all cursor-pointer border ${
                   isActive
                     ? "bg-sky-500 text-white border-sky-400 font-semibold shadow-md shadow-sky-500/25 scale-[1.02]"
@@ -83,39 +68,16 @@ export default function Home() {
       {/* Aktiver Modulinhalt */}
       <main className="flex-1">
         {activeModule === "dec2bin" && (
-          <DecToBinModule
-            onSuccess={playSuccess}
-            onError={playError}
-            onPlayClick={playClick}
-            onStreakUpdate={handleStreakUpdate}
-          />
+          <DecToBinModule onStreakUpdate={handleStreakUpdate} />
         )}
         {activeModule === "bin2dec" && (
-          <BinToDecModule
-            onSuccess={playSuccess}
-            onError={playError}
-            onPlayClick={playClick}
-            onStreakUpdate={handleStreakUpdate}
-          />
+          <BinToDecModule onStreakUpdate={handleStreakUpdate} />
         )}
         {activeModule === "subnet" && (
-          <SubnetModule
-            onSuccess={playSuccess}
-            onError={playError}
-            onPlayClick={playClick}
-            onStreakUpdate={handleStreakUpdate}
-          />
+          <SubnetModule onStreakUpdate={handleStreakUpdate} />
         )}
         {activeModule === "explainer" && (
-          <ExplainerModule onPlayClick={playClick} />
-        )}
-        {activeModule === "sprint" && (
-          <SprintModule
-            onSuccess={playSuccess}
-            onError={playError}
-            onPlayClick={playClick}
-            onPlayTrophy={playTrophy}
-          />
+          <ExplainerModule />
         )}
       </main>
 

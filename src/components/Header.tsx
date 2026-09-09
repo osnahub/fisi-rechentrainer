@@ -1,19 +1,15 @@
 "use client";
 
 import React from "react";
-import { Volume2, VolumeX, Sun, Moon, Flame } from "lucide-react";
+import { Sun, Moon, Flame } from "lucide-react";
 
 interface HeaderProps {
-  soundEnabled: boolean;
-  onToggleSound: () => void;
   theme: "dark" | "light";
   onToggleTheme: () => void;
   streak?: number;
 }
 
 export function Header({
-  soundEnabled,
-  onToggleSound,
   theme,
   onToggleTheme,
   streak = 0,
@@ -49,15 +45,6 @@ export function Header({
             <span>{streak}</span>
           </div>
         )}
-
-        <button
-          onClick={onToggleSound}
-          className="w-10 h-10 sm:w-10.5 sm:h-10.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-hover)] transition-all cursor-pointer flex items-center justify-center"
-          title={soundEnabled ? "Ton ausschalten" : "Ton einschalten"}
-          aria-label={soundEnabled ? "Ton ausschalten" : "Ton einschalten"}
-        >
-          {soundEnabled ? <Volume2 size={18} className="text-sky-400" /> : <VolumeX size={18} />}
-        </button>
 
         <button
           onClick={onToggleTheme}

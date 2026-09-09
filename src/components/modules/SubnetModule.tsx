@@ -6,9 +6,9 @@ import { Conversions } from "@/lib/conversions";
 import { Check, RefreshCw, Eye, BookOpen, Sparkles, CheckCircle2, AlertCircle } from "lucide-react";
 
 interface SubnetModuleProps {
-  onSuccess: () => void;
-  onError: () => void;
-  onPlayClick: () => void;
+  onSuccess?: () => void;
+  onError?: () => void;
+  onPlayClick?: () => void;
   onStreakUpdate?: (correct: boolean) => void;
 }
 
@@ -17,7 +17,6 @@ type SubnetTaskType = "cidr2mask" | "mask2bin" | "magicNumber";
 export function SubnetModule({
   onSuccess,
   onError,
-  onPlayClick,
   onStreakUpdate,
 }: SubnetModuleProps) {
   const [taskType, setTaskType] = useState<SubnetTaskType>("cidr2mask");
@@ -64,14 +63,14 @@ export function SubnetModule({
         isCorrect: true,
         message: `Hervorragend! Richtig für ${currentEntry.cidr}: ${expected}.`,
       });
-      onSuccess();
+      onSuccess?.();
       onStreakUpdate?.(true);
     } else {
       setFeedback({
         isCorrect: false,
         message: `Leider falsch. Für ${currentEntry.cidr} lautet die richtige Antwort: ${expected}.`,
       });
-      onError();
+      onError?.();
       onStreakUpdate?.(false);
     }
   };
@@ -93,10 +92,7 @@ export function SubnetModule({
           ).map((t) => (
             <button
               key={t.id}
-              onClick={() => {
-                onPlayClick();
-                setTaskType(t.id);
-              }}
+              onClick={() => setTaskType(t.id)}
               className={`text-xs px-2.5 sm:px-3 py-1.5 rounded-xl border transition-all cursor-pointer font-medium ${
                 taskType === t.id
                   ? "bg-sky-500 text-white border-sky-400 font-semibold shadow-sm"
@@ -109,10 +105,7 @@ export function SubnetModule({
         </div>
 
         <button
-          onClick={() => {
-            onPlayClick();
-            setShowFullTable((prev) => !prev);
-          }}
+          onClick={() => setShowFullTable((prev) => !prev)}
           className={`text-xs px-3 py-1.5 rounded-xl border transition-all cursor-pointer flex items-center gap-1.5 font-medium ${
             showFullTable
               ? "bg-sky-500 text-white border-sky-400 shadow-sm"
@@ -212,20 +205,14 @@ export function SubnetModule({
 
           <div className="flex items-center gap-2 w-full xs:w-auto">
             <button
-              onClick={() => {
-                onPlayClick();
-                generateTask();
-              }}
+              onClick={() => generateTask()}
               className="flex-1 xs:flex-none min-h-[44px] flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-hover)] transition-all cursor-pointer text-xs font-medium"
             >
               <RefreshCw size={15} />
               <span>Nächste Aufgabe</span>
             </button>
             <button
-              onClick={() => {
-                onPlayClick();
-                setShowSolution(true);
-              }}
+              onClick={() => setShowSolution(true)}
               className="flex-1 xs:flex-none min-h-[44px] flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-sky-400 hover:border-sky-500/40 transition-all cursor-pointer text-xs font-medium"
             >
               <Eye size={15} />

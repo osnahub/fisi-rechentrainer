@@ -17,49 +17,39 @@ Dieses Tool trainiert gezielt:
 
 ## ✨ Features & Module
 
-### 1. Dezimal ➔ Binär
+### 1. Dezimal ➔ Binär (8-Bit)
 * **Interaktive Bit-Schalter:** 8 Bits mit Live-Zweierpotenz-Anzeige. Klick auf ein Bit schaltet es um und summiert in Echtzeit die aktuelle Summe.
-* **Freie Texteingabe:** Modus für schnelles Tippen (Tastatur-optimiert mit Enter-Bestätigung).
-* **Ausführlicher Lösungsweg:** Zeigt Schritt für Schritt die Stellenwertmethode.
-* **Bereiche:** 4-Bit (0–15), 8-Bit (0–255, FiSi-Standard) und 16-Bit (0–65535).
+* **Freie Tastatureingabe:** Modus für schnelles Tippen (Zifferneingabe, optimiert mit Enter-Bestätigung).
+* **Ausführlicher Lösungsweg:** Zeigt Schritt für Schritt die Subtraktionsmethode anhand der Zweierpotenzen.
+* **Fokusbereich:** 1 Byte / 8 Bits (\(0\) bis \(255\)), exakt passend für IPv4-Oktette.
 
-### 2. Binär ➔ Dezimal
-* Vorgegebenes Bitmuster mit Nibble-Trennzeichen (4er-Blöcke).
-* **Didaktische Einblendung:** Auf Wunsch können die Stellenwerte über den gesetzten Bits eingeblendet werden.
-* **Lösungsaufschlüsselung:** Zeigt die mathematische Addition aller gesetzten 1-Bits.
+### 2. Binär ➔ Dezimal (8-Bit)
+* Vorgegebenes 8-Bit-Muster, didaktisch in zwei 4er-Nibbles gegliedert.
+* **Zuschaltbare Stellenwerte:** Zeigt auf Wunsch die Zweierpotenzen sowie MSB (\(2^7=128\)) und LSB (\(2^0=1\)) über den Bits.
+* **Mathematische Polynomdarstellung:** Ausführliche Herleitung (\(\sum b_i \cdot 2^i\)) mit Hervorhebung aller aktiven 1-Bits.
 
-### 3. 0x HEX-Trainer (Hexadezimal & Nibbles)
-* **Binär ➔ Hex (Nibble-Methode):** Zerlegung des Bytes in High- und Low-Nibble (4 Bits) mit visuellen Kärtchen.
-* **Hex ➔ Binär (Expansion):** Umwandlung jeder Hex-Ziffer (`0–F`) in einen 4-Bit-Block.
-* **Dezimal ⇄ Hexadezimal:** Direkte Umrechnung mit Division durch 16 oder Stellenwert-Addition.
-* **Zuschaltbarer Nibble-Spickzettel:** Direkte Tabelle von `0000` (0) bis `1111` (F / 15).
-
-### 4. FiSi-Spezial: Subnetzmasken & IPv4-Oktette
+### 3. FiSi-Spezial: Subnetzmasken & IPv4-Oktette
 * Spezieller Trainer für die **9 prüfungsrelevanten Subnetz-Werte**: `0, 128, 192, 224, 240, 248, 252, 254, 255`.
 * Drei Übungsmodi:
-  * **CIDR ➔ Subnetzmaske:** z. B. Welcher Dezimalwert steht im 4. Oktett bei `/28`?
+  * **CIDR ➔ Subnetzmaske:** z. B. Welcher Dezimalwert steht im relevanten Oktett bei `/28`?
   * **Masken-Oktett ➔ Binär:** z. B. Was ist `240` binär (`11110000`)?
   * **Schrittweite (Magic Number):** `256 - Maske` zur schnellen Netzblock-Ermittlung.
 * Integrierte Referenztabelle mit Host-Bits, Gesamtadressen und nutzbaren Hosts.
 
-### 5. Schritt-für-Schritt Rechenhelfer (Erklär-Rechner)
-* Eingabe einer beliebigen Zahl als **Dezimal**, **Binär** oder **Hexadezimal**.
-* Parallele, tabellarische Aufschlüsselung von drei Wegen:
-  1. **Stellenwertmethode (Zweierpotenzen):** Der schnellste Weg im Kopf und auf Papier.
-  2. **Restwertmethode (Division durch 2 mit Rest):** Mit Verdeutlichung der Leserichtung von unten nach oben.
-  3. **Hexadezimal & Nibbles:** Nibble-Zerlegung und Division durch 16 mit Resten (`10=A` bis `15=F`).
-
-### 6. Prüfungs-Sprint (Speed Challenge)
-* 10 gemischte Aufgaben unter Zeitmessung (Dezimal, Binär, Subnetting und Hex).
-* Punktevergabe & Fehleranalyse am Ende: Zeigt genau, welche Aufgaben wiederholt werden sollten.
+### 4. Didaktischer Rechenhelfer (Erklär-Rechner)
+* Beliebige Eingabe einer Zahl als **Dezimal** oder **Binär**.
+* Parallele, übersichtliche Aufschlüsselung über drei didaktische Wege – vollständig ohne innere Scrollbalken:
+  1. **Weg 1: Stellenwertmethode (Subtraktionsverfahren):** Der schnellste Weg im Kopf und auf Prüfungs-Schmierzetteln.
+  2. **Weg 2: Division durch 2 mit Rest (Zweierrest-Verfahren):** Vollständig aufgelistet mit Resten und Leserichtung von unten nach oben.
+  3. **Weg 3: Polynom- & Potenzzerlegung:** Zerlegung nach Nibbles und mathematischer Formel (\(\sum b_i \cdot 2^i\)).
 
 ---
 
 ## 🛠️ Tech-Stack
 * **Framework:** [Next.js 15](https://nextjs.org/) (App Router, React 19, TypeScript)
 * **Styling:** [Tailwind CSS](https://tailwindcss.com/) mit dynamischem Dark- und Light-Theme
-* **Audio:** Web Audio API (100% synthetisiert, keine externen Sound-Assets erforderlich)
-* **Icons & Effekte:** Lucide React & Canvas-Confetti
+* **UX:** Mobil-optimiert (Mobile First), vollkommen lautlos ohne störende Töne, Touch-freundliche Eingaben
+* **Icons:** Lucide React
 
 ---
 
@@ -94,6 +84,6 @@ Dieses Tool trainiert gezielt:
 ## 🎨 Design & Barrierefreiheit
 
 * **Dark & Light Mode:** Wechsel per Klick auf die Sonne/Mond-Schaltfläche (wird im Browser gespeichert).
-* **Audio-Feedback:** Dezentes Ton-Feedback für Klicks, richtige und falsche Antworten (abschaltbar).
+* **Lautlos & Konzentriert:** Keine nervigen Töne oder Geräuscheffekte.
 * **Responsiv:** Optimiert für Smartphones, Laptops und Beamer-Projektionen im Klassenraum.
 * **Tastaturbedienung:** Schnelle Bestätigung über die <kbd>Enter</kbd>-Taste in allen Modulen.

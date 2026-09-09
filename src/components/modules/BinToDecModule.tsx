@@ -5,45 +5,36 @@ import { Conversions } from "@/lib/conversions";
 import { Check, RefreshCw, Eye, Sparkles, CheckCircle2, AlertCircle } from "lucide-react";
 
 interface BinToDecModuleProps {
-  onSuccess: () => void;
-  onError: () => void;
-  onPlayClick: () => void;
+  onSuccess?: () => void;
+  onError?: () => void;
+  onPlayClick?: () => void;
   onStreakUpdate?: (correct: boolean) => void;
 }
 
 export function BinToDecModule({
   onSuccess,
   onError,
-  onPlayClick,
   onStreakUpdate,
 }: BinToDecModuleProps) {
-  const [bitRange, setBitRange] = useState<4 | 8 | 16>(8);
   const [targetBinary, setTargetBinary] = useState<string>("00000000");
   const [showPowersHelper, setShowPowersHelper] = useState<boolean>(false);
   const [userDecInput, setUserDecInput] = useState<string>("");
   const [feedback, setFeedback] = useState<{ isCorrect: boolean; message: string } | null>(null);
   const [showSolution, setShowSolution] = useState<boolean>(false);
 
-  const generateNewTask = useCallback(
-    (range: 4 | 8 | 16 = bitRange) => {
-      let max = 255;
-      if (range === 4) max = 15;
-      if (range === 16) max = 65535;
+  const generateNewTask = useCallback(() => {
+    let val = Math.floor(Math.random() * 256);
+    if (val === 0) val = Math.floor(Math.random() * 255) + 1;
 
-      let val = Math.floor(Math.random() * (max + 1));
-      if (val === 0 && max > 10) val = Math.floor(Math.random() * max) + 1;
-
-      setTargetBinary(Conversions.decToBin(val, range));
-      setUserDecInput("");
-      setFeedback(null);
-      setShowSolution(false);
-    },
-    [bitRange]
-  );
+    setTargetBinary(Conversions.decToBin(val, 8));
+    setUserDecInput("");
+    setFeedback(null);
+    setShowSolution(false);
+  }, []);
 
   useEffect(() => {
-    generateNewTask(bitRange);
-  }, [bitRange, generateNewTask]);
+    generateNewTask();
+  }, [generateNewTask]);
 
   const targetDec = Conversions.binToDec(targetBinary);
   const bitArray = targetBinary.split("").map(Number);
@@ -52,7 +43,7 @@ export function BinToDecModule({
     const val = parseInt(userDecInput.trim(), 10);
     if (isNaN(val)) {
       setFeedback({ isCorrect: false, message: "Bitte eine gültige Dezimalzahl eingeben." });
-      onError();
+      onError?.();
       onStreakUpdate?.(false);
       return;
     }
@@ -62,7 +53,7 @@ export function BinToDecModule({
         isCorrect: true,
         message: `Richtig! ${Conversions.formatNibbles(targetBinary)}₂ entspricht ${targetDec}₁₀.`,
       });
-      onSuccess();
+      onSuccess?.();
       onStreakUpdate?.(true);
     } else {
       const diff = val - targetDec;
@@ -70,7 +61,7 @@ export function BinToDecModule({
         isCorrect: false,
         message: `Leider falsch: ${val} ist nicht korrekt (Differenz: ${diff > 0 ? "+" : ""}${diff}). Versuche es noch einmal!`,
       });
-      onError();
+      onError?.();
       onStreakUpdate?.(false);
     }
   };
@@ -129,32 +120,13 @@ export function BinToDecModule({
       {/* Steuerungsleiste */}
       <div className="flex flex-wrap items-center justify-between gap-2.5 p-2.5 sm:p-3 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-color)]">
         <div className="flex items-center gap-1.5">
-          <span className="text-xs font-semibold text-[var(--text-secondary)] mr-1 hidden sm:inline">
-            Bereich:
+          <span className="text-xs px-2.5 sm:px-3 py-1.5 rounded-xl border border-sky-500/30 bg-sky-500/10 text-sky-400 font-mono font-semibold">
+            8-Bit (1 Byte · Bereich 0 bis 255)
           </span>
-          {([4, 8, 16] as const).map((r) => (
-            <button
-              key={r}
-              onClick={() => {
-                onPlayClick();
-                setBitRange(r);
-              }}
-              className={`text-xs px-2.5 sm:px-3 py-1.5 rounded-xl border transition-all cursor-pointer font-mono font-medium ${
-                bitRange === r
-                  ? "bg-sky-500 text-white border-sky-400 font-bold shadow-sm"
-                  : "border-[var(--border-color)] text-[var(--text-secondary)] hover:border-[var(--border-hover)]"
-              }`}
-            >
-              {r}-Bit {r === 8 ? "★" : ""}
-            </button>
-          ))}
         </div>
 
         <button
-          onClick={() => {
-            onPlayClick();
-            setShowPowersHelper((prev) => !prev);
-          }}
+          onClick={() => setShowPowersHelper((prev) => !prev)}
           className={`text-xs px-3 py-1.5 rounded-xl border transition-all cursor-pointer font-medium flex items-center gap-1.5 ${
             showPowersHelper
               ? "bg-sky-500 text-white border-sky-400 font-semibold shadow-sm"
@@ -264,20 +236,14 @@ export function BinToDecModule({
 
           <div className="flex items-center gap-2 w-full xs:w-auto">
             <button
-              onClick={() => {
-                onPlayClick();
-                generateNewTask();
-              }}
+              onClick={() => generateNewTask()}
               className="flex-1 xs:flex-none min-h-[44px] flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-hover)] transition-all cursor-pointer text-xs font-medium"
             >
               <RefreshCw size={15} />
               <span>Neues Muster</span>
             </button>
             <button
-              onClick={() => {
-                onPlayClick();
-                setShowSolution(true);
-              }}
+              onClick={() => setShowSolution(true)}
               className="flex-1 xs:flex-none min-h-[44px] flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-sky-400 hover:border-sky-500/40 transition-all cursor-pointer text-xs font-medium"
             >
               <Eye size={15} />
