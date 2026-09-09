@@ -2,8 +2,8 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "FiSi-Dec-Bin-Hex-Trainer – Binär-, Dezimal- & Hex-Übungshilfe",
-  description: "Interaktives Trainingswerkzeug für Umschüler und Auszubildende zum Fachinformatiker für Systemintegration (FiSi) zur sicheren Beherrschung des Dualsystems, des Hexadezimalsystems und von IPv4-Oktetten.",
+  title: "FiSi-Rechentrainer – Binär-, Dezimal- & Subnetz-Trainer",
+  description: "Interaktiver Rechentrainer für Auszubildende und Umschüler zum Fachinformatiker für Systemintegration (FiSi). Dualsystem, Dezimalumrechnungen, Stellenwertmethode und IPv4-Subnetting.",
 };
 
 export const viewport: Viewport = {

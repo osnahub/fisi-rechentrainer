@@ -1,8 +1,6 @@
-# FiSi-Dec-Bin-Hex-Trainer – Binär-, Dezimal- & Hex-Übungshilfe
+# FiSi-Rechentrainer – Der interaktive Zahlensystem- & Subnetz-Trainer
 
-Ein interaktives Trainingswerkzeug für Umschüler und Auszubildende zum **Fachinformatiker für Systemintegration (FiSi)** zur sicheren Beherrschung des Dualsystems, des Hexadezimalsystems, von IPv4-Oktetten und IHK-Prüfungsaufgaben.
-
-🔗 **Live-Version:** [https://osnahub.github.io/fisi-dec-bin-hex-trainer/](https://osnahub.github.io/fisi-dec-bin-hex-trainer/)
+Ein interaktives Trainingswerkzeug für Auszubildende und Umschüler zum **Fachinformatiker für Systemintegration (FiSi)** zur sicheren Beherrschung des Dualsystems, von IPv4-Oktetten, Subnetting und IHK-Prüfungsaufgaben.
 
 ---
 

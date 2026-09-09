@@ -22,19 +22,19 @@ export function Header({
     <header className="flex items-center justify-between gap-3 py-3 sm:py-4 border-b border-[var(--border-color)]">
       <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
         <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-tr from-sky-600 via-indigo-600 to-cyan-400 flex items-center justify-center font-mono font-bold text-white shadow-lg shadow-sky-500/25 text-xs sm:text-sm shrink-0">
-          BIN
+          FiSi
         </div>
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <h1 className="text-base sm:text-xl font-bold tracking-tight text-[var(--text-primary)] truncate">
-              FiSi-Dec-Bin-Trainer
+              FiSi-Rechentrainer
             </h1>
             <span className="hidden md:inline-flex text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-sky-500/10 text-sky-400 border border-sky-500/20">
               IHK Prüfungsfit
             </span>
           </div>
           <p className="text-[11px] sm:text-xs text-[var(--text-secondary)] truncate">
-            Binär-, Dezimal- & IPv4-Subnetz-Trainer für Fachinformatiker
+            Der interaktive Zahlensystem- & Subnetz-Trainer für Fachinformatiker
           </p>
         </div>
       </div>

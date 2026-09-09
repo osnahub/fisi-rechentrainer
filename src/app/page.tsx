@@ -121,7 +121,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="mt-8 sm:mt-12 py-5 sm:py-6 border-t border-[var(--border-color)] text-center text-xs text-[var(--text-muted)] space-y-1.5">
-        <p>Entwickelt als interaktive Lern- & Prüfungshilfe für die Fachinformatiker-Ausbildung (FiSi / IHK).</p>
+        <p><strong>FiSi-Rechentrainer</strong> – Entwickelt als interaktive Lern- & Prüfungshilfe für die Fachinformatiker-Ausbildung (FiSi / IHK).</p>
         <p className="text-[11px] text-[var(--text-secondary)]">
           💡 Tastatur-Tipp: Drücke <kbd className="px-1.5 py-0.5 rounded-lg bg-[var(--bg-card-subtle)] border border-[var(--border-color)] font-mono text-[10px] text-[var(--text-primary)]">Enter</kbd> zum schnellen Prüfen oder Weitergehen.
         </p>
