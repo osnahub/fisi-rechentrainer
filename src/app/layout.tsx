@@ -1,9 +1,19 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "FiSi-Dec-Bin-Hex-Trainer – Binär-, Dezimal- & Hex-Übungshilfe",
   description: "Interaktives Trainingswerkzeug für Umschüler und Auszubildende zum Fachinformatiker für Systemintegration (FiSi) zur sicheren Beherrschung des Dualsystems, des Hexadezimalsystems und von IPv4-Oktetten.",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: "#090d16" },
+    { media: "(prefers-color-scheme: light)", color: "#f8fafc" },
+  ],
 };
 
 export default function RootLayout({

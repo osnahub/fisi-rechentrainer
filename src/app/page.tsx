@@ -17,20 +17,25 @@ type ModuleType = "dec2bin" | "bin2dec" | "hex" | "subnet" | "explainer" | "spri
 
 export default function Home() {
   const [activeModule, setActiveModule] = useState<ModuleType>("dec2bin");
+  const [streak, setStreak] = useState<number>(0);
   const { enabled: soundEnabled, toggle: toggleSound, playClick, playSuccess, playError, playTrophy } = useSound();
   const { theme, toggleTheme } = useTheme();
 
+  const handleStreakUpdate = (isCorrect: boolean) => {
+    setStreak((prev) => (isCorrect ? prev + 1 : 0));
+  };
+
   const navItems = [
-    { id: "dec2bin", label: "Dezimal ➔ Binär", icon: Binary },
-    { id: "bin2dec", label: "Binär ➔ Dezimal", icon: ArrowRightLeft },
-    { id: "hex", label: "0x HEX-Trainer", icon: Hash },
-    { id: "subnet", label: "Subnetzmasken & CIDR", icon: Network },
-    { id: "explainer", label: "Rechenhelfer", icon: Calculator },
-    { id: "sprint", label: "Prüfungs-Sprint", icon: Zap },
+    { id: "dec2bin", label: "Dez ➔ Bin", fullLabel: "Dezimal ➔ Binär", icon: Binary },
+    { id: "bin2dec", label: "Bin ➔ Dez", fullLabel: "Binär ➔ Dezimal", icon: ArrowRightLeft },
+    { id: "hex", label: "0x HEX", fullLabel: "0x HEX-Trainer", icon: Hash },
+    { id: "subnet", label: "Subnetz", fullLabel: "Subnetz & CIDR", icon: Network },
+    { id: "explainer", label: "Rechner", fullLabel: "Rechenhelfer", icon: Calculator },
+    { id: "sprint", label: "⚡ Sprint", fullLabel: "Prüfungs-Sprint", icon: Zap },
   ] as const;
 
   return (
-    <div className="max-w-5xl mx-auto w-full px-4 sm:px-6 py-6 flex-1 flex flex-col">
+    <div className="max-w-5xl mx-auto w-full px-3 sm:px-6 py-3 sm:py-6 flex-1 flex flex-col min-h-screen">
       {/* Header */}
       <Header
         soundEnabled={soundEnabled}
@@ -43,34 +48,38 @@ export default function Home() {
           playClick();
           toggleTheme();
         }}
+        streak={streak}
       />
 
-      {/* Didaktischer Spickzettel */}
+      {/* Didaktischer Spickzettel (Mobile First als Akkordeon) */}
       <ReferenceBar onPlayClick={playClick} />
 
-      {/* Hauptnavigation / Modul-Tabs */}
-      <nav className="flex items-center gap-1.5 overflow-x-auto pb-2 mb-6 border-b border-[var(--border-color)]">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = activeModule === item.id;
-          return (
-            <button
-              key={item.id}
-              onClick={() => {
-                playClick();
-                setActiveModule(item.id as ModuleType);
-              }}
-              className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition-all cursor-pointer border ${
-                isActive
-                  ? "bg-sky-500 text-white border-sky-400 font-semibold shadow-md shadow-sky-500/20"
-                  : "border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface)] hover:border-[var(--border-color)]"
-              }`}
-            >
-              <Icon size={16} />
-              <span>{item.label}</span>
-            </button>
-          );
-        })}
+      {/* Hauptnavigation / Modul-Tabs (Mobile-optimiert mit horizontalem Scroll-Snap) */}
+      <nav className="relative mb-5 sm:mb-6">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1.5 scrollbar-none snap-x snap-mandatory -mx-3 px-3 sm:mx-0 sm:px-0">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = activeModule === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => {
+                  playClick();
+                  setActiveModule(item.id as ModuleType);
+                }}
+                className={`snap-start flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm font-medium whitespace-nowrap transition-all cursor-pointer border ${
+                  isActive
+                    ? "bg-sky-500 text-white border-sky-400 font-semibold shadow-md shadow-sky-500/25 scale-[1.02]"
+                    : "border-[var(--border-color)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-hover)]"
+                }`}
+              >
+                <Icon size={16} className={isActive ? "text-white" : "text-sky-400"} />
+                <span className="inline sm:hidden">{item.label}</span>
+                <span className="hidden sm:inline">{item.fullLabel}</span>
+              </button>
+            );
+          })}
+        </div>
       </nav>
 
       {/* Aktiver Modulinhalt */}
@@ -80,6 +89,7 @@ export default function Home() {
             onSuccess={playSuccess}
             onError={playError}
             onPlayClick={playClick}
+            onStreakUpdate={handleStreakUpdate}
           />
         )}
         {activeModule === "bin2dec" && (
@@ -87,6 +97,7 @@ export default function Home() {
             onSuccess={playSuccess}
             onError={playError}
             onPlayClick={playClick}
+            onStreakUpdate={handleStreakUpdate}
           />
         )}
         {activeModule === "hex" && (
@@ -94,6 +105,7 @@ export default function Home() {
             onSuccess={playSuccess}
             onError={playError}
             onPlayClick={playClick}
+            onStreakUpdate={handleStreakUpdate}
           />
         )}
         {activeModule === "subnet" && (
@@ -101,6 +113,7 @@ export default function Home() {
             onSuccess={playSuccess}
             onError={playError}
             onPlayClick={playClick}
+            onStreakUpdate={handleStreakUpdate}
           />
         )}
         {activeModule === "explainer" && (
@@ -117,10 +130,10 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="mt-12 py-6 border-t border-[var(--border-color)] text-center text-xs text-[var(--text-muted)] space-y-1">
-        <p>Entwickelt als interaktive Lern- und Prüfungshilfe für die Fachinformatiker-Ausbildung & Umschulung.</p>
+      <footer className="mt-8 sm:mt-12 py-5 sm:py-6 border-t border-[var(--border-color)] text-center text-xs text-[var(--text-muted)] space-y-1.5">
+        <p>Entwickelt als interaktive Lern- & Prüfungshilfe für die Fachinformatiker-Ausbildung (FiSi / IHK).</p>
         <p className="text-[11px] text-[var(--text-secondary)]">
-          💡 Tipp: Drücke <kbd className="px-1.5 py-0.5 rounded bg-[var(--bg-card-subtle)] border border-[var(--border-color)] font-mono text-[10px]">Enter</kbd> zum schnellen Prüfen oder Weitergehen.
+          💡 Tastatur-Tipp: Drücke <kbd className="px-1.5 py-0.5 rounded-lg bg-[var(--bg-card-subtle)] border border-[var(--border-color)] font-mono text-[10px] text-[var(--text-primary)]">Enter</kbd> zum schnellen Prüfen oder Weitergehen.
         </p>
       </footer>
     </div>

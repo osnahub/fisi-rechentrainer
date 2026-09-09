@@ -2,17 +2,23 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { SUBNET_TABLE, SubnetEntry } from "@/lib/subnetData";
-import { Check, RefreshCw, Eye, BookOpen } from "lucide-react";
+import { Check, RefreshCw, Eye, BookOpen, Sparkles, CheckCircle2, AlertCircle } from "lucide-react";
 
 interface SubnetModuleProps {
   onSuccess: () => void;
   onError: () => void;
   onPlayClick: () => void;
+  onStreakUpdate?: (correct: boolean) => void;
 }
 
 type SubnetTaskType = "cidr2mask" | "mask2bin" | "magicNumber";
 
-export function SubnetModule({ onSuccess, onError, onPlayClick }: SubnetModuleProps) {
+export function SubnetModule({
+  onSuccess,
+  onError,
+  onPlayClick,
+  onStreakUpdate,
+}: SubnetModuleProps) {
   const [taskType, setTaskType] = useState<SubnetTaskType>("cidr2mask");
   const [currentEntry, setCurrentEntry] = useState<SubnetEntry>(SUBNET_TABLE[4]); // default /28
   const [userInput, setUserInput] = useState<string>("");
@@ -58,26 +64,30 @@ export function SubnetModule({ onSuccess, onError, onPlayClick }: SubnetModulePr
         message: `Hervorragend! Richtig für ${currentEntry.cidr}: ${expected}.`,
       });
       onSuccess();
+      onStreakUpdate?.(true);
     } else {
       setFeedback({
         isCorrect: false,
         message: `Leider falsch. Für ${currentEntry.cidr} lautet die richtige Antwort: ${expected}.`,
       });
       onError();
+      onStreakUpdate?.(false);
     }
   };
 
   return (
-    <div className="space-y-6">
-      {/* Modus-Auswahl */}
-      <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)]">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs font-semibold text-[var(--text-secondary)]">Übungsziel:</span>
+    <div className="space-y-4 sm:space-y-6">
+      {/* Modus-Auswahl & Referenz-Button */}
+      <div className="flex flex-wrap items-center justify-between gap-2.5 p-2.5 sm:p-3 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-color)]">
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="text-xs font-semibold text-[var(--text-secondary)] mr-1 hidden sm:inline">
+            Übungsziel:
+          </span>
           {(
             [
-              { id: "cidr2mask", label: "CIDR ➔ Subnetzmaske" },
-              { id: "mask2bin", label: "Masken-Oktett ➔ Binär" },
-              { id: "magicNumber", label: "Schrittweite (256 - Maske)" },
+              { id: "cidr2mask", label: "CIDR ➔ Maske" },
+              { id: "mask2bin", label: "Maske ➔ Binär" },
+              { id: "magicNumber", label: "Schrittweite" },
             ] as const
           ).map((t) => (
             <button
@@ -86,9 +96,9 @@ export function SubnetModule({ onSuccess, onError, onPlayClick }: SubnetModulePr
                 onPlayClick();
                 setTaskType(t.id);
               }}
-              className={`text-xs px-3 py-1.5 rounded-lg border transition-all cursor-pointer font-medium ${
+              className={`text-xs px-2.5 sm:px-3 py-1.5 rounded-xl border transition-all cursor-pointer font-medium ${
                 taskType === t.id
-                  ? "bg-sky-500 text-white border-sky-400 font-semibold"
+                  ? "bg-sky-500 text-white border-sky-400 font-semibold shadow-sm"
                   : "border-[var(--border-color)] text-[var(--text-secondary)] hover:border-[var(--border-hover)]"
               }`}
             >
@@ -102,28 +112,34 @@ export function SubnetModule({ onSuccess, onError, onPlayClick }: SubnetModulePr
             onPlayClick();
             setShowFullTable((prev) => !prev);
           }}
-          className={`text-xs px-3 py-1.5 rounded-lg border transition-all cursor-pointer flex items-center gap-1.5 ${
+          className={`text-xs px-3 py-1.5 rounded-xl border transition-all cursor-pointer flex items-center gap-1.5 font-medium ${
             showFullTable
-              ? "bg-sky-500/20 text-sky-400 border-sky-500/40"
-              : "border-[var(--border-color)] text-[var(--text-secondary)]"
+              ? "bg-sky-500 text-white border-sky-400 shadow-sm"
+              : "border-[var(--border-color)] text-[var(--text-secondary)] hover:border-[var(--border-hover)]"
           }`}
         >
-          <BookOpen size={14} /> {showFullTable ? "Subnetztabelle verbergen" : "IHK-Subnetztabelle"}
+          <BookOpen size={14} />
+          <span>{showFullTable ? "Tabelle verbergen" : "IHK-Tabelle"}</span>
         </button>
       </div>
 
       {/* Aufgaben-Karte */}
-      <div className="p-6 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-center shadow-sm">
-        <span className="text-xs uppercase font-bold tracking-wider text-sky-400">FiSi-Prüfungsfrage</span>
+      <div className="p-5 sm:p-8 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-center shadow-sm relative overflow-hidden">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/25 text-sky-400 text-xs font-bold uppercase tracking-wider mb-2">
+          <Sparkles size={13} />
+          <span>IHK-Prüfungsfrage</span>
+        </div>
 
         {taskType === "cidr2mask" && (
           <div>
-            <h3 className="text-sm text-[var(--text-secondary)] mt-1">
+            <h2 className="text-xs sm:text-sm text-[var(--text-secondary)] font-medium mt-1">
               Welcher Dezimalwert steht im 4. Oktett bei einem Subnetz mit Präfix:
-            </h3>
-            <div className="text-4xl sm:text-5xl font-mono font-bold text-[var(--text-primary)] my-4">
-              {currentEntry.cidr}
-              <span className="text-xs font-normal text-[var(--text-muted)] block mt-1">
+            </h2>
+            <div className="my-4 sm:my-6">
+              <span className="text-5xl sm:text-6xl font-mono font-extrabold text-[var(--text-primary)]">
+                {currentEntry.cidr}
+              </span>
+              <span className="text-xs font-mono text-[var(--text-muted)] block mt-2">
                 Maske: 255.255.255.<strong>?</strong>
               </span>
             </div>
@@ -132,12 +148,14 @@ export function SubnetModule({ onSuccess, onError, onPlayClick }: SubnetModulePr
 
         {taskType === "mask2bin" && (
           <div>
-            <h3 className="text-sm text-[var(--text-secondary)] mt-1">
+            <h2 className="text-xs sm:text-sm text-[var(--text-secondary)] font-medium mt-1">
               Wie lautet das Subnetz-Oktett als 8-Bit-Muster (z. B. 11110000)?
-            </h3>
-            <div className="text-4xl sm:text-5xl font-mono font-bold text-[var(--text-primary)] my-4">
-              .{currentEntry.maskOctet}
-              <span className="text-xs font-normal text-[var(--text-muted)] block mt-1">
+            </h2>
+            <div className="my-4 sm:my-6">
+              <span className="text-5xl sm:text-6xl font-mono font-extrabold text-[var(--text-primary)]">
+                .{currentEntry.maskOctet}
+              </span>
+              <span className="text-xs font-mono text-[var(--text-muted)] block mt-2">
                 (Präfix {currentEntry.cidr})
               </span>
             </div>
@@ -146,22 +164,27 @@ export function SubnetModule({ onSuccess, onError, onPlayClick }: SubnetModulePr
 
         {taskType === "magicNumber" && (
           <div>
-            <h3 className="text-sm text-[var(--text-secondary)] mt-1">
-              Wie groß ist die <strong>Schrittweite / Magic Number</strong> (256 - Maske) bei {currentEntry.cidr}?
-            </h3>
-            <div className="text-4xl sm:text-5xl font-mono font-bold text-[var(--text-primary)] my-4">
-              .{currentEntry.maskOctet}
-              <span className="text-xs font-normal text-[var(--text-muted)] block mt-1">
-                Formel: Schrittweite = 256 - Masken-Oktett
+            <h2 className="text-xs sm:text-sm text-[var(--text-secondary)] font-medium mt-1">
+              Wie groß ist die <strong>Schrittweite / Magic Number</strong> (256 - Maske)?
+            </h2>
+            <div className="my-4 sm:my-6">
+              <span className="text-5xl sm:text-6xl font-mono font-extrabold text-[var(--text-primary)]">
+                .{currentEntry.maskOctet}
+              </span>
+              <span className="text-xs font-mono text-sky-400 block mt-2 font-medium">
+                {currentEntry.cidr} ➔ Formel: 256 - {currentEntry.maskOctet} = ?
               </span>
             </div>
           </div>
         )}
 
-        {/* Eingabe */}
-        <div className="max-w-xs mx-auto my-4">
+        {/* Eingabefeld (Mobile-Optimiert) */}
+        <div className="max-w-xs mx-auto my-4 sm:my-6">
           <input
             type="text"
+            inputMode="numeric"
+            pattern={taskType === "mask2bin" ? "[01]*" : "[0-9]*"}
+            autoComplete="off"
             value={userInput}
             onChange={(e) => setUserInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && checkAnswer()}
@@ -172,77 +195,89 @@ export function SubnetModule({ onSuccess, onError, onPlayClick }: SubnetModulePr
                 ? "z. B. 11110000"
                 : "z. B. 16"
             }
-            className="w-full text-center font-mono text-2xl py-3 px-4 rounded-xl border border-[var(--border-color)] bg-[var(--bg-input)] text-[var(--text-primary)] focus:outline-none focus:border-sky-400 transition-all"
+            className="w-full text-center font-mono text-2xl sm:text-3xl py-3 px-4 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-input)] text-[var(--text-primary)] focus:outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-500/20 transition-all"
           />
         </div>
 
-        {/* Buttons */}
-        <div className="flex flex-wrap items-center justify-center gap-3 mt-5">
+        {/* Aktionsleiste */}
+        <div className="flex flex-col xs:flex-row items-center justify-center gap-2.5 sm:gap-3 mt-5">
           <button
             onClick={checkAnswer}
-            className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-600 text-white font-semibold transition-all cursor-pointer shadow-md shadow-sky-500/20"
+            className="w-full xs:w-auto min-h-[44px] flex items-center justify-center gap-2 px-7 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-600 hover:to-sky-700 text-white font-semibold transition-all cursor-pointer shadow-md shadow-sky-500/25"
           >
-            <Check size={18} /> Prüfen
+            <Check size={18} />
+            <span>Ergebnis prüfen</span>
           </button>
-          <button
-            onClick={() => {
-              onPlayClick();
-              generateTask();
-            }}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[var(--border-color)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-hover)] transition-all cursor-pointer"
-          >
-            <RefreshCw size={16} /> Nächste Aufgabe
-          </button>
-          <button
-            onClick={() => {
-              onPlayClick();
-              setShowSolution(true);
-            }}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[var(--border-color)] text-[var(--text-secondary)] hover:text-sky-400 hover:border-sky-500/40 transition-all cursor-pointer text-xs"
-          >
-            <Eye size={16} /> Lösungsweg
-          </button>
+
+          <div className="flex items-center gap-2 w-full xs:w-auto">
+            <button
+              onClick={() => {
+                onPlayClick();
+                generateTask();
+              }}
+              className="flex-1 xs:flex-none min-h-[44px] flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-hover)] transition-all cursor-pointer text-xs font-medium"
+            >
+              <RefreshCw size={15} />
+              <span>Nächste Aufgabe</span>
+            </button>
+            <button
+              onClick={() => {
+                onPlayClick();
+                setShowSolution(true);
+              }}
+              className="flex-1 xs:flex-none min-h-[44px] flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-sky-400 hover:border-sky-500/40 transition-all cursor-pointer text-xs font-medium"
+            >
+              <Eye size={15} />
+              <span>Lösungsweg</span>
+            </button>
+          </div>
         </div>
 
         {/* Feedback */}
         {feedback && (
           <div
-            className={`mt-5 p-3.5 rounded-xl text-sm font-medium border ${
+            className={`mt-5 p-3.5 sm:p-4 rounded-2xl text-xs sm:text-sm font-medium border flex items-center justify-center gap-2 animate-pop-in ${
               feedback.isCorrect
-                ? "bg-emerald-500/10 border-emerald-500/40 text-emerald-400"
-                : "bg-rose-500/10 border-rose-500/40 text-rose-400"
+                ? "bg-[var(--success-bg)] border-[var(--success-border)] text-[var(--success-text)]"
+                : "bg-[var(--error-bg)] border-[var(--error-border)] text-[var(--error-text)]"
             }`}
           >
-            {feedback.message}
+            {feedback.isCorrect ? (
+              <CheckCircle2 size={18} className="shrink-0" />
+            ) : (
+              <AlertCircle size={18} className="shrink-0" />
+            )}
+            <span>{feedback.message}</span>
           </div>
         )}
       </div>
 
       {/* Lösungsweg Details */}
       {showSolution && (
-        <div className="p-5 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-xs font-mono">
-          <h4 className="font-semibold text-sm text-[var(--text-primary)] mb-3">
-            📖 Vollständiges Profil für {currentEntry.cidr}:
-          </h4>
-          <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-3">
-            <div className="p-3 rounded-xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)]">
-              <span className="text-[var(--text-muted)] block">Subnetzmaske</span>
-              <span className="text-base font-bold text-sky-400">255.255.255.{currentEntry.maskOctet}</span>
+        <div className="p-4 sm:p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] font-mono text-xs animate-pop-in">
+          <h3 className="font-semibold text-xs sm:text-sm text-[var(--text-primary)] mb-3 flex items-center gap-2">
+            <span className="w-5 h-5 rounded-md bg-sky-500/20 text-sky-400 flex items-center justify-center text-xs">📖</span>
+            Vollständiges Profil für {currentEntry.cidr}:
+          </h3>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+            <div className="p-3 rounded-2xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)]">
+              <span className="text-[10px] text-[var(--text-muted)] block">Subnetzmaske</span>
+              <span className="text-sm sm:text-base font-bold text-sky-400">255.255.255.{currentEntry.maskOctet}</span>
             </div>
-            <div className="p-3 rounded-xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)]">
-              <span className="text-[var(--text-muted)] block">Binärmuster</span>
-              <span className="text-base font-bold text-sky-400">{currentEntry.binaryOctet}</span>
+            <div className="p-3 rounded-2xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)]">
+              <span className="text-[10px] text-[var(--text-muted)] block">Binärmuster</span>
+              <span className="text-xs sm:text-sm font-bold text-sky-400">{currentEntry.binaryOctet}</span>
             </div>
-            <div className="p-3 rounded-xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)]">
-              <span className="text-[var(--text-muted)] block">Schrittweite</span>
-              <span className="text-base font-bold text-indigo-400">{currentEntry.magicNumber} Adressen</span>
+            <div className="p-3 rounded-2xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)]">
+              <span className="text-[10px] text-[var(--text-muted)] block">Schrittweite</span>
+              <span className="text-sm sm:text-base font-bold text-indigo-400">{currentEntry.magicNumber} Adressen</span>
             </div>
-            <div className="p-3 rounded-xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)]">
-              <span className="text-[var(--text-muted)] block">Nutzbare Hosts</span>
-              <span className="text-base font-bold text-emerald-400">{currentEntry.usableHosts} Hosts</span>
+            <div className="p-3 rounded-2xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)]">
+              <span className="text-[10px] text-[var(--text-muted)] block">Nutzbare Hosts</span>
+              <span className="text-sm sm:text-base font-bold text-emerald-400">{currentEntry.usableHosts} Hosts</span>
             </div>
           </div>
-          <div className="mt-3 text-[var(--text-muted)]">
+          <div className="mt-3 text-[var(--text-muted)] text-[11px]">
             Info: {currentEntry.notes} (Host-Bits: {currentEntry.hostBits})
           </div>
         </div>
@@ -250,20 +285,20 @@ export function SubnetModule({ onSuccess, onError, onPlayClick }: SubnetModulePr
 
       {/* Gesamte Referenztabelle */}
       {showFullTable && (
-        <div className="p-5 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-color)] overflow-x-auto">
-          <h4 className="font-semibold text-sm text-[var(--text-primary)] mb-3">
-            📊 Die 9 magischen Werte der IPv4-Subnetzmasken:
-          </h4>
-          <table className="w-full text-xs font-mono border-collapse">
+        <div className="p-4 sm:p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] overflow-x-auto animate-pop-in">
+          <h3 className="font-semibold text-xs sm:text-sm text-[var(--text-primary)] mb-3">
+            📊 Die 9 magischen Werte der IPv4-Subnetzmasken (4. Oktett):
+          </h3>
+          <table className="w-full text-xs font-mono border-collapse min-w-[500px]">
             <thead>
               <tr className="border-b border-[var(--border-color)] text-[var(--text-muted)] text-left">
-                <th className="py-2">CIDR</th>
-                <th className="py-2">Dezimal</th>
-                <th className="py-2">Binär</th>
-                <th className="py-2">Schrittweite</th>
-                <th className="py-2">Hosts (ges.)</th>
-                <th className="py-2">Nutzbar</th>
-                <th className="py-2">Einsatzzweck</th>
+                <th className="py-2 px-2">CIDR</th>
+                <th className="py-2 px-2">Dezimal</th>
+                <th className="py-2 px-2">Binär</th>
+                <th className="py-2 px-2">Schrittweite</th>
+                <th className="py-2 px-2">Hosts (ges.)</th>
+                <th className="py-2 px-2">Nutzbar</th>
+                <th className="py-2 px-2">Einsatzzweck</th>
               </tr>
             </thead>
             <tbody>
@@ -274,13 +309,13 @@ export function SubnetModule({ onSuccess, onError, onPlayClick }: SubnetModulePr
                     row.cidr === currentEntry.cidr ? "bg-sky-500/10 font-bold" : ""
                   }`}
                 >
-                  <td className="py-2 text-sky-400">{row.cidr}</td>
-                  <td className="py-2">{row.maskOctet}</td>
-                  <td className="py-2">{row.binaryOctet}</td>
-                  <td className="py-2 text-indigo-400">{row.magicNumber}</td>
-                  <td className="py-2">{row.totalHosts}</td>
-                  <td className="py-2 text-emerald-400">{row.usableHosts}</td>
-                  <td className="py-2 text-[var(--text-muted)]">{row.notes}</td>
+                  <td className="py-2 px-2 text-sky-400">{row.cidr}</td>
+                  <td className="py-2 px-2 font-semibold">{row.maskOctet}</td>
+                  <td className="py-2 px-2">{row.binaryOctet}</td>
+                  <td className="py-2 px-2 text-indigo-400 font-semibold">{row.magicNumber}</td>
+                  <td className="py-2 px-2">{row.totalHosts}</td>
+                  <td className="py-2 px-2 text-emerald-400 font-semibold">{row.usableHosts}</td>
+                  <td className="py-2 px-2 text-[var(--text-muted)] text-[11px]">{row.notes}</td>
                 </tr>
               ))}
             </tbody>

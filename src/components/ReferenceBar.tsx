@@ -2,125 +2,202 @@
 
 import React, { useState } from "react";
 import { POWERS_OF_TWO_8BIT, SUBNET_TABLE, NIBBLE_TABLE } from "@/lib/subnetData";
+import { ChevronDown, ChevronUp, Sparkles, Hash, Network, HelpCircle } from "lucide-react";
 
 interface ReferenceBarProps {
   onPlayClick?: () => void;
 }
 
+type TabType = "powers" | "subnet" | "nibbles";
+
 export function ReferenceBar({ onPlayClick }: ReferenceBarProps) {
-  const [showSubnetDetails, setShowSubnetDetails] = useState(false);
-  const [showNibbles, setShowNibbles] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<TabType>("powers");
+
+  const toggleOpen = () => {
+    onPlayClick?.();
+    setIsOpen((prev) => !prev);
+  };
+
+  const handleTabChange = (tab: TabType) => {
+    onPlayClick?.();
+    setActiveTab(tab);
+  };
 
   return (
-    <aside className="my-5 p-4 rounded-xl border border-[var(--border-color)] bg-[var(--bg-surface)] shadow-sm">
-      <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[var(--border-color)]">
-        <span className="font-semibold text-sm flex items-center gap-1.5 text-[var(--text-primary)]">
-          ⚡ Zweierpotenzen-Spickzettel <span className="text-xs text-[var(--text-muted)] font-normal">(8-Bit Oktett / IPv4)</span>
-        </span>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => {
-              onPlayClick?.();
-              setShowNibbles((prev) => !prev);
-            }}
-            className={`text-xs px-3 py-1.5 rounded-lg border transition-all cursor-pointer font-medium ${
-              showNibbles
-                ? "bg-sky-500/20 text-sky-400 border-sky-500/40"
-                : "border-[var(--border-color)] text-[var(--text-secondary)] hover:border-[var(--border-hover)]"
-            }`}
-          >
-            🧩 Nibble-/Hex-Tabelle
-          </button>
-          <button
-            onClick={() => {
-              onPlayClick?.();
-              setShowSubnetDetails((prev) => !prev);
-            }}
-            className={`text-xs px-3 py-1.5 rounded-lg border transition-all cursor-pointer font-medium ${
-              showSubnetDetails
-                ? "bg-sky-500/20 text-sky-400 border-sky-500/40"
-                : "border-[var(--border-color)] text-[var(--text-secondary)] hover:border-[var(--border-hover)]"
-            }`}
-          >
-            {showSubnetDetails ? "Subnetz-Details ausblenden" : "Subnetz-Details einblenden"}
-          </button>
-        </div>
-      </div>
-
-      {/* Zweierpotenzen Tabelle */}
-      <div className="overflow-x-auto mt-3">
-        <table className="w-full text-center text-xs sm:text-sm font-mono border-collapse">
-          <thead>
-            <tr className="text-[var(--text-muted)] border-b border-[var(--border-color)]/60">
-              <th className="py-1.5 px-2 text-left font-normal">Potenz</th>
-              {POWERS_OF_TWO_8BIT.map((p) => (
-                <th key={p.power} className="py-1.5 px-2 font-medium text-sky-400">
-                  2<sup>{p.power}</sup>
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            <tr className="border-b border-[var(--border-color)]/40 font-semibold text-[var(--text-primary)]">
-              <td className="py-2 px-2 text-left text-[var(--text-secondary)] font-normal">Wert</td>
-              {POWERS_OF_TWO_8BIT.map((p) => (
-                <td key={p.power} className="py-2 px-2">
-                  {p.value}
-                </td>
-              ))}
-            </tr>
-            {showSubnetDetails && (
-              <>
-                <tr className="border-b border-[var(--border-color)]/40 text-emerald-400 font-medium">
-                  <td className="py-2 px-2 text-left text-[var(--text-secondary)] font-normal">
-                    Kumulativ (Maske)
-                  </td>
-                  <td>128</td>
-                  <td>192</td>
-                  <td>224</td>
-                  <td>240</td>
-                  <td>248</td>
-                  <td>252</td>
-                  <td>254</td>
-                  <td>255</td>
-                </tr>
-                <tr className="text-indigo-400 font-medium">
-                  <td className="py-2 px-2 text-left text-[var(--text-secondary)] font-normal">
-                    CIDR (4. Oktett)
-                  </td>
-                  <td>/25</td>
-                  <td>/26</td>
-                  <td>/27</td>
-                  <td>/28</td>
-                  <td>/29</td>
-                  <td>/30</td>
-                  <td>/31</td>
-                  <td>/32</td>
-                </tr>
-              </>
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Ausklappbare Nibble Referenz */}
-      {showNibbles && (
-        <div className="mt-4 pt-4 border-t border-[var(--border-color)]">
-          <h4 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)] mb-3">
-            🧩 Das 4-Bit Nibble-Prinzip (0 bis 15 ➔ 0 bis F)
-          </h4>
-          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-2 font-mono text-xs">
-            {NIBBLE_TABLE.map((n) => (
-              <div
-                key={n.hex}
-                className="p-2 rounded-lg border border-[var(--border-color)] bg-[var(--bg-card-subtle)] flex flex-col items-center gap-0.5"
-              >
-                <div className="font-bold text-sky-400 text-sm">0x{n.hex}</div>
-                <div className="text-[var(--text-primary)] font-medium">{n.bin}</div>
-                <div className="text-[var(--text-muted)] text-[10px]">Dez: {n.dec}</div>
-              </div>
-            ))}
+    <aside className="my-3 sm:my-4 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-surface)] shadow-sm transition-all overflow-hidden">
+      {/* Header / Accordion Trigger */}
+      <button
+        onClick={toggleOpen}
+        type="button"
+        className="w-full px-3.5 py-2.5 sm:px-4 sm:py-3 flex items-center justify-between gap-2 text-left cursor-pointer hover:bg-[var(--bg-card-subtle)] transition-colors select-none"
+        aria-expanded={isOpen}
+      >
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="w-6 h-6 rounded-lg bg-sky-500/10 text-sky-400 border border-sky-500/20 flex items-center justify-center shrink-0">
+            <Sparkles size={14} />
           </div>
+          <span className="font-semibold text-xs sm:text-sm text-[var(--text-primary)] truncate">
+            Didaktischer Spickzettel
+          </span>
+          <span className="text-[10px] sm:text-xs text-[var(--text-muted)] font-normal hidden xs:inline truncate">
+            (Zweierpotenzen, Subnetz & Nibbles)
+          </span>
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
+          <span className="text-[11px] font-medium text-sky-400">
+            {isOpen ? "Ausblenden" : "Einblenden"}
+          </span>
+          <div className="w-6 h-6 rounded-lg border border-[var(--border-color)] flex items-center justify-center text-[var(--text-muted)]">
+            {isOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+          </div>
+        </div>
+      </button>
+
+      {/* Accordion Content */}
+      {isOpen && (
+        <div className="p-3 sm:p-4 border-t border-[var(--border-color)] bg-[var(--bg-card-subtle)] animate-pop-in">
+          {/* Tab Selector */}
+          <div className="flex items-center gap-1.5 p-1 rounded-xl bg-[var(--bg-input)] border border-[var(--border-color)] max-w-md mx-auto mb-3.5">
+            <button
+              onClick={() => handleTabChange("powers")}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+                activeTab === "powers"
+                  ? "bg-sky-500 text-white font-semibold shadow-sm"
+                  : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+              }`}
+            >
+              <Sparkles size={13} />
+              <span>Zweierpotenzen</span>
+            </button>
+            <button
+              onClick={() => handleTabChange("subnet")}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+                activeTab === "subnet"
+                  ? "bg-sky-500 text-white font-semibold shadow-sm"
+                  : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+              }`}
+            >
+              <Network size={13} />
+              <span>Subnetz / CIDR</span>
+            </button>
+            <button
+              onClick={() => handleTabChange("nibbles")}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+                activeTab === "nibbles"
+                  ? "bg-sky-500 text-white font-semibold shadow-sm"
+                  : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+              }`}
+            >
+              <Hash size={13} />
+              <span>Hex-Nibbles</span>
+            </button>
+          </div>
+
+          {/* Tab 1: Zweierpotenzen (Mobile-optimiert als 2 Nibbles) */}
+          {activeTab === "powers" && (
+            <div className="space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-w-xl mx-auto font-mono text-xs">
+                {/* High Nibble */}
+                <div className="p-2.5 rounded-xl border border-sky-500/25 bg-[var(--bg-surface)]">
+                  <span className="text-[11px] font-bold text-sky-400 block mb-1.5 uppercase tracking-wider">
+                    High Nibble (Bits 7..4)
+                  </span>
+                  <div className="grid grid-cols-4 gap-1 text-center">
+                    {POWERS_OF_TWO_8BIT.slice(0, 4).map((p) => (
+                      <div
+                        key={p.power}
+                        className="p-1.5 rounded-lg bg-[var(--bg-card-subtle)] border border-[var(--border-color)]"
+                      >
+                        <div className="text-[10px] text-[var(--text-muted)]">2^{p.power}</div>
+                        <div className="text-xs sm:text-sm font-bold text-[var(--text-primary)]">
+                          {p.value}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Low Nibble */}
+                <div className="p-2.5 rounded-xl border border-indigo-500/25 bg-[var(--bg-surface)]">
+                  <span className="text-[11px] font-bold text-indigo-400 block mb-1.5 uppercase tracking-wider">
+                    Low Nibble (Bits 3..0)
+                  </span>
+                  <div className="grid grid-cols-4 gap-1 text-center">
+                    {POWERS_OF_TWO_8BIT.slice(4, 8).map((p) => (
+                      <div
+                        key={p.power}
+                        className="p-1.5 rounded-lg bg-[var(--bg-card-subtle)] border border-[var(--border-color)]"
+                      >
+                        <div className="text-[10px] text-[var(--text-muted)]">2^{p.power}</div>
+                        <div className="text-xs sm:text-sm font-bold text-[var(--text-primary)]">
+                          {p.value}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <p className="text-[11px] text-center text-[var(--text-muted)]">
+                💡 Merkregel: Jede Stelle nach links verdoppelt ihren Wert (1, 2, 4, 8, 16, 32, 64, 128).
+              </p>
+            </div>
+          )}
+
+          {/* Tab 2: Subnetzmasken */}
+          {activeTab === "subnet" && (
+            <div className="overflow-x-auto">
+              <table className="w-full text-center text-[11px] sm:text-xs font-mono border-collapse min-w-[320px]">
+                <thead>
+                  <tr className="text-[var(--text-muted)] border-b border-[var(--border-color)]">
+                    <th className="py-1.5 px-1.5 text-left font-medium">CIDR</th>
+                    <th className="py-1.5 px-1.5 font-medium text-sky-400">Masken-Oktett</th>
+                    <th className="py-1.5 px-1.5 font-medium text-indigo-400">Schrittweite</th>
+                    <th className="py-1.5 px-1.5 font-medium text-emerald-400">Nutzbar</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {SUBNET_TABLE.map((row) => (
+                    <tr
+                      key={row.cidr}
+                      className="border-b border-[var(--border-color)]/30 hover:bg-[var(--bg-surface)] transition-colors"
+                    >
+                      <td className="py-1.5 px-1.5 text-left font-bold text-sky-400">{row.cidr}</td>
+                      <td className="py-1.5 px-1.5 font-semibold">.{row.maskOctet}</td>
+                      <td className="py-1.5 px-1.5 text-indigo-400 font-medium">{row.magicNumber}</td>
+                      <td className="py-1.5 px-1.5 text-emerald-400 font-medium">{row.usableHosts}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <p className="text-[11px] text-center text-[var(--text-muted)] mt-2">
+                💡 Magic Number Formel: <strong className="text-[var(--text-secondary)]">256 - Masken-Oktett = Schrittweite</strong>
+              </p>
+            </div>
+          )}
+
+          {/* Tab 3: Nibbles / Hex */}
+          {activeTab === "nibbles" && (
+            <div>
+              <div className="grid grid-cols-4 sm:grid-cols-8 gap-1.5 font-mono text-xs max-w-xl mx-auto">
+                {NIBBLE_TABLE.map((n) => (
+                  <div
+                    key={n.hex}
+                    className="p-1.5 rounded-lg border border-[var(--border-color)] bg-[var(--bg-surface)] flex flex-col items-center gap-0.5"
+                  >
+                    <div className="font-bold text-sky-400 text-xs sm:text-sm">0x{n.hex}</div>
+                    <div className="text-[var(--text-primary)] text-[11px]">{n.bin}</div>
+                    <div className="text-[var(--text-muted)] text-[9px]">{n.dec}</div>
+                  </div>
+                ))}
+              </div>
+              <p className="text-[11px] text-center text-[var(--text-muted)] mt-2">
+                💡 Ein 8-Bit-Byte besteht aus 2 Nibbles (jeweils 4 Bits von 0 bis 15 bzw. 0x0 bis 0xF).
+              </p>
+            </div>
+          )}
         </div>
       )}
     </aside>

@@ -1,13 +1,14 @@
 "use client";
 
 import React from "react";
-import { Volume2, VolumeX, Sun, Moon } from "lucide-react";
+import { Volume2, VolumeX, Sun, Moon, Flame } from "lucide-react";
 
 interface HeaderProps {
   soundEnabled: boolean;
   onToggleSound: () => void;
   theme: "dark" | "light";
   onToggleTheme: () => void;
+  streak?: number;
 }
 
 export function Header({
@@ -15,40 +16,60 @@ export function Header({
   onToggleSound,
   theme,
   onToggleTheme,
+  streak = 0,
 }: HeaderProps) {
   return (
-    <header className="flex flex-wrap items-center justify-between gap-4 py-4 border-b border-[var(--border-color)]">
-      <div className="flex items-center gap-3">
-        <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-sky-600 to-indigo-500 flex items-center justify-center font-mono font-bold text-white shadow-lg shadow-sky-500/20 text-sm">
+    <header className="flex items-center justify-between gap-3 py-3 sm:py-4 border-b border-[var(--border-color)]">
+      <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
+        <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-tr from-sky-600 via-indigo-600 to-cyan-400 flex items-center justify-center font-mono font-bold text-white shadow-lg shadow-sky-500/25 text-xs sm:text-sm shrink-0">
           0x01
         </div>
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[var(--text-primary)]">
-            FiSi-Dec-Bin-Hex-Trainer
-          </h1>
-          <p className="text-xs sm:text-sm text-[var(--text-secondary)]">
-            Binär-, Dezimal- & Hex-Trainer für Fachinformatiker Systemintegration
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <h1 className="text-base sm:text-xl font-bold tracking-tight text-[var(--text-primary)] truncate">
+              FiSi-Dec-Bin-Hex-Trainer
+            </h1>
+            <span className="hidden md:inline-flex text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-sky-500/10 text-sky-400 border border-sky-500/20">
+              IHK Prüfungsfit
+            </span>
+          </div>
+          <p className="text-[11px] sm:text-xs text-[var(--text-secondary)] truncate">
+            Binär-, Dezimal- & Hex-Trainer für Fachinformatiker
           </p>
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+        {streak > 0 && (
+          <div
+            className="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-xs font-bold animate-pop-in"
+            title={`Serie: ${streak} Aufgaben in Folge richtig!`}
+          >
+            <Flame size={14} className="fill-amber-400 text-amber-400" />
+            <span>{streak}</span>
+          </div>
+        )}
+
         <button
           onClick={onToggleSound}
-          className="p-2.5 rounded-lg border border-[var(--border-color)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-hover)] transition-all cursor-pointer"
+          className="w-10 h-10 sm:w-10.5 sm:h-10.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-hover)] transition-all cursor-pointer flex items-center justify-center"
           title={soundEnabled ? "Ton ausschalten" : "Ton einschalten"}
-          aria-label="Ton an oder aus"
+          aria-label={soundEnabled ? "Ton ausschalten" : "Ton einschalten"}
         >
-          {soundEnabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
+          {soundEnabled ? <Volume2 size={18} className="text-sky-400" /> : <VolumeX size={18} />}
         </button>
 
         <button
           onClick={onToggleTheme}
-          className="p-2.5 rounded-lg border border-[var(--border-color)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-hover)] transition-all cursor-pointer"
+          className="w-10 h-10 sm:w-10.5 sm:h-10.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-hover)] transition-all cursor-pointer flex items-center justify-center"
           title={theme === "dark" ? "Helles Design aktivieren" : "Dunkles Design aktivieren"}
-          aria-label="Design umschalten"
+          aria-label={theme === "dark" ? "Helles Design aktivieren" : "Dunkles Design aktivieren"}
         >
-          {theme === "dark" ? <Sun size={18} className="text-amber-400" /> : <Moon size={18} className="text-sky-600" />}
+          {theme === "dark" ? (
+            <Sun size={18} className="text-amber-400" />
+          ) : (
+            <Moon size={18} className="text-sky-600" />
+          )}
         </button>
       </div>
     </header>

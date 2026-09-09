@@ -3,17 +3,23 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Conversions } from "@/lib/conversions";
 import { NIBBLE_TABLE } from "@/lib/subnetData";
-import { Check, RefreshCw, Eye } from "lucide-react";
+import { Check, RefreshCw, Eye, Sparkles, CheckCircle2, AlertCircle } from "lucide-react";
 
 interface HexModuleProps {
   onSuccess: () => void;
   onError: () => void;
   onPlayClick: () => void;
+  onStreakUpdate?: (correct: boolean) => void;
 }
 
 type HexSubMode = "bin2hex" | "hex2bin" | "dec2hex" | "hex2dec";
 
-export function HexModule({ onSuccess, onError, onPlayClick }: HexModuleProps) {
+export function HexModule({
+  onSuccess,
+  onError,
+  onPlayClick,
+  onStreakUpdate,
+}: HexModuleProps) {
   const [subMode, setSubMode] = useState<HexSubMode>("bin2hex");
   const [taskVal, setTaskVal] = useState<number>(0); // 0-255 (1 Byte)
   const [userInput, setUserInput] = useState<string>("");
@@ -71,65 +77,76 @@ export function HexModule({ onSuccess, onError, onPlayClick }: HexModuleProps) {
         message: `Exzellent! Das Ergebnis ist korrekt (${correctStr}).`,
       });
       onSuccess();
+      onStreakUpdate?.(true);
     } else {
       setFeedback({
         isCorrect: false,
         message: `Leider nicht richtig. Gesucht war: ${correctStr}. Prüfe den Rechenweg unten!`,
       });
       onError();
+      onStreakUpdate?.(false);
     }
   };
 
   return (
-    <div className="space-y-6">
-      {/* Modus-Auswahl */}
-      <div className="flex flex-wrap items-center gap-2 p-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)]">
-        <span className="text-xs font-semibold text-[var(--text-secondary)] mr-1">Modus:</span>
-        {(
-          [
-            { id: "bin2hex", label: "Binär ➔ Hex (Nibble)" },
-            { id: "hex2bin", label: "Hex ➔ Binär (Expansion)" },
-            { id: "dec2hex", label: "Dezimal ➔ Hex" },
-            { id: "hex2dec", label: "Hex ➔ Dezimal" },
-          ] as const
-        ).map((m) => (
-          <button
-            key={m.id}
-            onClick={() => {
-              onPlayClick();
-              setSubMode(m.id);
-            }}
-            className={`text-xs px-3 py-1.5 rounded-lg border transition-all cursor-pointer font-medium ${
-              subMode === m.id
-                ? "bg-sky-500 text-white border-sky-400 font-semibold"
-                : "border-[var(--border-color)] text-[var(--text-secondary)] hover:border-[var(--border-hover)]"
-            }`}
-          >
-            {m.label}
-          </button>
-        ))}
+    <div className="space-y-4 sm:space-y-6">
+      {/* Modus-Auswahl (Mobile-optimierte Pills) */}
+      <div className="p-2 sm:p-2.5 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-color)]">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+          {(
+            [
+              { id: "bin2hex", label: "Binär ➔ Hex", detail: "(Nibble)" },
+              { id: "hex2bin", label: "Hex ➔ Binär", detail: "(Expansion)" },
+              { id: "dec2hex", label: "Dezimal ➔ Hex", detail: "" },
+              { id: "hex2dec", label: "Hex ➔ Dezimal", detail: "" },
+            ] as const
+          ).map((m) => (
+            <button
+              key={m.id}
+              onClick={() => {
+                onPlayClick();
+                setSubMode(m.id);
+              }}
+              className={`text-xs py-2 px-2 rounded-xl border transition-all cursor-pointer font-medium text-center ${
+                subMode === m.id
+                  ? "bg-sky-500 text-white border-sky-400 font-semibold shadow-sm"
+                  : "border-[var(--border-color)] text-[var(--text-secondary)] hover:border-[var(--border-hover)]"
+              }`}
+            >
+              <div>{m.label}</div>
+              {m.detail && <div className="text-[10px] opacity-75">{m.detail}</div>}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Aufgaben-Karte */}
-      <div className="p-6 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-center shadow-sm">
-        <span className="text-xs uppercase font-bold tracking-wider text-sky-400">Aufgabe</span>
+      <div className="p-5 sm:p-8 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-center shadow-sm relative overflow-hidden">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/25 text-sky-400 text-xs font-bold uppercase tracking-wider mb-2">
+          <Sparkles size={13} />
+          <span>Hex-Aufgabe</span>
+        </div>
 
         {subMode === "bin2hex" && (
           <div>
-            <h3 className="text-sm text-[var(--text-secondary)] mt-1">
+            <h2 className="text-xs sm:text-sm text-[var(--text-secondary)] font-medium mt-1">
               Wandle dieses Byte mittels 4-Bit-Nibble-Methode in Hex um:
-            </h3>
-            <div className="flex justify-center items-center gap-4 my-6">
-              <div className="p-3 sm:p-4 rounded-xl bg-[var(--bg-card-subtle)] border border-sky-500/30">
-                <span className="text-xs text-[var(--text-muted)] block mb-1">High-Nibble</span>
-                <span className="font-mono text-2xl sm:text-3xl font-bold text-sky-400">
+            </h2>
+            <div className="flex justify-center items-center gap-2 sm:gap-4 my-5 sm:my-7">
+              <div className="p-3 sm:p-4 rounded-2xl bg-[var(--bg-card-subtle)] border border-sky-500/30 flex flex-col items-center min-w-[100px] sm:min-w-[120px]">
+                <span className="text-[10px] sm:text-xs text-sky-400 font-bold uppercase tracking-wider mb-1">
+                  High-Nibble
+                </span>
+                <span className="font-mono text-2xl sm:text-3xl font-bold text-[var(--text-primary)]">
                   {highNibbleBin}
                 </span>
               </div>
-              <div className="text-xl text-[var(--text-muted)] font-mono">+</div>
-              <div className="p-3 sm:p-4 rounded-xl bg-[var(--bg-card-subtle)] border border-indigo-500/30">
-                <span className="text-xs text-[var(--text-muted)] block mb-1">Low-Nibble</span>
-                <span className="font-mono text-2xl sm:text-3xl font-bold text-indigo-400">
+              <div className="text-xl sm:text-2xl text-[var(--text-muted)] font-mono font-bold">+</div>
+              <div className="p-3 sm:p-4 rounded-2xl bg-[var(--bg-card-subtle)] border border-indigo-500/30 flex flex-col items-center min-w-[100px] sm:min-w-[120px]">
+                <span className="text-[10px] sm:text-xs text-indigo-400 font-bold uppercase tracking-wider mb-1">
+                  Low-Nibble
+                </span>
+                <span className="font-mono text-2xl sm:text-3xl font-bold text-[var(--text-primary)]">
                   {lowNibbleBin}
                 </span>
               </div>
@@ -139,10 +156,10 @@ export function HexModule({ onSuccess, onError, onPlayClick }: HexModuleProps) {
 
         {subMode === "hex2bin" && (
           <div>
-            <h3 className="text-sm text-[var(--text-secondary)] mt-1">
+            <h2 className="text-xs sm:text-sm text-[var(--text-secondary)] font-medium mt-1">
               Wandle diesen Hex-Wert in ein 8-Bit-Muster um:
-            </h3>
-            <div className="text-4xl sm:text-5xl font-mono font-bold text-[var(--text-primary)] my-4">
+            </h2>
+            <div className="text-5xl sm:text-6xl font-mono font-extrabold text-[var(--text-primary)] my-4 sm:my-6">
               0x{targetHex}
             </div>
           </div>
@@ -150,31 +167,39 @@ export function HexModule({ onSuccess, onError, onPlayClick }: HexModuleProps) {
 
         {subMode === "dec2hex" && (
           <div>
-            <h3 className="text-sm text-[var(--text-secondary)] mt-1">
+            <h2 className="text-xs sm:text-sm text-[var(--text-secondary)] font-medium mt-1">
               Wandle diese Dezimalzahl in Hexadezimal um:
-            </h3>
-            <div className="text-4xl sm:text-5xl font-mono font-bold text-[var(--text-primary)] my-4">
-              {taskVal}
-              <span className="text-sm font-normal text-[var(--text-muted)] ml-2">₁₀</span>
+            </h2>
+            <div className="my-4 sm:my-6 flex items-baseline justify-center gap-2">
+              <span className="text-5xl sm:text-6xl font-mono font-extrabold text-[var(--text-primary)]">
+                {taskVal}
+              </span>
+              <span className="text-sm font-mono font-medium text-[var(--text-muted)] bg-[var(--bg-card-subtle)] px-2 py-0.5 rounded-lg border border-[var(--border-color)]">
+                Basis 10
+              </span>
             </div>
           </div>
         )}
 
         {subMode === "hex2dec" && (
           <div>
-            <h3 className="text-sm text-[var(--text-secondary)] mt-1">
+            <h2 className="text-xs sm:text-sm text-[var(--text-secondary)] font-medium mt-1">
               Wandle diesen Hex-Wert in eine Dezimalzahl um:
-            </h3>
-            <div className="text-4xl sm:text-5xl font-mono font-bold text-[var(--text-primary)] my-4">
+            </h2>
+            <div className="text-5xl sm:text-6xl font-mono font-extrabold text-[var(--text-primary)] my-4 sm:my-6">
               0x{targetHex}
             </div>
           </div>
         )}
 
-        {/* Eingabe */}
-        <div className="max-w-xs mx-auto my-4">
+        {/* Eingabefeld (Mobile-Optimiert) */}
+        <div className="max-w-xs mx-auto my-4 sm:my-6">
           <input
             type="text"
+            inputMode={subMode === "hex2dec" ? "numeric" : "text"}
+            autoCapitalize="characters"
+            autoCorrect="off"
+            spellCheck="false"
             value={userInput}
             onChange={(e) => setUserInput(e.target.value.toUpperCase())}
             onKeyDown={(e) => e.key === "Enter" && checkAnswer()}
@@ -185,77 +210,89 @@ export function HexModule({ onSuccess, onError, onPlayClick }: HexModuleProps) {
                 ? "z. B. 00111111"
                 : "z. B. 63"
             }
-            className="w-full text-center font-mono text-2xl py-3 px-4 rounded-xl border border-[var(--border-color)] bg-[var(--bg-input)] text-[var(--text-primary)] focus:outline-none focus:border-sky-400 transition-all uppercase"
+            className="w-full text-center font-mono text-2xl sm:text-3xl py-3 px-4 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-input)] text-[var(--text-primary)] focus:outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-500/20 transition-all uppercase"
           />
         </div>
 
         {/* Aktionsleiste */}
-        <div className="flex flex-wrap items-center justify-center gap-3 mt-5">
+        <div className="flex flex-col xs:flex-row items-center justify-center gap-2.5 sm:gap-3 mt-5">
           <button
             onClick={checkAnswer}
-            className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-600 text-white font-semibold transition-all cursor-pointer shadow-md shadow-sky-500/20"
+            className="w-full xs:w-auto min-h-[44px] flex items-center justify-center gap-2 px-7 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-600 hover:to-sky-700 text-white font-semibold transition-all cursor-pointer shadow-md shadow-sky-500/25"
           >
-            <Check size={18} /> Prüfen
+            <Check size={18} />
+            <span>Ergebnis prüfen</span>
           </button>
-          <button
-            onClick={() => {
-              onPlayClick();
-              generateTask();
-            }}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[var(--border-color)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-hover)] transition-all cursor-pointer"
-          >
-            <RefreshCw size={16} /> Neue Aufgabe
-          </button>
-          <button
-            onClick={() => {
-              onPlayClick();
-              setShowSolution(true);
-            }}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[var(--border-color)] text-[var(--text-secondary)] hover:text-sky-400 hover:border-sky-500/40 transition-all cursor-pointer text-xs"
-          >
-            <Eye size={16} /> Lösungsweg
-          </button>
+
+          <div className="flex items-center gap-2 w-full xs:w-auto">
+            <button
+              onClick={() => {
+                onPlayClick();
+                generateTask();
+              }}
+              className="flex-1 xs:flex-none min-h-[44px] flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-hover)] transition-all cursor-pointer text-xs font-medium"
+            >
+              <RefreshCw size={15} />
+              <span>Neue Aufgabe</span>
+            </button>
+            <button
+              onClick={() => {
+                onPlayClick();
+                setShowSolution(true);
+              }}
+              className="flex-1 xs:flex-none min-h-[44px] flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-sky-400 hover:border-sky-500/40 transition-all cursor-pointer text-xs font-medium"
+            >
+              <Eye size={15} />
+              <span>Lösungsweg</span>
+            </button>
+          </div>
         </div>
 
         {/* Feedback */}
         {feedback && (
           <div
-            className={`mt-5 p-3.5 rounded-xl text-sm font-medium border ${
+            className={`mt-5 p-3.5 sm:p-4 rounded-2xl text-xs sm:text-sm font-medium border flex items-center justify-center gap-2 animate-pop-in ${
               feedback.isCorrect
-                ? "bg-emerald-500/10 border-emerald-500/40 text-emerald-400"
-                : "bg-rose-500/10 border-rose-500/40 text-rose-400"
+                ? "bg-[var(--success-bg)] border-[var(--success-border)] text-[var(--success-text)]"
+                : "bg-[var(--error-bg)] border-[var(--error-border)] text-[var(--error-text)]"
             }`}
           >
-            {feedback.message}
+            {feedback.isCorrect ? (
+              <CheckCircle2 size={18} className="shrink-0" />
+            ) : (
+              <AlertCircle size={18} className="shrink-0" />
+            )}
+            <span>{feedback.message}</span>
           </div>
         )}
       </div>
 
       {/* Lösungsweg & Nibble-Aufschlüsselung */}
       {showSolution && (
-        <div className="p-5 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-color)]">
-          <h4 className="font-semibold text-sm text-[var(--text-primary)] mb-3">
-            📖 Die Nibble-Methode im Detail:
-          </h4>
-          <div className="grid sm:grid-cols-2 gap-4 font-mono text-xs">
-            <div className="p-3 rounded-xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)]">
+        <div className="p-4 sm:p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] animate-pop-in">
+          <h3 className="font-semibold text-xs sm:text-sm text-[var(--text-primary)] mb-3 flex items-center gap-2">
+            <span className="w-5 h-5 rounded-md bg-sky-500/20 text-sky-400 flex items-center justify-center text-xs">📖</span>
+            Die Nibble-Methode im Detail:
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 font-mono text-xs">
+            <div className="p-3 sm:p-3.5 rounded-2xl bg-[var(--bg-card-subtle)] border border-sky-500/30">
               <span className="text-sky-400 font-bold block mb-1">
                 1. High-Nibble (obere 4 Bits):
               </span>
-              <div>Binär: <span className="font-bold">{highNibbleBin}</span></div>
-              <div>Dezimalwert: {Conversions.binToDec(highNibbleBin)}</div>
-              <div className="text-sky-400 font-bold mt-1">➔ Hex-Ziffer: {highNibbleHex}</div>
+              <div>Binär: <span className="font-bold text-[var(--text-primary)]">{highNibbleBin}</span></div>
+              <div className="text-[var(--text-secondary)]">Dezimalwert: {Conversions.binToDec(highNibbleBin)}</div>
+              <div className="text-sky-400 font-bold mt-1 text-sm">➔ Hex-Ziffer: {highNibbleHex}</div>
             </div>
-            <div className="p-3 rounded-xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)]">
+            <div className="p-3 sm:p-3.5 rounded-2xl bg-[var(--bg-card-subtle)] border border-indigo-500/30">
               <span className="text-indigo-400 font-bold block mb-1">
                 2. Low-Nibble (untere 4 Bits):
               </span>
-              <div>Binär: <span className="font-bold">{lowNibbleBin}</span></div>
-              <div>Dezimalwert: {Conversions.binToDec(lowNibbleBin)}</div>
-              <div className="text-indigo-400 font-bold mt-1">➔ Hex-Ziffer: {lowNibbleHex}</div>
+              <div>Binär: <span className="font-bold text-[var(--text-primary)]">{lowNibbleBin}</span></div>
+              <div className="text-[var(--text-secondary)]">Dezimalwert: {Conversions.binToDec(lowNibbleBin)}</div>
+              <div className="text-indigo-400 font-bold mt-1 text-sm">➔ Hex-Ziffer: {lowNibbleHex}</div>
             </div>
           </div>
-          <div className="mt-3 p-2 text-center font-mono text-sm font-bold text-sky-400 bg-sky-500/10 rounded-lg border border-sky-500/20">
+          <div className="mt-3 p-3 text-center font-mono text-xs sm:text-sm font-bold text-sky-400 bg-sky-500/10 rounded-xl border border-sky-500/25">
             Gesamtergebnis: 0x{targetHex} = {taskVal}₁₀ = {highNibbleBin} {lowNibbleBin}₂
           </div>
         </div>
