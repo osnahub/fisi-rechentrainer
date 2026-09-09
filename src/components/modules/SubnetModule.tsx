@@ -44,17 +44,26 @@ export function SubnetModule({
     let expected = "";
 
     switch (taskType) {
-      case "cidr2mask":
+      case "cidr2mask": {
         expected = String(currentEntry.maskOctet);
-        isCorrect = parseInt(raw, 10) === currentEntry.maskOctet;
+        let parsedVal: number;
+        if (raw.includes(".")) {
+          const parts = raw.split(".").filter((p) => p.trim() !== "");
+          const lastOctet = parts[parts.length - 1];
+          parsedVal = /^\d+$/.test(lastOctet) ? parseInt(lastOctet, 10) : NaN;
+        } else {
+          parsedVal = /^\d+$/.test(raw) ? parseInt(raw, 10) : NaN;
+        }
+        isCorrect = parsedVal === currentEntry.maskOctet;
         break;
+      }
       case "mask2bin":
         expected = currentEntry.binaryOctet;
         isCorrect = raw.replace(/\s+/g, "") === currentEntry.binaryOctet;
         break;
       case "magicNumber":
         expected = String(currentEntry.magicNumber);
-        isCorrect = parseInt(raw, 10) === currentEntry.magicNumber;
+        isCorrect = /^\d+$/.test(raw) && parseInt(raw, 10) === currentEntry.magicNumber;
         break;
     }
 
@@ -280,9 +289,25 @@ export function SubnetModule({
             <div className="p-2.5 rounded-xl bg-[var(--bg-input)] border border-[var(--border-color)]/60 text-xs sm:text-sm font-bold text-[var(--text-primary)] overflow-x-auto">
               Schrittweite = 2ʰ = 2{currentEntry.hostBits === 0 ? "⁰" : currentEntry.hostBits === 1 ? "¹" : currentEntry.hostBits === 2 ? "²" : currentEntry.hostBits === 3 ? "³" : currentEntry.hostBits === 4 ? "⁴" : currentEntry.hostBits === 5 ? "⁵" : currentEntry.hostBits === 6 ? "⁶" : currentEntry.hostBits === 7 ? "⁷" : "^" + currentEntry.hostBits} = 256 - {currentEntry.maskOctet} = <span className="text-indigo-700 dark:text-indigo-300">{currentEntry.magicNumber}</span>
             </div>
-            <div className="text-[11px] text-[var(--text-muted)]">
-              Formel nutzbare Hosts: 2ʰ - 2 = {currentEntry.magicNumber} - 2 = <strong className="text-emerald-700 dark:text-emerald-400">{currentEntry.usableHosts}</strong> (Erste Adresse ist Netz-ID, letzte ist Broadcast).
-            </div>
+            {currentEntry.hostBits > 1 ? (
+              <div className="text-[11px] text-[var(--text-muted)]">
+                Formel nutzbare Hosts: 2ʰ - 2 = {currentEntry.magicNumber} - 2 ={" "}
+                <strong className="text-emerald-700 dark:text-emerald-400">{currentEntry.usableHosts}</strong> (Erste Adresse ist Netz-ID, letzte ist Broadcast).
+              </div>
+            ) : currentEntry.hostBits === 1 ? (
+              <div className="text-[11px] text-[var(--text-muted)] space-y-1">
+                <div>
+                  <strong className="text-sky-700 dark:text-sky-400">Sonderfall RFC 3021 (Point-to-Point-Link):</strong> Beide Adressen ({currentEntry.magicNumber}) sind nutzbare Host-Schnittstellen. Keine getrennte Netz-ID / Broadcastadresse.
+                </div>
+                <div className="text-[10px] text-[var(--text-secondary)]">
+                  💡 IHK-Prüfungshinweis: Nach klassischer Vor-RFC-3021-Formel (2¹ - 2 = 0) wären 0 Hosts nutzbar. Im modernen Netzwerkbetrieb (RFC 3021) sind es genau 2 Hosts.
+                </div>
+              </div>
+            ) : (
+              <div className="text-[11px] text-[var(--text-muted)]">
+                <strong className="text-sky-700 dark:text-sky-400">Sonderfall /32 (Host-Route / Loopback):</strong> Genau 1 Hostadresse (2⁰ = 1). Keine Netzwerk- oder Broadcast-Struktur vorhanden.
+              </div>
+            )}
           </div>
 
           {/* Praxisnahes IP-Beispiel */}

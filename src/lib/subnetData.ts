@@ -97,7 +97,7 @@ export const SUBNET_TABLE: SubnetEntry[] = [
     hostBits: 1,
     totalHosts: 2,
     usableHosts: 2,
-    notes: "RFC 3021 Punkt-zu-Punkt (selten IHK)"
+    notes: "RFC 3021 Punkt-zu-Punkt: 2 Hosts (ohne RFC: 0 nutzbar)"
   },
   {
     cidr: "/32",
@@ -108,7 +108,7 @@ export const SUBNET_TABLE: SubnetEntry[] = [
     hostBits: 0,
     totalHosts: 1,
     usableHosts: 1,
-    notes: "Host-Route / Loopback"
+    notes: "Host-Route / Loopback: Exakt 1 Host"
   }
 ];
 

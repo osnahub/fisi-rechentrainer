@@ -37,6 +37,21 @@ export function ExplainerModule() {
   const polynomialTerms = Conversions.getPolynomialExpansion(currentBin);
   const activeBitsCount = currentBin.split("").filter((b) => b === "1").length;
 
+  // Calculate dynamic 4-bit nibbles for all bit lengths
+  const nibbleList: { bits: string; decVal: number; hexChar: string; label: string }[] = [];
+  const totalNibbles = currentBin.length / 4;
+  for (let i = 0; i < currentBin.length; i += 4) {
+    const bits = currentBin.slice(i, i + 4);
+    const decVal = Conversions.binToDec(bits);
+    const hexChar = Conversions.decToHex(decVal, 1);
+    const nibbleNum = totalNibbles - i / 4;
+    let label = `Nibble ${nibbleNum}`;
+    if (bitCount === 8) {
+      label = i === 0 ? "High-Nibble (Bits 7..4)" : "Low-Nibble (Bits 3..0)";
+    }
+    nibbleList.push({ bits, decVal, hexChar, label });
+  }
+
   const setPreset = (val: number) => {
     setFormat("dec");
     setInputValue(String(val));
@@ -96,7 +111,14 @@ export function ExplainerModule() {
             autoCorrect="off"
             spellCheck="false"
             value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
+            onChange={(e) => {
+              const val = e.target.value;
+              if (format === "bin") {
+                setInputValue(val.replace(/[^01\s]/g, ""));
+              } else {
+                setInputValue(val.replace(/[^0-9]/g, "").slice(0, 7));
+              }
+            }}
             placeholder={`Zahl eingeben (${format === "dec" ? "Dezimal 0–65535" : "Binär z. B. 10101101"})...`}
             className="w-full text-center font-mono text-2xl sm:text-3xl py-3 px-4 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-input)] text-[var(--text-primary)] focus:outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-500/20 transition-all"
           />
@@ -115,22 +137,28 @@ export function ExplainerModule() {
           </div>
         </div>
 
-        {/* Schnellübersicht der Formate */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 mt-6 pt-5 border-t border-[var(--border-color)] font-mono text-center">
-          <div className="p-3 sm:p-4 rounded-2xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)]">
-            <span className="text-[10px] sm:text-xs text-[var(--text-muted)] block">Dezimalsystem (Basis 10)</span>
-            <span className="text-lg sm:text-xl font-bold text-[var(--text-primary)]">{currentDec}</span>
+        {/* Schnellübersicht der Formate (Dezimal, Binär, Hexadezimal, Bit-Status) */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5 mt-6 pt-5 border-t border-[var(--border-color)] font-mono text-center">
+          <div className="p-3 rounded-2xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)]">
+            <span className="text-[10px] text-[var(--text-muted)] block">Dezimalsystem (Basis 10)</span>
+            <span className="text-base sm:text-lg font-bold text-[var(--text-primary)]">{currentDec}</span>
           </div>
-          <div className="p-3 sm:p-4 rounded-2xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)]">
-            <span className="text-[10px] sm:text-xs text-[var(--text-muted)] block">Dualsystem ({bitCount}-Bit)</span>
-            <span className="text-lg sm:text-xl font-bold text-sky-700 dark:text-sky-400">
+          <div className="p-3 rounded-2xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)]">
+            <span className="text-[10px] text-[var(--text-muted)] block">Dualsystem ({bitCount}-Bit)</span>
+            <span className="text-base sm:text-lg font-bold text-sky-700 dark:text-sky-400">
               {Conversions.formatNibbles(currentBin)}₂
             </span>
           </div>
-          <div className="p-3 sm:p-4 rounded-2xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)]">
-            <span className="text-[10px] sm:text-xs text-[var(--text-muted)] block">Bit-Status (1-Bits)</span>
-            <span className="text-lg sm:text-xl font-bold text-emerald-700 dark:text-emerald-400">
-              {activeBitsCount} von {bitCount} gesetzt
+          <div className="p-3 rounded-2xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)]">
+            <span className="text-[10px] text-[var(--text-muted)] block">Hexadezimal (Basis 16)</span>
+            <span className="text-base sm:text-lg font-bold text-indigo-700 dark:text-indigo-400">
+              0x{Conversions.decToHex(currentDec, Math.ceil(bitCount / 4))}
+            </span>
+          </div>
+          <div className="p-3 rounded-2xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)]">
+            <span className="text-[10px] text-[var(--text-muted)] block">Bit-Status (1-Bits)</span>
+            <span className="text-base sm:text-lg font-bold text-emerald-700 dark:text-emerald-400">
+              {activeBitsCount} / {bitCount} gesetzt
             </span>
           </div>
         </div>
@@ -239,6 +267,9 @@ export function ExplainerModule() {
             </div>
             <div className="font-mono text-[11px] text-[var(--text-secondary)]">
               Endergebnis: <span className="text-emerald-700 dark:text-emerald-400 font-bold">{Conversions.formatNibbles(currentBin)}₂</span>
+              <span className="block text-[10px] text-[var(--text-muted)] mt-0.5">
+                (Reste von unten nach oben: {divisionSteps.slice().reverse().map((s) => s.remainder).join("")}₂, mit führenden Nullen auf {bitCount} Bit)
+              </span>
             </div>
           </div>
         </div>
@@ -279,14 +310,26 @@ export function ExplainerModule() {
             </div>
 
             <div className="p-3 rounded-2xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)] font-mono text-xs space-y-1.5">
-              <div className="text-[11px] text-sky-700 dark:text-sky-400 font-bold">4-Bit-Nibbles (Byte-Hälften):</div>
-              <div className="text-[11px] text-[var(--text-secondary)] flex justify-between">
-                <span>High-Nibble: <strong>{currentBin.slice(0, 4)}</strong></span>
-                <span className="text-sky-700 dark:text-sky-400 font-semibold">= {Conversions.binToDec(currentBin.slice(0, 4))}₁₀</span>
+              <div className="text-[11px] text-sky-700 dark:text-sky-400 font-bold">
+                4-Bit-Nibbles ({nibbleList.length} Gruppe{nibbleList.length > 1 ? "n" : ""}):
               </div>
-              <div className="text-[11px] text-[var(--text-secondary)] flex justify-between">
-                <span>Low-Nibble: <strong>{currentBin.slice(4, 8)}</strong></span>
-                <span className="text-indigo-700 dark:text-indigo-400 font-semibold">= {Conversions.binToDec(currentBin.slice(4, 8))}₁₀</span>
+              <div className="space-y-1">
+                {nibbleList.map((n, idx) => (
+                  <div
+                    key={idx}
+                    className="text-[11px] text-[var(--text-secondary)] flex items-center justify-between border-b border-[var(--border-color)]/30 pb-0.5 last:border-b-0"
+                  >
+                    <span>
+                      {n.label}: <strong className="text-[var(--text-primary)]">{n.bits}</strong>₂
+                    </span>
+                    <span className="text-sky-700 dark:text-sky-400 font-semibold">
+                      = {n.decVal}₁₀ ➔ <strong className="text-indigo-700 dark:text-indigo-400">{n.hexChar}₁₆</strong>
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <div className="text-[11px] text-[var(--text-muted)] text-right pt-0.5 font-semibold">
+                Hexadezimal: 0x{Conversions.decToHex(currentDec, Math.ceil(bitCount / 4))}
               </div>
             </div>
           </div>

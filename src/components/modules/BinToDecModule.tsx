@@ -169,12 +169,12 @@ export function BinToDecModule({
                         }`}
                       >
                         {isMSB && (
-                          <span className="text-[9px] sm:text-[10px] font-mono font-bold tracking-wider text-amber-800 bg-amber-100 border-amber-300 dark:text-amber-300 dark:bg-amber-950/50 dark:border-amber-500/40 px-0.5 sm:px-1 py-0.5 rounded leading-none mb-0.5">
+                          <span className="text-[9px] sm:text-[10px] font-mono font-bold tracking-wider text-amber-800 bg-amber-100 border border-amber-300 dark:text-amber-300 dark:bg-amber-950/50 dark:border-amber-500/40 px-0.5 sm:px-1 py-0.5 rounded leading-none mb-0.5">
                             MSB
                           </span>
                         )}
                         {isLSB && (
-                          <span className="text-[9px] sm:text-[10px] font-mono font-bold tracking-wider text-indigo-800 bg-indigo-100 border-indigo-300 dark:text-indigo-300 dark:bg-indigo-950/50 dark:border-indigo-500/40 px-0.5 sm:px-1 py-0.5 rounded leading-none mb-0.5">
+                          <span className="text-[9px] sm:text-[10px] font-mono font-bold tracking-wider text-indigo-800 bg-indigo-100 border border-indigo-300 dark:text-indigo-300 dark:bg-indigo-950/50 dark:border-indigo-500/40 px-0.5 sm:px-1 py-0.5 rounded leading-none mb-0.5">
                             LSB
                           </span>
                         )}

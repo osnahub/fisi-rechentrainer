@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
-import { POWERS_OF_TWO_8BIT, SUBNET_TABLE } from "@/lib/subnetData";
-import { ChevronDown, ChevronUp, Sparkles, Network } from "lucide-react";
+import { POWERS_OF_TWO_8BIT, SUBNET_TABLE, NIBBLE_TABLE } from "@/lib/subnetData";
+import { ChevronDown, ChevronUp, Sparkles, Network, Hexagon } from "lucide-react";
 
 interface ReferenceBarProps {
   onPlayClick?: () => void;
 }
 
-type TabType = "powers" | "subnet";
+type TabType = "powers" | "hex" | "subnet";
 
 export function ReferenceBar({ onPlayClick }: ReferenceBarProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -41,7 +41,7 @@ export function ReferenceBar({ onPlayClick }: ReferenceBarProps) {
             Didaktischer Spickzettel
           </span>
           <span className="text-[10px] sm:text-xs text-[var(--text-muted)] font-normal hidden xs:inline truncate">
-            (Zweierpotenzen & IPv4-Subnetzmasken)
+            (Zweierpotenzen, Hex-Nibbles & IPv4-Subnetze)
           </span>
         </div>
 
@@ -59,7 +59,7 @@ export function ReferenceBar({ onPlayClick }: ReferenceBarProps) {
       {isOpen && (
         <div className="p-3 sm:p-4 border-t border-[var(--border-color)] bg-[var(--bg-card-subtle)] animate-pop-in">
           {/* Tab Selector */}
-          <div className="flex items-center gap-1.5 p-1 rounded-xl bg-[var(--bg-input)] border border-[var(--border-color)] max-w-xs mx-auto mb-3.5">
+          <div className="flex items-center gap-1.5 p-1 rounded-xl bg-[var(--bg-input)] border border-[var(--border-color)] max-w-sm mx-auto mb-3.5">
             <button
               onClick={() => handleTabChange("powers")}
               className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-medium transition-all cursor-pointer ${
@@ -70,6 +70,17 @@ export function ReferenceBar({ onPlayClick }: ReferenceBarProps) {
             >
               <Sparkles size={13} />
               <span>Zweierpotenzen</span>
+            </button>
+            <button
+              onClick={() => handleTabChange("hex")}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+                activeTab === "hex"
+                  ? "bg-sky-600 dark:bg-sky-500 text-white font-semibold shadow-sm"
+                  : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+              }`}
+            >
+              <Hexagon size={13} />
+              <span>Hex / Nibble</span>
             </button>
             <button
               onClick={() => handleTabChange("subnet")}
@@ -135,7 +146,48 @@ export function ReferenceBar({ onPlayClick }: ReferenceBarProps) {
             </div>
           )}
 
-          {/* Tab 2: Subnetzmasken */}
+          {/* Tab 2: Hex / Nibbles (0–F) */}
+          {activeTab === "hex" && (
+            <div className="space-y-3">
+              <div className="overflow-x-auto">
+                <table className="w-full text-center text-[11px] sm:text-xs font-mono border-collapse min-w-[340px]">
+                  <thead>
+                    <tr className="text-[var(--text-muted)] border-b border-[var(--border-color)]">
+                      <th className="py-1.5 px-2 text-left font-medium">Hex</th>
+                      {NIBBLE_TABLE.map((item) => (
+                        <th key={item.hex} className="py-1 px-1 text-sky-700 dark:text-sky-400 font-bold">
+                          {item.hex}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border-b border-[var(--border-color)]/30">
+                      <td className="py-1.5 px-2 text-left font-semibold text-[var(--text-primary)]">Dez</td>
+                      {NIBBLE_TABLE.map((item) => (
+                        <td key={item.hex} className="py-1 px-1 text-[var(--text-secondary)]">
+                          {item.dec}
+                        </td>
+                      ))}
+                    </tr>
+                    <tr className="border-b border-[var(--border-color)]/30">
+                      <td className="py-1.5 px-2 text-left font-semibold text-emerald-700 dark:text-emerald-400">Bin</td>
+                      {NIBBLE_TABLE.map((item) => (
+                        <td key={item.hex} className="py-1 px-0.5 text-[9px] sm:text-[10px] text-emerald-700 dark:text-emerald-400 font-medium">
+                          {item.bin}
+                        </td>
+                      ))}
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p className="text-[11px] text-center text-[var(--text-muted)]">
+                💡 Jedes Byte (8 Bit) zerfällt in genau zwei 4-Bit-Nibbles: High-Nibble ($16^1$) und Low-Nibble ($16^0$).
+              </p>
+            </div>
+          )}
+
+          {/* Tab 3: Subnetzmasken */}
           {activeTab === "subnet" && (
             <div className="overflow-x-auto">
               <table className="w-full text-center text-[11px] sm:text-xs font-mono border-collapse min-w-[320px]">

@@ -5,12 +5,13 @@ import { Header } from "@/components/Header";
 import { ReferenceBar } from "@/components/ReferenceBar";
 import { DecToBinModule } from "@/components/modules/DecToBinModule";
 import { BinToDecModule } from "@/components/modules/BinToDecModule";
+import { HexModule } from "@/components/modules/HexModule";
 import { SubnetModule } from "@/components/modules/SubnetModule";
 import { ExplainerModule } from "@/components/modules/ExplainerModule";
 import { useTheme } from "@/hooks/useTheme";
-import { Binary, Network, Calculator, ArrowRightLeft } from "lucide-react";
+import { Binary, Network, Calculator, ArrowRightLeft, Hexagon } from "lucide-react";
 
-type ModuleType = "dec2bin" | "bin2dec" | "subnet" | "explainer";
+type ModuleType = "dec2bin" | "bin2dec" | "hex" | "subnet" | "explainer";
 
 export default function Home() {
   const [activeModule, setActiveModule] = useState<ModuleType>("dec2bin");
@@ -24,6 +25,7 @@ export default function Home() {
   const navItems = [
     { id: "dec2bin", label: "Dez ➔ Bin", fullLabel: "Dezimal ➔ Binär", icon: Binary },
     { id: "bin2dec", label: "Bin ➔ Dez", fullLabel: "Binär ➔ Dezimal", icon: ArrowRightLeft },
+    { id: "hex", label: "0x Hex", fullLabel: "Hexadezimal", icon: Hexagon },
     { id: "subnet", label: "Subnetz", fullLabel: "Subnetz & CIDR", icon: Network },
     { id: "explainer", label: "Rechner", fullLabel: "Rechenhelfer", icon: Calculator },
   ] as const;
@@ -72,6 +74,9 @@ export default function Home() {
         )}
         {activeModule === "bin2dec" && (
           <BinToDecModule onStreakUpdate={handleStreakUpdate} />
+        )}
+        {activeModule === "hex" && (
+          <HexModule onStreakUpdate={handleStreakUpdate} />
         )}
         {activeModule === "subnet" && (
           <SubnetModule onStreakUpdate={handleStreakUpdate} />

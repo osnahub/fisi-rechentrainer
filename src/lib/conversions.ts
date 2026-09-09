@@ -123,13 +123,10 @@ export const Conversions = {
 
   getStellenwertSteps(decimalNumber: number, bitCount = 8): StellenwertStep[] {
     const steps: StellenwertStep[] = [];
-    let remainder = decimalNumber;
+    let remainder = Math.max(0, Math.floor(decimalNumber));
 
-    let power = bitCount - 1;
-    while (Math.pow(2, power) <= decimalNumber && power < 31) {
-      power++;
-    }
-    const maxPower = Math.max(bitCount - 1, power);
+    const neededPower = remainder > 0 ? Math.floor(Math.log2(remainder)) : 0;
+    const maxPower = Math.max(bitCount - 1, neededPower);
 
     for (let p = maxPower; p >= 0; p--) {
       const val = Math.pow(2, p);
@@ -206,14 +203,41 @@ export const Conversions = {
     const cidr = Math.min(32, Math.max(24, cidrSuffix));
     const hostBits = 32 - cidr;
     const totalAddresses = Math.pow(2, hostBits);
-    const usableHosts = hostBits <= 1 ? (hostBits === 1 ? 0 : 1) : totalAddresses - 2;
 
     const basePrefix = "192.168.10.";
     const netStart = 0;
+
+    if (cidr === 31) {
+      // RFC 3021 Point-to-Point link: both addresses are usable hosts, no separate broadcast
+      return {
+        networkAddress: `${basePrefix}${netStart} (P2P-Link)`,
+        firstHost: `${basePrefix}${netStart}`,
+        lastHost: `${basePrefix}${netStart + 1}`,
+        broadcastAddress: "Keine (RFC 3021)",
+        totalAddresses: 2,
+        usableHosts: 2,
+        hostBits: 1,
+      };
+    }
+
+    if (cidr === 32) {
+      // Host-Route / Loopback: exactly 1 single host IP
+      return {
+        networkAddress: `${basePrefix}${netStart} (Host-Route)`,
+        firstHost: `${basePrefix}${netStart}`,
+        lastHost: `${basePrefix}${netStart}`,
+        broadcastAddress: "Keine (Host-Route)",
+        totalAddresses: 1,
+        usableHosts: 1,
+        hostBits: 0,
+      };
+    }
+
     const networkAddress = `${basePrefix}${netStart}`;
     const broadcastAddress = `${basePrefix}${netStart + totalAddresses - 1}`;
-    const firstHost = hostBits <= 1 ? "-" : `${basePrefix}${netStart + 1}`;
-    const lastHost = hostBits <= 1 ? "-" : `${basePrefix}${netStart + totalAddresses - 2}`;
+    const firstHost = `${basePrefix}${netStart + 1}`;
+    const lastHost = `${basePrefix}${netStart + totalAddresses - 2}`;
+    const usableHosts = totalAddresses - 2;
 
     return {
       networkAddress,
