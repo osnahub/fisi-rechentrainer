@@ -118,7 +118,7 @@ export function SubnetModule({
       </div>
 
       {/* Aufgaben-Karte */}
-      <div className="p-5 sm:p-8 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-center shadow-sm relative overflow-hidden">
+      <div className="p-3.5 sm:p-8 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-center shadow-sm relative overflow-hidden">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/30 text-sky-700 dark:text-sky-300 text-xs font-bold uppercase tracking-wider mb-2">
           <Sparkles size={13} />
           <span>IHK-Prüfungsfrage</span>
@@ -278,7 +278,7 @@ export function SubnetModule({
               Bei einem <strong className="text-[var(--text-primary)]">{currentEntry.cidr}</strong>-Netzwerk verbleiben im 32-Bit-IPv4-Raum genau{" "}
               <strong className="text-sky-700 dark:text-sky-400">h = 32 - {parseInt(currentEntry.cidr.replace("/", ""), 10)} = {currentEntry.hostBits} Host-Bits</strong>.
             </div>
-            <div className="p-2.5 rounded-xl bg-[var(--bg-input)] border border-[var(--border-color)]/60 text-xs sm:text-sm font-bold text-[var(--text-primary)]">
+            <div className="p-2.5 rounded-xl bg-[var(--bg-input)] border border-[var(--border-color)]/60 text-xs sm:text-sm font-bold text-[var(--text-primary)] overflow-x-auto">
               Schrittweite = 2ʰ = 2{currentEntry.hostBits === 0 ? "⁰" : currentEntry.hostBits === 1 ? "¹" : currentEntry.hostBits === 2 ? "²" : currentEntry.hostBits === 3 ? "³" : currentEntry.hostBits === 4 ? "⁴" : currentEntry.hostBits === 5 ? "⁵" : currentEntry.hostBits === 6 ? "⁶" : currentEntry.hostBits === 7 ? "⁷" : "^" + currentEntry.hostBits} = 256 - {currentEntry.maskOctet} = <span className="text-indigo-700 dark:text-indigo-300">{currentEntry.magicNumber}</span>
             </div>
             <div className="text-[11px] text-[var(--text-muted)]">

@@ -89,33 +89,33 @@ export function BitRow({
 
   return (
     <div className="w-full flex flex-col items-center my-3 sm:my-4">
-      {/* Bit Container - Organized by Nibbles */}
-      <div className="w-full max-w-xl flex items-center justify-center gap-2 sm:gap-4 overflow-x-auto py-1 px-1">
+      {/* Bit Container - Organized by Nibbles (Zero horizontal scroll needed on mobile) */}
+      <div className="w-full max-w-xl flex items-center justify-center gap-1.5 xs:gap-2 sm:gap-4 overflow-x-auto py-1 px-0.5 sm:px-1">
         {nibbles.map((nibble, nibbleIdx) => (
           <React.Fragment key={nibbleIdx}>
-            <div className="flex items-center gap-1 sm:gap-1.5 p-1 rounded-2xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)]/60">
+            <div className="flex items-center gap-0.5 xs:gap-1 sm:gap-1.5 p-0.5 xs:p-1 rounded-2xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)]/60">
               {nibble.map(({ bit, originalIndex, powerVal, exponent, isMSB, isLSB }) => {
                 const isOn = bit === 1;
 
                 return (
                   <div
                     key={originalIndex}
-                    className="flex flex-col items-center gap-1 min-w-[34px] sm:min-w-[44px]"
+                    className="flex flex-col items-center gap-0.5 sm:gap-1 min-w-[30px] xs:min-w-[36px] sm:min-w-[44px]"
                   >
                     {/* Exponent & Stellenwert & MSB/LSB Badge (feste 36px Höhe) */}
                     <div className="h-9 w-full flex flex-col items-center justify-end">
                       {isMSB && (
-                        <span className="text-[10px] font-mono font-bold tracking-wider text-amber-800 bg-amber-100 border-amber-300 dark:text-amber-300 dark:bg-amber-950/50 dark:border-amber-500/40 px-1 py-0.5 rounded leading-none mb-0.5">
+                        <span className="text-[9px] sm:text-[10px] font-mono font-bold tracking-wider text-amber-800 bg-amber-100 border-amber-300 dark:text-amber-300 dark:bg-amber-950/50 dark:border-amber-500/40 px-0.5 sm:px-1 py-0.5 rounded leading-none mb-0.5">
                           MSB
                         </span>
                       )}
                       {isLSB && (
-                        <span className="text-[10px] font-mono font-bold tracking-wider text-indigo-800 bg-indigo-100 border-indigo-300 dark:text-indigo-300 dark:bg-indigo-950/50 dark:border-indigo-500/40 px-1 py-0.5 rounded leading-none mb-0.5">
+                        <span className="text-[9px] sm:text-[10px] font-mono font-bold tracking-wider text-indigo-800 bg-indigo-100 border-indigo-300 dark:text-indigo-300 dark:bg-indigo-950/50 dark:border-indigo-500/40 px-0.5 sm:px-1 py-0.5 rounded leading-none mb-0.5">
                           LSB
                         </span>
                       )}
                       {!isMSB && !isLSB && (
-                        <span className="text-[10px] font-mono text-[var(--text-muted)] font-medium leading-none mb-0.5">
+                        <span className="text-[9px] sm:text-[10px] font-mono text-[var(--text-muted)] font-medium leading-none mb-0.5">
                           {formatExponent(exponent)}
                         </span>
                       )}
@@ -134,7 +134,7 @@ export function BitRow({
                       onClick={() => toggleBit(originalIndex)}
                       aria-pressed={isOn}
                       aria-label={`Bit für Stellenwert ${powerVal} (2^${exponent}): ${isOn ? "gesetzt (1)" : "nicht gesetzt (0)"}`}
-                      className={`w-8.5 h-11 xs:w-9.5 xs:h-12 sm:w-11 sm:h-14 rounded-xl font-mono text-base sm:text-xl font-bold border transition-all cursor-pointer select-none flex items-center justify-center ${
+                      className={`w-[30px] h-11 xs:w-9 xs:h-12 sm:w-11 sm:h-14 rounded-xl font-mono text-base sm:text-xl font-bold border transition-all cursor-pointer select-none flex items-center justify-center ${
                         isOn
                           ? "bg-[var(--bit-on-bg)] border-[var(--bit-on-border)] text-white shadow-md shadow-sky-600/20 dark:shadow-sky-500/30 scale-105"
                           : "bg-[var(--bg-input)] border-[var(--border-color)] text-[var(--bit-off-text)] font-semibold hover:border-[var(--border-hover)] hover:text-[var(--text-primary)]"

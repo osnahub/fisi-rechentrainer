@@ -139,7 +139,7 @@ export function BinToDecModule({
       </div>
 
       {/* Aufgaben-Karte */}
-      <div className="p-5 sm:p-8 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-center shadow-sm relative overflow-hidden">
+      <div className="p-3.5 sm:p-8 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-center shadow-sm relative overflow-hidden">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/30 text-sky-700 dark:text-sky-300 text-xs font-bold uppercase tracking-wider mb-2">
           <Sparkles size={13} />
           <span>Aufgabe</span>
@@ -149,15 +149,15 @@ export function BinToDecModule({
           Wandle dieses Bitmuster in die Dezimalzahl um:
         </h2>
 
-        {/* Visuelle Bit-Anzeige nach Nibbles gegliedert */}
-        <div className="w-full max-w-xl mx-auto flex items-center justify-center gap-2 sm:gap-4 overflow-x-auto my-5 sm:my-7 py-1 px-1">
+        {/* Visuelle Bit-Anzeige nach Nibbles gegliedert (Zero horizontal scroll needed on mobile) */}
+        <div className="w-full max-w-xl mx-auto flex items-center justify-center gap-1.5 xs:gap-2 sm:gap-4 overflow-x-auto my-4 sm:my-7 py-1 px-0.5 sm:px-1">
           {nibbles.map((nibble, nIdx) => (
             <React.Fragment key={nIdx}>
-              <div className="flex items-center gap-1 sm:gap-1.5 p-1 rounded-2xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)]/60">
+              <div className="flex items-center gap-0.5 xs:gap-1 sm:gap-1.5 p-0.5 xs:p-1 rounded-2xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)]/60">
                 {nibble.map(({ bit, powerVal, exponent, isOn, originalIndex, isMSB, isLSB }) => (
                   <div
                     key={originalIndex}
-                    className="flex flex-col items-center gap-1 min-w-[34px] sm:min-w-[44px]"
+                    className="flex flex-col items-center gap-0.5 sm:gap-1 min-w-[30px] xs:min-w-[36px] sm:min-w-[44px]"
                   >
                     {/* Feste Höhe (h-9 = 36px): Verhindert jegliche Höhenänderung oder Springen beim Umschalten */}
                     <div className="h-9 w-full flex flex-col items-center justify-end">
@@ -169,17 +169,17 @@ export function BinToDecModule({
                         }`}
                       >
                         {isMSB && (
-                          <span className="text-[10px] font-mono font-bold tracking-wider text-amber-800 bg-amber-100 border-amber-300 dark:text-amber-300 dark:bg-amber-950/50 dark:border-amber-500/40 px-1 py-0.5 rounded leading-none mb-0.5">
+                          <span className="text-[9px] sm:text-[10px] font-mono font-bold tracking-wider text-amber-800 bg-amber-100 border-amber-300 dark:text-amber-300 dark:bg-amber-950/50 dark:border-amber-500/40 px-0.5 sm:px-1 py-0.5 rounded leading-none mb-0.5">
                             MSB
                           </span>
                         )}
                         {isLSB && (
-                          <span className="text-[10px] font-mono font-bold tracking-wider text-indigo-800 bg-indigo-100 border-indigo-300 dark:text-indigo-300 dark:bg-indigo-950/50 dark:border-indigo-500/40 px-1 py-0.5 rounded leading-none mb-0.5">
+                          <span className="text-[9px] sm:text-[10px] font-mono font-bold tracking-wider text-indigo-800 bg-indigo-100 border-indigo-300 dark:text-indigo-300 dark:bg-indigo-950/50 dark:border-indigo-500/40 px-0.5 sm:px-1 py-0.5 rounded leading-none mb-0.5">
                             LSB
                           </span>
                         )}
                         {!isMSB && !isLSB && (
-                          <span className="text-[10px] font-mono text-[var(--text-muted)] font-medium leading-none mb-0.5">
+                          <span className="text-[9px] sm:text-[10px] font-mono text-[var(--text-muted)] font-medium leading-none mb-0.5">
                             {formatExponent(exponent)}
                           </span>
                         )}
@@ -195,7 +195,7 @@ export function BinToDecModule({
                       </div>
                     </div>
                     <div
-                      className={`w-8.5 h-11 xs:w-9.5 xs:h-12 sm:w-11 sm:h-14 rounded-xl font-mono text-base sm:text-xl font-bold border flex items-center justify-center select-none transition-all ${
+                      className={`w-[30px] h-11 xs:w-9 xs:h-12 sm:w-11 sm:h-14 rounded-xl font-mono text-base sm:text-xl font-bold border flex items-center justify-center select-none transition-all ${
                         isOn
                           ? "bg-[var(--bit-on-bg)] border-[var(--bit-on-border)] text-white shadow-md shadow-sky-600/20 dark:shadow-sky-500/30 scale-105"
                           : "bg-[var(--bg-input)] border-[var(--border-color)] text-[var(--bit-off-text)] font-semibold"

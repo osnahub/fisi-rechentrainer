@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+@theme {
+  --breakpoint-xs: 420px;
+}
+
 :root {
   /* Dark Theme (Default) - High-contrast Engineering Slate & Tech Blue */
   --bg-app: #0b0f19;

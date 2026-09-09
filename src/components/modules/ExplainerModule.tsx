@@ -45,7 +45,7 @@ export function ExplainerModule() {
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Eingabebereich */}
-      <div className="p-5 sm:p-8 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm">
+      <div className="p-3.5 sm:p-8 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4 sm:mb-5">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-xl bg-sky-500/10 text-sky-700 dark:text-sky-400 border border-sky-500/20 flex items-center justify-center">

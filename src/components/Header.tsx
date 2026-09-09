@@ -26,8 +26,8 @@ export function Header({
               FiSi-Rechentrainer
             </h1>
           </div>
-          <p className="text-[11px] sm:text-xs text-[var(--text-secondary)] truncate">
-            Der interaktive Zahlensystem- & Subnetz-Trainer für Fachinformatiker
+          <p className="text-[10.5px] sm:text-xs text-[var(--text-secondary)] truncate">
+            <span className="hidden sm:inline">Der interaktive </span>Zahlensystem- &amp; Subnetz-Trainer<span className="hidden sm:inline"> für Fachinformatiker</span>
           </p>
         </div>
       </div>
