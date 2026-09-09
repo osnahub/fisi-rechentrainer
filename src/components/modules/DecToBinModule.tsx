@@ -18,7 +18,7 @@ export function DecToBinModule({
   onPlayClick,
   onStreakUpdate,
 }: DecToBinModuleProps) {
-  const [bitRange, setBitRange] = useState<4 | 8 | 16>(8);
+  const bitRange = 8;
   const [inputMode, setInputMode] = useState<"buttons" | "text">("buttons");
   const [targetDec, setTargetDec] = useState<number>(0);
   const [bits, setBits] = useState<number[]>(new Array(8).fill(0));
@@ -27,29 +27,22 @@ export function DecToBinModule({
   const [showSolution, setShowSolution] = useState<boolean>(false);
   const [solutionSteps, setSolutionSteps] = useState<StellenwertStep[]>([]);
 
-  // Generate random number based on range
-  const generateNewTask = useCallback(
-    (range: 4 | 8 | 16 = bitRange) => {
-      let max = 255;
-      if (range === 4) max = 15;
-      if (range === 16) max = 65535;
+  // Generate random 8-bit number (0-255)
+  const generateNewTask = useCallback(() => {
+    let nextVal = Math.floor(Math.random() * 256);
+    if (nextVal === 0) nextVal = Math.floor(Math.random() * 255) + 1;
 
-      let nextVal = Math.floor(Math.random() * (max + 1));
-      if (nextVal === 0 && max > 10) nextVal = Math.floor(Math.random() * max) + 1;
-
-      setTargetDec(nextVal);
-      setBits(new Array(range).fill(0));
-      setTextInput("");
-      setFeedback(null);
-      setShowSolution(false);
-      setSolutionSteps([]);
-    },
-    [bitRange]
-  );
+    setTargetDec(nextVal);
+    setBits(new Array(8).fill(0));
+    setTextInput("");
+    setFeedback(null);
+    setShowSolution(false);
+    setSolutionSteps([]);
+  }, []);
 
   useEffect(() => {
-    generateNewTask(bitRange);
-  }, [bitRange, generateNewTask]);
+    generateNewTask();
+  }, [generateNewTask]);
 
   const currentSum = bits.reduce(
     (acc, bit, idx) => acc + (bit === 1 ? Math.pow(2, bits.length - 1 - idx) : 0),
@@ -95,60 +88,45 @@ export function DecToBinModule({
 
   return (
     <div className="space-y-4 sm:space-y-6">
-      {/* Steuerungsleiste: Bitbereich & Eingabemodus */}
-      <div className="flex flex-wrap items-center justify-between gap-2.5 p-2.5 sm:p-3 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-color)]">
-        <div className="flex items-center gap-1.5">
-          <span className="text-xs font-semibold text-[var(--text-secondary)] mr-1 hidden sm:inline">
-            Bereich:
+      {/* Steuerungsleiste: Eingabemodus */}
+      <div className="flex items-center justify-between gap-2.5 p-2.5 sm:p-3 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-color)]">
+        <div className="flex items-center gap-1.5 text-xs font-mono font-medium text-[var(--text-secondary)]">
+          <span className="px-2.5 py-1 rounded-xl bg-sky-500/10 border border-sky-500/25 text-sky-400 font-bold">
+            8-Bit
           </span>
-          {([4, 8, 16] as const).map((r) => (
-            <button
-              key={r}
-              onClick={() => {
-                onPlayClick();
-                setBitRange(r);
-              }}
-              className={`text-xs px-2.5 sm:px-3 py-1.5 rounded-xl border transition-all cursor-pointer font-mono font-medium ${
-                bitRange === r
-                  ? "bg-sky-500 text-white border-sky-400 font-bold shadow-sm"
-                  : "border-[var(--border-color)] text-[var(--text-secondary)] hover:border-[var(--border-hover)]"
-              }`}
-            >
-              {r}-Bit {r === 8 ? "★" : ""}
-            </button>
-          ))}
+          <span className="hidden sm:inline text-[var(--text-muted)]">
+            (1 Byte · Bereich 0 bis 255)
+          </span>
         </div>
 
-        {bitRange <= 8 && (
-          <div className="flex items-center gap-1 p-0.5 rounded-xl bg-[var(--bg-input)] border border-[var(--border-color)]">
-            <button
-              onClick={() => {
-                onPlayClick();
-                setInputMode("buttons");
-              }}
-              className={`text-xs px-2.5 py-1 rounded-lg transition-all cursor-pointer font-medium ${
-                inputMode === "buttons"
-                  ? "bg-sky-500 text-white font-semibold shadow-sm"
-                  : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-              }`}
-            >
-              Schalter
-            </button>
-            <button
-              onClick={() => {
-                onPlayClick();
-                setInputMode("text");
-              }}
-              className={`text-xs px-2.5 py-1 rounded-lg transition-all cursor-pointer font-medium ${
-                inputMode === "text"
-                  ? "bg-sky-500 text-white font-semibold shadow-sm"
-                  : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-              }`}
-            >
-              Tastatur
-            </button>
-          </div>
-        )}
+        <div className="flex items-center gap-1 p-0.5 rounded-xl bg-[var(--bg-input)] border border-[var(--border-color)]">
+          <button
+            onClick={() => {
+              onPlayClick();
+              setInputMode("buttons");
+            }}
+            className={`text-xs px-3 py-1 rounded-lg transition-all cursor-pointer font-medium ${
+              inputMode === "buttons"
+                ? "bg-sky-500 text-white font-semibold shadow-sm"
+                : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+            }`}
+          >
+            Schalter
+          </button>
+          <button
+            onClick={() => {
+              onPlayClick();
+              setInputMode("text");
+            }}
+            className={`text-xs px-3 py-1 rounded-lg transition-all cursor-pointer font-medium ${
+              inputMode === "text"
+                ? "bg-sky-500 text-white font-semibold shadow-sm"
+                : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+            }`}
+          >
+            Tastatur
+          </button>
+        </div>
       </div>
 
       {/* Haupt-Aufgaben-Karte */}
@@ -206,7 +184,7 @@ export function DecToBinModule({
               value={textInput}
               onChange={(e) => setTextInput(e.target.value.replace(/[^01\s]/g, ""))}
               onKeyDown={(e) => e.key === "Enter" && checkAnswer()}
-              placeholder={`${bitRange} Bits eingeben (z. B. 10100000)`}
+              placeholder="8 Bits eingeben (z. B. 10100000)"
               className="w-full text-center font-mono text-xl sm:text-2xl py-3 px-4 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-input)] text-[var(--text-primary)] focus:outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-500/20 transition-all"
             />
             <p className="text-[11px] text-[var(--text-muted)] mt-2">

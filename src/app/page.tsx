@@ -5,15 +5,14 @@ import { Header } from "@/components/Header";
 import { ReferenceBar } from "@/components/ReferenceBar";
 import { DecToBinModule } from "@/components/modules/DecToBinModule";
 import { BinToDecModule } from "@/components/modules/BinToDecModule";
-import { HexModule } from "@/components/modules/HexModule";
 import { SubnetModule } from "@/components/modules/SubnetModule";
 import { ExplainerModule } from "@/components/modules/ExplainerModule";
 import { SprintModule } from "@/components/modules/SprintModule";
 import { useSound } from "@/hooks/useSound";
 import { useTheme } from "@/hooks/useTheme";
-import { Binary, Hash, Network, Calculator, Zap, ArrowRightLeft } from "lucide-react";
+import { Binary, Network, Calculator, Zap, ArrowRightLeft } from "lucide-react";
 
-type ModuleType = "dec2bin" | "bin2dec" | "hex" | "subnet" | "explainer" | "sprint";
+type ModuleType = "dec2bin" | "bin2dec" | "subnet" | "explainer" | "sprint";
 
 export default function Home() {
   const [activeModule, setActiveModule] = useState<ModuleType>("dec2bin");
@@ -28,7 +27,6 @@ export default function Home() {
   const navItems = [
     { id: "dec2bin", label: "Dez ➔ Bin", fullLabel: "Dezimal ➔ Binär", icon: Binary },
     { id: "bin2dec", label: "Bin ➔ Dez", fullLabel: "Binär ➔ Dezimal", icon: ArrowRightLeft },
-    { id: "hex", label: "0x HEX", fullLabel: "0x HEX-Trainer", icon: Hash },
     { id: "subnet", label: "Subnetz", fullLabel: "Subnetz & CIDR", icon: Network },
     { id: "explainer", label: "Rechner", fullLabel: "Rechenhelfer", icon: Calculator },
     { id: "sprint", label: "⚡ Sprint", fullLabel: "Prüfungs-Sprint", icon: Zap },
@@ -94,14 +92,6 @@ export default function Home() {
         )}
         {activeModule === "bin2dec" && (
           <BinToDecModule
-            onSuccess={playSuccess}
-            onError={playError}
-            onPlayClick={playClick}
-            onStreakUpdate={handleStreakUpdate}
-          />
-        )}
-        {activeModule === "hex" && (
-          <HexModule
             onSuccess={playSuccess}
             onError={playError}
             onPlayClick={playClick}

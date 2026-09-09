@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
-import { POWERS_OF_TWO_8BIT, SUBNET_TABLE, NIBBLE_TABLE } from "@/lib/subnetData";
-import { ChevronDown, ChevronUp, Sparkles, Hash, Network, HelpCircle } from "lucide-react";
+import { POWERS_OF_TWO_8BIT, SUBNET_TABLE } from "@/lib/subnetData";
+import { ChevronDown, ChevronUp, Sparkles, Network } from "lucide-react";
 
 interface ReferenceBarProps {
   onPlayClick?: () => void;
 }
 
-type TabType = "powers" | "subnet" | "nibbles";
+type TabType = "powers" | "subnet";
 
 export function ReferenceBar({ onPlayClick }: ReferenceBarProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -41,7 +41,7 @@ export function ReferenceBar({ onPlayClick }: ReferenceBarProps) {
             Didaktischer Spickzettel
           </span>
           <span className="text-[10px] sm:text-xs text-[var(--text-muted)] font-normal hidden xs:inline truncate">
-            (Zweierpotenzen, Subnetz & Nibbles)
+            (Zweierpotenzen & IPv4-Subnetzmasken)
           </span>
         </div>
 
@@ -59,7 +59,7 @@ export function ReferenceBar({ onPlayClick }: ReferenceBarProps) {
       {isOpen && (
         <div className="p-3 sm:p-4 border-t border-[var(--border-color)] bg-[var(--bg-card-subtle)] animate-pop-in">
           {/* Tab Selector */}
-          <div className="flex items-center gap-1.5 p-1 rounded-xl bg-[var(--bg-input)] border border-[var(--border-color)] max-w-md mx-auto mb-3.5">
+          <div className="flex items-center gap-1.5 p-1 rounded-xl bg-[var(--bg-input)] border border-[var(--border-color)] max-w-xs mx-auto mb-3.5">
             <button
               onClick={() => handleTabChange("powers")}
               className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-medium transition-all cursor-pointer ${
@@ -81,17 +81,6 @@ export function ReferenceBar({ onPlayClick }: ReferenceBarProps) {
             >
               <Network size={13} />
               <span>Subnetz / CIDR</span>
-            </button>
-            <button
-              onClick={() => handleTabChange("nibbles")}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-medium transition-all cursor-pointer ${
-                activeTab === "nibbles"
-                  ? "bg-sky-500 text-white font-semibold shadow-sm"
-                  : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-              }`}
-            >
-              <Hash size={13} />
-              <span>Hex-Nibbles</span>
             </button>
           </div>
 
@@ -174,27 +163,6 @@ export function ReferenceBar({ onPlayClick }: ReferenceBarProps) {
               </table>
               <p className="text-[11px] text-center text-[var(--text-muted)] mt-2">
                 💡 Magic Number Formel: <strong className="text-[var(--text-secondary)]">256 - Masken-Oktett = Schrittweite</strong>
-              </p>
-            </div>
-          )}
-
-          {/* Tab 3: Nibbles / Hex */}
-          {activeTab === "nibbles" && (
-            <div>
-              <div className="grid grid-cols-4 sm:grid-cols-8 gap-1.5 font-mono text-xs max-w-xl mx-auto">
-                {NIBBLE_TABLE.map((n) => (
-                  <div
-                    key={n.hex}
-                    className="p-1.5 rounded-lg border border-[var(--border-color)] bg-[var(--bg-surface)] flex flex-col items-center gap-0.5"
-                  >
-                    <div className="font-bold text-sky-400 text-xs sm:text-sm">0x{n.hex}</div>
-                    <div className="text-[var(--text-primary)] text-[11px]">{n.bin}</div>
-                    <div className="text-[var(--text-muted)] text-[9px]">{n.dec}</div>
-                  </div>
-                ))}
-              </div>
-              <p className="text-[11px] text-center text-[var(--text-muted)] mt-2">
-                💡 Ein 8-Bit-Byte besteht aus 2 Nibbles (jeweils 4 Bits von 0 bis 15 bzw. 0x0 bis 0xF).
               </p>
             </div>
           )}

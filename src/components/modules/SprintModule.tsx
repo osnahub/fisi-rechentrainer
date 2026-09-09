@@ -19,7 +19,7 @@ interface SprintQuestion {
   questionText: string;
   expectedAnswer: string;
   explanation: string;
-  category: "dec2bin" | "bin2dec" | "subnet" | "hex";
+  category: "dec2bin" | "bin2dec" | "subnet";
 }
 
 export function SprintModule({
@@ -39,12 +39,12 @@ export function SprintModule({
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Generate 10 mixed questions
+  // Generate 10 mixed questions (Dec ➔ Bin, Bin ➔ Dec, Subnetting)
   const generateQuestions = (): SprintQuestion[] => {
     const list: SprintQuestion[] = [];
 
-    // 1-3: Dec to Bin (8-bit)
-    for (let i = 0; i < 3; i++) {
+    // 1-4: Dec to Bin (8-bit)
+    for (let i = 0; i < 4; i++) {
       const dec = Math.floor(Math.random() * 255) + 1;
       const bin = Conversions.decToBin(dec, 8);
       list.push({
@@ -57,7 +57,7 @@ export function SprintModule({
       });
     }
 
-    // 4-6: Bin to Dec
+    // 5-7: Bin to Dec (8-bit)
     for (let i = 0; i < 3; i++) {
       const dec = Math.floor(Math.random() * 255) + 1;
       const bin = Conversions.decToBin(dec, 8);
@@ -71,10 +71,10 @@ export function SprintModule({
       });
     }
 
-    // 7-8: Subnetting / CIDR
-    for (let i = 0; i < 2; i++) {
+    // 8-10: Subnetting / CIDR
+    for (let i = 0; i < 3; i++) {
       const entry = SUBNET_TABLE[Math.floor(Math.random() * SUBNET_TABLE.length)];
-      if (i === 0) {
+      if (i % 2 === 0) {
         list.push({
           id: list.length + 1,
           type: "IPv4-Subnetzmaske",
@@ -91,31 +91,6 @@ export function SprintModule({
           expectedAnswer: String(entry.magicNumber),
           explanation: `Schrittweite = 256 - ${entry.maskOctet} = ${entry.magicNumber}`,
           category: "subnet",
-        });
-      }
-    }
-
-    // 9-10: Hex conversions
-    for (let i = 0; i < 2; i++) {
-      const val = Math.floor(Math.random() * 255) + 1;
-      const hex = Conversions.decToHex(val, 2);
-      if (i === 0) {
-        list.push({
-          id: list.length + 1,
-          type: "Dezimal ➔ Hex",
-          questionText: `Wandle ${val} in eine 2-stellige Hex-Zahl um:`,
-          expectedAnswer: hex,
-          explanation: `${val} = 0x${hex}`,
-          category: "hex",
-        });
-      } else {
-        list.push({
-          id: list.length + 1,
-          type: "Hex ➔ Dezimal",
-          questionText: `Wandle 0x${hex} in eine Dezimalzahl um:`,
-          expectedAnswer: String(val),
-          explanation: `0x${hex} = ${val}₁₀`,
-          category: "hex",
         });
       }
     }
@@ -217,7 +192,7 @@ export function SprintModule({
             FiSi Prüfungs-Sprint (Speed Challenge)
           </h2>
           <p className="text-sm text-[var(--text-secondary)] max-w-md mx-auto mt-2">
-            10 gemischte Aufgaben zur Prüfungsvorbereitung: Dezimal, Binär, IPv4-Subnetzmasken und Hexadezimal.
+            10 gemischte Aufgaben zur Prüfungsvorbereitung: Dezimal, 8-Bit-Binärzahlen und IPv4-Subnetzmasken (CIDR).
             Kannst du alle 10 Aufgaben fehlerfrei und auf Zeit lösen?
           </p>
 
@@ -283,20 +258,20 @@ export function SprintModule({
               {questions[currentIndex].questionText}
             </h3>
 
-            {/* Eingabe mit dynamischem inputMode für Handys */}
+            {/* Eingabe mit mobilem inputMode */}
             <div className="max-w-xs mx-auto my-5 sm:my-7">
               <input
                 type="text"
                 autoFocus
-                inputMode={questions[currentIndex].category === "hex" ? "text" : "numeric"}
-                autoCapitalize={questions[currentIndex].category === "hex" ? "characters" : "off"}
+                inputMode="numeric"
+                pattern="[0-9]*"
                 autoCorrect="off"
                 spellCheck="false"
                 value={userAnswer}
                 onChange={(e) => setUserAnswer(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && submitAnswer()}
                 placeholder="Antwort eingeben..."
-                className="w-full text-center font-mono text-2xl sm:text-3xl py-3 px-4 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-input)] text-[var(--text-primary)] focus:outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-500/20 transition-all uppercase"
+                className="w-full text-center font-mono text-2xl sm:text-3xl py-3 px-4 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-input)] text-[var(--text-primary)] focus:outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-500/20 transition-all"
               />
             </div>
 
