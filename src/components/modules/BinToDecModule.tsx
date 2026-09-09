@@ -17,7 +17,7 @@ export function BinToDecModule({
   onStreakUpdate,
 }: BinToDecModuleProps) {
   const [targetBinary, setTargetBinary] = useState<string>("00000000");
-  const [showPowersHelper, setShowPowersHelper] = useState<boolean>(false);
+  const [showPowersHelper, setShowPowersHelper] = useState<boolean>(true);
   const [userDecInput, setUserDecInput] = useState<string>("");
   const [feedback, setFeedback] = useState<{ isCorrect: boolean; message: string } | null>(null);
   const [showSolution, setShowSolution] = useState<boolean>(false);
