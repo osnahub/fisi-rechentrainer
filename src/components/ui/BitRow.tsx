@@ -136,7 +136,7 @@ export function BitRow({
                       aria-label={`Bit für Stellenwert ${powerVal} (2^${exponent}): ${isOn ? "gesetzt (1)" : "nicht gesetzt (0)"}`}
                       className={`w-[30px] h-11 xs:w-9 xs:h-12 sm:w-11 sm:h-14 rounded-xl font-mono text-base sm:text-xl font-bold border transition-all cursor-pointer select-none flex items-center justify-center ${
                         isOn
-                          ? "bg-[var(--bit-on-bg)] border-[var(--bit-on-border)] text-white shadow-md shadow-sky-600/20 dark:shadow-sky-500/30 scale-105"
+                          ? "bg-sky-500/15 dark:bg-sky-500/20 border-sky-500 dark:border-sky-400 text-sky-700 dark:text-sky-300 font-extrabold shadow-md shadow-sky-500/20 dark:shadow-sky-400/20 scale-105"
                           : "bg-[var(--bg-input)] border-[var(--border-color)] text-[var(--bit-off-text)] font-semibold hover:border-[var(--border-hover)] hover:text-[var(--text-primary)]"
                       }`}
                     >

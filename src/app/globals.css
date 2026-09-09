@@ -44,10 +44,10 @@
   --warning-border: rgba(251, 191, 36, 0.4);
   --warning-text: #fbbf24;
 
-  --bit-on-bg: linear-gradient(135deg, #0284c7, #2563eb);
+  --bit-on-bg: rgba(56, 189, 248, 0.16);
   --bit-on-border: #38bdf8;
-  --bit-on-text: #ffffff;
-  --bit-on-shadow: 0 4px 14px rgba(56, 189, 248, 0.35);
+  --bit-on-text: #38bdf8;
+  --bit-on-shadow: 0 4px 14px rgba(56, 189, 248, 0.25);
 
   --bit-off-bg: #0f172a;
   --bit-off-border: #334155;
@@ -94,10 +94,10 @@
   --warning-border: #fcd34d;
   --warning-text: #92400e;
 
-  --bit-on-bg: linear-gradient(135deg, #0284c7, #1d4ed8);
-  --bit-on-border: #0369a1;
-  --bit-on-text: #ffffff;
-  --bit-on-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
+  --bit-on-bg: rgba(2, 132, 199, 0.12);
+  --bit-on-border: #0284c7;
+  --bit-on-text: #0284c7;
+  --bit-on-shadow: 0 4px 12px rgba(2, 132, 199, 0.18);
 
   --bit-off-bg: #f8fafc;
   --bit-off-border: #cbd5e1;
