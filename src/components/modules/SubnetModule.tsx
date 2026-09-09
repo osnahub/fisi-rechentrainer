@@ -323,43 +323,103 @@ export function SubnetModule({
         </div>
       )}
 
-      {/* Gesamte Referenztabelle */}
+      {/* Gesamte Referenztabelle – Vollständig scrollbalkenfrei auf Mobilgeräten */}
       {showFullTable && (
-        <div className="p-4 sm:p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] overflow-x-auto animate-pop-in">
-          <h3 className="font-semibold text-xs sm:text-sm text-[var(--text-primary)] mb-3">
-            📊 Die 9 magischen Werte der IPv4-Subnetzmasken (4. Oktett):
-          </h3>
-          <table className="w-full text-xs font-mono border-collapse min-w-[500px]">
-            <thead>
-              <tr className="border-b border-[var(--border-color)] text-[var(--text-muted)] text-left">
-                <th className="py-2 px-2">CIDR</th>
-                <th className="py-2 px-2">Dezimal</th>
-                <th className="py-2 px-2">Binär</th>
-                <th className="py-2 px-2">Schrittweite</th>
-                <th className="py-2 px-2">Hosts (ges.)</th>
-                <th className="py-2 px-2">Nutzbar</th>
-                <th className="py-2 px-2">Einsatzzweck</th>
-              </tr>
-            </thead>
-            <tbody>
-              {SUBNET_TABLE.map((row) => (
-                <tr
+        <div className="p-3.5 sm:p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] animate-pop-in">
+          <div className="flex items-center justify-between gap-2 mb-3">
+            <h3 className="font-semibold text-xs sm:text-sm text-[var(--text-primary)]">
+              📊 Die 9 magischen Werte der IPv4-Subnetzmasken (4. Oktett):
+            </h3>
+            <span className="text-[10px] text-[var(--text-muted)] font-mono sm:hidden">
+              Mobile-Kartenansicht
+            </span>
+          </div>
+
+          {/* Mobile Karten-Ansicht: 100% scrollbalkenfrei, perfekte Lesbarkeit auf jedem Smartphone */}
+          <div className="block sm:hidden space-y-2">
+            {SUBNET_TABLE.map((row) => {
+              const isCurrent = row.cidr === currentEntry.cidr;
+              return (
+                <div
                   key={row.cidr}
-                  className={`border-b border-[var(--border-color)]/30 ${
-                    row.cidr === currentEntry.cidr ? "bg-sky-500/10 font-bold" : ""
+                  className={`p-3 rounded-2xl border transition-all ${
+                    isCurrent
+                      ? "bg-sky-500/10 border-sky-500/40 shadow-sm ring-1 ring-sky-500/20"
+                      : "bg-[var(--bg-card-subtle)] border-[var(--border-color)]/60"
                   }`}
                 >
-                  <td className="py-2 px-2 text-sky-700 dark:text-sky-400 font-bold">{row.cidr}</td>
-                  <td className="py-2 px-2 font-semibold text-[var(--text-primary)]">{row.maskOctet}</td>
-                  <td className="py-2 px-2">{row.binaryOctet}</td>
-                  <td className="py-2 px-2 text-indigo-700 dark:text-indigo-400 font-semibold">{row.magicNumber}</td>
-                  <td className="py-2 px-2">{row.totalHosts}</td>
-                  <td className="py-2 px-2 text-emerald-700 dark:text-emerald-400 font-semibold">{row.usableHosts}</td>
-                  <td className="py-2 px-2 text-[var(--text-muted)] text-[11px]">{row.notes}</td>
+                  <div className="flex items-center justify-between gap-2 mb-1.5">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-sm font-bold text-sky-700 dark:text-sky-400 font-mono">
+                        {row.cidr}
+                      </span>
+                      <span className="text-xs font-semibold text-[var(--text-primary)] font-mono">
+                        .{row.maskOctet}
+                      </span>
+                      <span className="text-[10px] font-mono text-[var(--text-muted)]">
+                        (255.255.255.{row.maskOctet})
+                      </span>
+                    </div>
+                    <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 font-mono">
+                      {row.usableHosts} Hosts
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 text-[11px] font-mono py-1.5 border-y border-[var(--border-color)]/40 my-1">
+                    <div>
+                      <span className="text-[var(--text-muted)] text-[10px] block">Binärmuster:</span>
+                      <span className="font-semibold text-[var(--text-secondary)]">{row.binaryOctet}</span>
+                    </div>
+                    <div>
+                      <span className="text-[var(--text-muted)] text-[10px] block">Schrittweite (Block):</span>
+                      <span className="font-bold text-indigo-700 dark:text-indigo-400">
+                        {row.magicNumber} <span className="text-[10px] text-[var(--text-muted)] font-normal">(ges: {row.totalHosts})</span>
+                      </span>
+                    </div>
+                  </div>
+
+                  <p className="text-[10.5px] text-[var(--text-muted)] mt-1.5 leading-snug">
+                    💡 {row.notes}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Desktop & Tablet Tabellen-Ansicht */}
+          <div className="hidden sm:block overflow-x-auto">
+            <table className="w-full text-xs font-mono border-collapse">
+              <thead>
+                <tr className="border-b border-[var(--border-color)] text-[var(--text-muted)] text-left">
+                  <th className="py-2 px-2">CIDR</th>
+                  <th className="py-2 px-2">Dezimal</th>
+                  <th className="py-2 px-2">Binär</th>
+                  <th className="py-2 px-2">Schrittweite</th>
+                  <th className="py-2 px-2">Hosts (ges.)</th>
+                  <th className="py-2 px-2">Nutzbar</th>
+                  <th className="py-2 px-2">Einsatzzweck</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {SUBNET_TABLE.map((row) => (
+                  <tr
+                    key={row.cidr}
+                    className={`border-b border-[var(--border-color)]/30 transition-colors ${
+                      row.cidr === currentEntry.cidr ? "bg-sky-500/10 font-bold" : "hover:bg-[var(--bg-card-subtle)]"
+                    }`}
+                  >
+                    <td className="py-2 px-2 text-sky-700 dark:text-sky-400 font-bold">{row.cidr}</td>
+                    <td className="py-2 px-2 font-semibold text-[var(--text-primary)]">.{row.maskOctet}</td>
+                    <td className="py-2 px-2">{row.binaryOctet}</td>
+                    <td className="py-2 px-2 text-indigo-700 dark:text-indigo-400 font-semibold">{row.magicNumber}</td>
+                    <td className="py-2 px-2">{row.totalHosts}</td>
+                    <td className="py-2 px-2 text-emerald-700 dark:text-emerald-400 font-semibold">{row.usableHosts}</td>
+                    <td className="py-2 px-2 text-[var(--text-muted)] text-[11px]">{row.notes}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>
