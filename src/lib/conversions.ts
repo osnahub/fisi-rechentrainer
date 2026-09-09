@@ -8,9 +8,12 @@ export interface StellenwertStep {
 }
 
 export interface DivisionStep {
+  stepIndex: number;
   original: number;
   divResult: number;
   remainder: number;
+  isLSB: boolean;
+  isMSB: boolean;
 }
 
 export interface HexDivisionStep {
@@ -18,6 +21,24 @@ export interface HexDivisionStep {
   divResult: number;
   remainder: number;
   hexChar: string;
+}
+
+export interface PolynomialTerm {
+  power: number;
+  bit: number;
+  val: number;
+  product: number;
+  isActive: boolean;
+}
+
+export interface SubnetExampleProfile {
+  networkAddress: string;
+  firstHost: string;
+  lastHost: string;
+  broadcastAddress: string;
+  totalAddresses: number;
+  usableHosts: number;
+  hostBits: number;
 }
 
 const HEX_CHARS = "0123456789ABCDEF";
@@ -80,6 +101,26 @@ export const Conversions = {
     return parts.join(" ");
   },
 
+  getPolynomialExpansion(binStr: string): PolynomialTerm[] {
+    const clean = binStr.replace(/\s+/g, "");
+    const terms: PolynomialTerm[] = [];
+    const len = clean.length;
+
+    for (let i = 0; i < len; i++) {
+      const bit = Number(clean[i]) || 0;
+      const power = len - 1 - i;
+      const val = Math.pow(2, power);
+      terms.push({
+        power,
+        bit,
+        val,
+        product: bit * val,
+        isActive: bit === 1,
+      });
+    }
+    return terms;
+  },
+
   getStellenwertSteps(decimalNumber: number, bitCount = 8): StellenwertStep[] {
     const steps: StellenwertStep[] = [];
     let remainder = decimalNumber;
@@ -112,20 +153,31 @@ export const Conversions = {
 
   getDivisionSteps(decimalNumber: number): DivisionStep[] {
     if (decimalNumber === 0) {
-      return [{ original: 0, divResult: 0, remainder: 0 }];
+      return [{ stepIndex: 1, original: 0, divResult: 0, remainder: 0, isLSB: true, isMSB: true }];
     }
     const steps: DivisionStep[] = [];
     let current = decimalNumber;
+    let index = 1;
+
     while (current > 0) {
       const divResult = Math.floor(current / 2);
       const rem = current % 2;
       steps.push({
+        stepIndex: index,
         original: current,
         divResult,
         remainder: rem,
+        isLSB: index === 1,
+        isMSB: false, // will update last element
       });
       current = divResult;
+      index++;
     }
+
+    if (steps.length > 0) {
+      steps[steps.length - 1].isMSB = true;
+    }
+
     return steps;
   },
 
@@ -148,4 +200,30 @@ export const Conversions = {
     }
     return steps;
   },
+
+  getSubnetExample(cidrSuffix: number): SubnetExampleProfile {
+    // Clamped between 24 and 32
+    const cidr = Math.min(32, Math.max(24, cidrSuffix));
+    const hostBits = 32 - cidr;
+    const totalAddresses = Math.pow(2, hostBits);
+    const usableHosts = hostBits <= 1 ? (hostBits === 1 ? 0 : 1) : totalAddresses - 2;
+
+    const basePrefix = "192.168.10.";
+    const netStart = 0;
+    const networkAddress = `${basePrefix}${netStart}`;
+    const broadcastAddress = `${basePrefix}${netStart + totalAddresses - 1}`;
+    const firstHost = hostBits <= 1 ? "-" : `${basePrefix}${netStart + 1}`;
+    const lastHost = hostBits <= 1 ? "-" : `${basePrefix}${netStart + totalAddresses - 2}`;
+
+    return {
+      networkAddress,
+      firstHost,
+      lastHost,
+      broadcastAddress,
+      totalAddresses,
+      usableHosts,
+      hostBits,
+    };
+  },
 };
+

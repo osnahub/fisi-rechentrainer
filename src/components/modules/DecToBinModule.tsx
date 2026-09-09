@@ -267,49 +267,74 @@ export function DecToBinModule({
 
       {/* Lösungsweg Aufklappbar */}
       {showSolution && solutionSteps.length > 0 && (
-        <div className="p-4 sm:p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] animate-pop-in">
-          <h3 className="font-semibold text-xs sm:text-sm text-[var(--text-primary)] mb-3 flex items-center gap-2">
+        <div className="p-4 sm:p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] animate-pop-in space-y-4">
+          <div className="flex items-center gap-2">
             <span className="w-5 h-5 rounded-md bg-sky-500/20 text-sky-400 flex items-center justify-center text-xs">📖</span>
-            Schritt-für-Schritt Stellenwertmethode für {targetDec}:
-          </h3>
+            <h3 className="font-semibold text-xs sm:text-sm text-[var(--text-primary)]">
+              Schritt-für-Schritt Stellenwertmethode (Greedy-Subtraktion) für {targetDec}:
+            </h3>
+          </div>
+
+          <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+            <strong>Didaktisches Prinzip:</strong> Wir prüfen von links nach rechts (vom <strong>MSB</strong> zum <strong>LSB</strong>), ob der aktuelle Stellenwert in die Restzahl hineinpasst. Wenn ja, setzen wir das Bit auf <strong>1</strong> und subtrahieren den Wert. Wenn nein, setzen wir <strong>0</strong>.
+          </p>
+
           <div className="overflow-x-auto">
-            <table className="w-full text-xs font-mono border-collapse min-w-[320px]">
+            <table className="w-full text-xs font-mono border-collapse min-w-[340px]">
               <thead>
                 <tr className="border-b border-[var(--border-color)] text-[var(--text-muted)] text-left">
-                  <th className="py-2 px-2">Stelle (Potenz)</th>
+                  <th className="py-2 px-2">Potenz</th>
                   <th className="py-2 px-2 text-center">Wert</th>
-                  <th className="py-2 px-2">Passt in Rest?</th>
+                  <th className="py-2 px-2">Prüfung & Subtraktion</th>
                   <th className="py-2 px-2 text-center">Bit</th>
                   <th className="py-2 px-2 text-right">Neuer Rest</th>
                 </tr>
               </thead>
               <tbody>
                 {solutionSteps.map((s, i) => (
-                  <tr key={i} className="border-b border-[var(--border-color)]/30">
-                    <td className="py-2 px-2 text-sky-400 font-medium">2^{s.power}</td>
+                  <tr key={i} className={`border-b border-[var(--border-color)]/30 ${s.fits ? "bg-emerald-500/5" : ""}`}>
+                    <td className="py-2 px-2 text-sky-400 font-medium">
+                      2^{s.power}
+                      {i === 0 && <span className="ml-1 text-[9px] text-amber-400 font-bold">MSB</span>}
+                      {i === solutionSteps.length - 1 && <span className="ml-1 text-[9px] text-indigo-400 font-bold">LSB</span>}
+                    </td>
                     <td className="py-2 px-2 text-center font-bold">{s.val}</td>
                     <td className="py-2 px-2">
-                      {s.prevRemainder} ≥ {s.val} ?{" "}
-                      <span className={s.fits ? "text-emerald-400 font-bold" : "text-[var(--text-muted)]"}>
-                        {s.fits ? `Ja (- ${s.val})` : "Nein"}
-                      </span>
+                      {s.fits ? (
+                        <span className="text-emerald-400 font-semibold">
+                          {s.prevRemainder} ≥ {s.val} ➔ {s.prevRemainder} - {s.val} = {s.newRemainder}
+                        </span>
+                      ) : (
+                        <span className="text-[var(--text-muted)]">
+                          {s.prevRemainder} &lt; {s.val} ➔ passt nicht
+                        </span>
+                      )}
                     </td>
                     <td className="py-2 px-2 text-center font-bold text-sm">
-                      <span className={s.bit === 1 ? "text-sky-400" : "text-[var(--text-muted)]"}>
+                      <span className={s.bit === 1 ? "text-emerald-400 font-black" : "text-[var(--text-muted)]"}>
                         {s.bit}
                       </span>
                     </td>
-                    <td className="py-2 px-2 text-right text-[var(--text-secondary)]">{s.newRemainder}</td>
+                    <td className="py-2 px-2 text-right font-bold text-[var(--text-secondary)]">{s.newRemainder}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          <div className="mt-3.5 p-2.5 rounded-xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)] text-xs text-[var(--text-secondary)] text-center font-mono">
-            Binäres Endergebnis:{" "}
-            <span className="font-bold text-sky-400 text-sm">
-              {Conversions.formatNibbles(Conversions.decToBin(targetDec, bitRange))}₂
-            </span>
+
+          <div className="p-3 rounded-2xl bg-sky-500/10 border border-sky-500/25 font-mono text-xs flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <span className="text-[var(--text-muted)]">Gegenprobe: </span>
+              <span className="text-sky-300 font-bold">
+                {solutionSteps.filter((s) => s.bit === 1).map((s) => s.val).join(" + ") || "0"} = {targetDec}₁₀
+              </span>
+            </div>
+            <div>
+              <span className="text-[var(--text-muted)]">Binärcode: </span>
+              <span className="font-bold text-sky-400 text-sm">
+                {Conversions.formatNibbles(Conversions.decToBin(targetDec, bitRange))}₂
+              </span>
+            </div>
           </div>
         </div>
       )}

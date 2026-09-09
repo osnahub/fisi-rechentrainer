@@ -139,122 +139,157 @@ export function ExplainerModule({ onPlayClick }: ExplainerModuleProps) {
       {/* Die 3 didaktischen Rechenwege */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Weg 1: Stellenwertmethode */}
-        <div className="p-4 sm:p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="w-6 h-6 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center font-bold text-xs">
-              1
-            </span>
-            <h3 className="font-semibold text-xs sm:text-sm text-[var(--text-primary)]">
-              Stellenwertmethode
-            </h3>
-          </div>
-          <p className="text-[11px] text-[var(--text-secondary)] mb-3">
-            Schnellste Methode im Kopf: Passt die Potenz in den Rest?
-          </p>
+        <div className="p-4 sm:p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm flex flex-col justify-between">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="w-6 h-6 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center font-bold text-xs">
+                1
+              </span>
+              <h3 className="font-semibold text-xs sm:text-sm text-[var(--text-primary)]">
+                Stellenwertmethode (Subtraktion)
+              </h3>
+            </div>
+            <p className="text-[11px] text-[var(--text-secondary)] mb-3">
+              Schnellste Kopfrechenmethode: Passt die Zweierpotenz in den Rest?
+            </p>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-xs font-mono border-collapse min-w-[240px]">
-              <thead>
-                <tr className="border-b border-[var(--border-color)] text-[var(--text-muted)] text-left">
-                  <th className="py-1.5 px-1">Wert</th>
-                  <th className="py-1.5 px-1">Vergleich</th>
-                  <th className="py-1.5 px-1 text-center">Bit</th>
-                  <th className="py-1.5 px-1 text-right">Rest</th>
-                </tr>
-              </thead>
-              <tbody>
-                {stellenwertSteps.map((s, idx) => (
-                  <tr key={idx} className="border-b border-[var(--border-color)]/20">
-                    <td className="py-1.5 px-1 font-bold text-sky-400">{s.val}</td>
-                    <td className="py-1.5 px-1 text-[var(--text-secondary)]">
-                      {s.prevRemainder} ≥ {s.val}
-                    </td>
-                    <td className="py-1.5 px-1 text-center font-bold">
-                      <span className={s.bit === 1 ? "text-emerald-400" : "text-[var(--text-muted)]"}>
-                        {s.bit}
-                      </span>
-                    </td>
-                    <td className="py-1.5 px-1 text-right">{s.newRemainder}</td>
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs font-mono border-collapse min-w-[240px]">
+                <thead>
+                  <tr className="border-b border-[var(--border-color)] text-[var(--text-muted)] text-left">
+                    <th className="py-1.5 px-1">Potenz</th>
+                    <th className="py-1.5 px-1">Wert</th>
+                    <th className="py-1.5 px-1 text-center">Bit</th>
+                    <th className="py-1.5 px-1 text-right">Rest</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {stellenwertSteps.map((s, idx) => (
+                    <tr key={idx} className={`border-b border-[var(--border-color)]/20 ${s.fits ? "bg-emerald-500/5" : ""}`}>
+                      <td className="py-1.5 px-1 text-sky-400 font-medium">
+                        2^{s.power}
+                        {idx === 0 && <span className="ml-1 text-[8px] text-amber-400 font-bold">MSB</span>}
+                        {idx === stellenwertSteps.length - 1 && <span className="ml-1 text-[8px] text-indigo-400 font-bold">LSB</span>}
+                      </td>
+                      <td className="py-1.5 px-1 font-bold text-[var(--text-primary)]">{s.val}</td>
+                      <td className="py-1.5 px-1 text-center font-bold">
+                        <span className={s.bit === 1 ? "text-emerald-400" : "text-[var(--text-muted)]"}>
+                          {s.bit}
+                        </span>
+                      </td>
+                      <td className="py-1.5 px-1 text-right text-[var(--text-secondary)]">{s.newRemainder}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="mt-3.5 p-2 rounded-xl bg-sky-500/10 border border-sky-500/20 text-[11px] text-sky-300 font-mono text-center">
+            {stellenwertSteps.filter((s) => s.bit === 1).map((s) => s.val).join(" + ") || "0"} = {currentDec}₁₀
           </div>
         </div>
 
         {/* Weg 2: Restwertmethode (Division durch 2) */}
-        <div className="p-4 sm:p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="w-6 h-6 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-xs">
-              2
-            </span>
-            <h3 className="font-semibold text-xs sm:text-sm text-[var(--text-primary)]">
-              Restwertmethode (:2)
-            </h3>
-          </div>
-          <p className="text-[11px] text-[var(--text-secondary)] mb-3">
-            Standard-Methode auf Papier: Immer durch 2 teilen, Reste notieren.
-          </p>
+        <div className="p-4 sm:p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm flex flex-col justify-between">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="w-6 h-6 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-xs">
+                2
+              </span>
+              <h3 className="font-semibold text-xs sm:text-sm text-[var(--text-primary)]">
+                Restwertmethode (:2)
+              </h3>
+            </div>
+            <p className="text-[11px] text-[var(--text-secondary)] mb-3">
+              Klassische Papiermethode: Fortlaufend durch 2 teilen und Reste sammeln.
+            </p>
 
-          <div className="space-y-1 text-xs font-mono max-h-[280px] overflow-y-auto pr-1">
-            {divisionSteps.map((step, idx) => (
-              <div
-                key={idx}
-                className="flex items-center justify-between p-1.5 rounded-xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)]/30"
-              >
-                <span>
-                  {step.original} : 2 = <strong className="text-[var(--text-primary)]">{step.divResult}</strong>
-                </span>
-                <span className="font-bold text-sky-400">
-                  Rest: <span className="text-emerald-400">{step.remainder}</span>
-                </span>
-              </div>
-            ))}
+            <div className="space-y-1 text-xs font-mono max-h-[280px] overflow-y-auto pr-1">
+              {divisionSteps.map((step) => (
+                <div
+                  key={step.stepIndex}
+                  className="flex items-center justify-between p-1.5 rounded-xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)]/30"
+                >
+                  <span>
+                    {step.original} : 2 = <strong className="text-[var(--text-primary)]">{step.divResult}</strong>
+                  </span>
+                  <div className="flex items-center gap-1.5 font-bold">
+                    <span className="text-[var(--text-muted)] text-[10px]">Rest:</span>
+                    <span className="text-emerald-400 text-sm">{step.remainder}</span>
+                    {step.isLSB && (
+                      <span className="text-[8px] bg-indigo-400/15 text-indigo-400 px-1 py-0.5 rounded border border-indigo-400/30">
+                        LSB
+                      </span>
+                    )}
+                    {step.isMSB && (
+                      <span className="text-[8px] bg-amber-400/15 text-amber-400 px-1 py-0.5 rounded border border-amber-400/30">
+                        MSB
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
-          <div className="mt-3.5 p-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-xs flex items-center gap-2 text-indigo-300">
-            <ArrowUp size={16} className="text-indigo-400 shrink-0" />
-            <span className="text-[11px]">
-              <strong>Leserichtung:</strong> Von unten nach oben lesen ergibt das Binärmuster!
-            </span>
+          <div className="mt-3.5 p-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-xs flex flex-col gap-1 text-indigo-300">
+            <div className="flex items-center gap-1.5 font-bold text-indigo-400">
+              <ArrowUp size={16} className="shrink-0 animate-bounce" />
+              <span>Leserichtung: Von unten (MSB) nach oben (LSB)</span>
+            </div>
+            <div className="font-mono text-[11px] text-[var(--text-secondary)]">
+              Endergebnis: <span className="text-emerald-400 font-bold">{Conversions.formatNibbles(currentBin)}₂</span>
+            </div>
           </div>
         </div>
 
         {/* Weg 3: Hex & Nibbles */}
-        <div className="p-4 sm:p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">
-              3
-            </span>
-            <h3 className="font-semibold text-xs sm:text-sm text-[var(--text-primary)]">
-              Hexadezimal & Nibbles
-            </h3>
-          </div>
-          <p className="text-[11px] text-[var(--text-secondary)] mb-3">
-            Division durch 16 oder direkte 4-Bit-Nibble-Kopplung.
-          </p>
+        <div className="p-4 sm:p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm flex flex-col justify-between">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">
+                3
+              </span>
+              <h3 className="font-semibold text-xs sm:text-sm text-[var(--text-primary)]">
+                Hexadezimal & Nibbles
+              </h3>
+            </div>
+            <p className="text-[11px] text-[var(--text-secondary)] mb-3">
+              Division durch 16 oder direkte 4-Bit-Nibble-Gruppierung (2⁴ = 16).
+            </p>
 
-          <div className="space-y-1.5 text-xs font-mono mb-4">
-            {hexDivisionSteps.map((step, idx) => (
-              <div
-                key={idx}
-                className="flex items-center justify-between p-1.5 rounded-xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)]/30"
-              >
-                <span>
-                  {step.original} : 16 = <strong className="text-[var(--text-primary)]">{step.divResult}</strong>
-                </span>
-                <span>
-                  Rest: {step.remainder}{" "}
-                  <strong className="text-indigo-400 font-bold">➔ &apos;{step.hexChar}&apos;</strong>
-                </span>
+            <div className="space-y-1.5 text-xs font-mono mb-4">
+              {hexDivisionSteps.map((step, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-center justify-between p-1.5 rounded-xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)]/30"
+                >
+                  <span>
+                    {step.original} : 16 = <strong className="text-[var(--text-primary)]">{step.divResult}</strong>
+                  </span>
+                  <span>
+                    Rest: {step.remainder}{" "}
+                    <strong className="text-indigo-400 font-bold">➔ &apos;{step.hexChar}&apos;</strong>
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="p-3 rounded-2xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)] font-mono text-xs space-y-1.5">
+            <div className="font-bold text-sky-400 text-xs">4-Bit-Nibbles (2⁴ = 16):</div>
+            <div className="text-[11px] text-[var(--text-secondary)]">
+              Binär: <span className="text-[var(--text-primary)] font-bold">{Conversions.formatNibbles(currentBin)}</span>
+            </div>
+            <div className="text-[11px] text-[var(--text-secondary)]">
+              Hex: <span className="text-indigo-400 font-bold">0x{currentHex}</span>
+            </div>
+            {currentDec <= 255 && (
+              <div className="text-[10px] text-[var(--text-muted)] border-t border-[var(--border-color)]/40 pt-1">
+                Algebra: ({Conversions.binToDec(currentBin.slice(0, 4))} · 16) + {Conversions.binToDec(currentBin.slice(4, 8))} = {currentDec}₁₀
               </div>
-            ))}
-          </div>
-
-          <div className="p-3 rounded-2xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)] font-mono text-xs space-y-1">
-            <div className="font-bold text-sky-400 text-xs">Nibble-Aufteilung:</div>
-            <div>Binär: {Conversions.formatNibbles(currentBin)}</div>
-            <div>Hex: 0x{currentHex}</div>
+            )}
           </div>
         </div>
       </div>

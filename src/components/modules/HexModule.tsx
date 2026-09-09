@@ -269,31 +269,63 @@ export function HexModule({
 
       {/* Lösungsweg & Nibble-Aufschlüsselung */}
       {showSolution && (
-        <div className="p-4 sm:p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] animate-pop-in">
-          <h3 className="font-semibold text-xs sm:text-sm text-[var(--text-primary)] mb-3 flex items-center gap-2">
+        <div className="p-4 sm:p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] animate-pop-in space-y-4">
+          <div className="flex items-center gap-2">
             <span className="w-5 h-5 rounded-md bg-sky-500/20 text-sky-400 flex items-center justify-center text-xs">📖</span>
-            Die Nibble-Methode im Detail:
-          </h3>
+            <h3 className="font-semibold text-xs sm:text-sm text-[var(--text-primary)]">
+              Mathematische Herleitung & Nibble-Methode:
+            </h3>
+          </div>
+
+          {/* Mathematisches Lemma */}
+          <div className="p-3 rounded-2xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)] text-xs font-mono">
+            <div className="text-[var(--text-muted)] text-[11px] mb-1">
+              Warum funktioniert die Nibble-Methode mathematisch exakt?
+            </div>
+            <div className="text-sky-400 font-bold sm:text-sm">
+              Basis-Äquivalenz: 2⁴ = 16 ➔ Genau 4 Bits (1 Nibble) codieren 16 Zustände (0 bis F).
+            </div>
+            <div className="text-[var(--text-secondary)] text-[11px] mt-1.5 leading-relaxed">
+              Jedes Byte besteht aus 8 Bits = 2 × 4 Bits. Der Dezimalwert berechnet sich als Polynom zur Basis 16:
+              <br />
+              <strong className="text-[var(--text-primary)]">Wert₁₀ = (High-Nibble · 16¹) + (Low-Nibble · 16⁰) = (H · 16) + L</strong>
+            </div>
+          </div>
+
+          {/* Aufschlüsselung der beiden Nibbles */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 font-mono text-xs">
             <div className="p-3 sm:p-3.5 rounded-2xl bg-[var(--bg-card-subtle)] border border-sky-500/30">
               <span className="text-sky-400 font-bold block mb-1">
-                1. High-Nibble (obere 4 Bits):
+                1. High-Nibble (obere 4 Bits, Wertigkeit 16¹):
               </span>
-              <div>Binär: <span className="font-bold text-[var(--text-primary)]">{highNibbleBin}</span></div>
-              <div className="text-[var(--text-secondary)]">Dezimalwert: {Conversions.binToDec(highNibbleBin)}</div>
-              <div className="text-sky-400 font-bold mt-1 text-sm">➔ Hex-Ziffer: {highNibbleHex}</div>
+              <div>Binär: <span className="font-bold text-[var(--text-primary)]">{highNibbleBin}</span>₂</div>
+              <div className="text-[var(--text-secondary)]">Nibble-Wert (0–15): {Conversions.binToDec(highNibbleBin)}</div>
+              <div className="text-sky-400 font-bold mt-1 text-sm">
+                ➔ Hex-Ziffer: <span className="underline">{highNibbleHex}</span> (Beitrag: {Conversions.binToDec(highNibbleBin)} · 16 = {Conversions.binToDec(highNibbleBin) * 16})
+              </div>
             </div>
+
             <div className="p-3 sm:p-3.5 rounded-2xl bg-[var(--bg-card-subtle)] border border-indigo-500/30">
               <span className="text-indigo-400 font-bold block mb-1">
-                2. Low-Nibble (untere 4 Bits):
+                2. Low-Nibble (untere 4 Bits, Wertigkeit 16⁰):
               </span>
-              <div>Binär: <span className="font-bold text-[var(--text-primary)]">{lowNibbleBin}</span></div>
-              <div className="text-[var(--text-secondary)]">Dezimalwert: {Conversions.binToDec(lowNibbleBin)}</div>
-              <div className="text-indigo-400 font-bold mt-1 text-sm">➔ Hex-Ziffer: {lowNibbleHex}</div>
+              <div>Binär: <span className="font-bold text-[var(--text-primary)]">{lowNibbleBin}</span>₂</div>
+              <div className="text-[var(--text-secondary)]">Nibble-Wert (0–15): {Conversions.binToDec(lowNibbleBin)}</div>
+              <div className="text-indigo-400 font-bold mt-1 text-sm">
+                ➔ Hex-Ziffer: <span className="underline">{lowNibbleHex}</span> (Beitrag: {Conversions.binToDec(lowNibbleBin)} · 1 = {Conversions.binToDec(lowNibbleBin)})
+              </div>
             </div>
           </div>
-          <div className="mt-3 p-3 text-center font-mono text-xs sm:text-sm font-bold text-sky-400 bg-sky-500/10 rounded-xl border border-sky-500/25">
-            Gesamtergebnis: 0x{targetHex} = {taskVal}₁₀ = {highNibbleBin} {lowNibbleBin}₂
+
+          {/* Algebraische Zusammenführung */}
+          <div className="p-3 rounded-2xl bg-sky-500/10 border border-sky-500/25 font-mono text-xs sm:text-sm text-center">
+            <div className="text-[11px] text-sky-300 mb-1">Algebraische Gesamtrechnung:</div>
+            <div className="font-bold text-[var(--text-primary)]">
+              ({Conversions.binToDec(highNibbleBin)} · 16) + ({Conversions.binToDec(lowNibbleBin)} · 1) = {Conversions.binToDec(highNibbleBin) * 16} + {Conversions.binToDec(lowNibbleBin)} = <span className="text-sky-400">{taskVal}₁₀</span>
+            </div>
+            <div className="text-xs text-[var(--text-secondary)] mt-1 font-semibold">
+              Hexadezimal: 0x{targetHex} &nbsp;|&nbsp; Binär: {highNibbleBin} {lowNibbleBin}₂
+            </div>
           </div>
         </div>
       )}

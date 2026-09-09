@@ -84,22 +84,45 @@ export function BinToDecModule({
     }
   });
 
-  // Group bit display into 4-bit nibbles
+  // Group bit display into 4-bit nibbles with mathematical annotations
   const chunkSize = 4;
-  const nibbles: { bit: number; powerVal: number; isOn: boolean; originalIndex: number }[][] = [];
+  const SUPERSCRIPTS: Record<number, string> = {
+    0: "⁰", 1: "¹", 2: "²", 3: "³", 4: "⁴",
+    5: "⁵", 6: "⁶", 7: "⁷", 8: "⁸", 9: "⁹",
+  };
+  const formatExponent = (exp: number) => {
+    const s = String(exp);
+    return "2" + s.split("").map((c) => SUPERSCRIPTS[Number(c)] ?? c).join("");
+  };
+
+  const nibbles: {
+    bit: number;
+    powerVal: number;
+    exponent: number;
+    isOn: boolean;
+    originalIndex: number;
+    isMSB: boolean;
+    isLSB: boolean;
+  }[][] = [];
+
   for (let i = 0; i < bitArray.length; i += chunkSize) {
     const chunk = bitArray.slice(i, i + chunkSize).map((bit, subIdx) => {
       const originalIndex = i + subIdx;
-      const power = bitArray.length - 1 - originalIndex;
+      const exponent = bitArray.length - 1 - originalIndex;
       return {
         bit,
-        powerVal: Math.pow(2, power),
+        powerVal: Math.pow(2, exponent),
+        exponent,
         isOn: bit === 1,
         originalIndex,
+        isMSB: originalIndex === 0,
+        isLSB: originalIndex === bitArray.length - 1,
       };
     });
     nibbles.push(chunk);
   }
+
+  const polynomialTerms = Conversions.getPolynomialExpansion(targetBinary);
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -159,22 +182,39 @@ export function BinToDecModule({
           {nibbles.map((nibble, nIdx) => (
             <React.Fragment key={nIdx}>
               <div className="flex items-center gap-1 sm:gap-1.5 p-1 rounded-2xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)]/60">
-                {nibble.map(({ bit, powerVal, isOn, originalIndex }) => (
+                {nibble.map(({ bit, powerVal, exponent, isOn, originalIndex, isMSB, isLSB }) => (
                   <div
                     key={originalIndex}
                     className="flex flex-col items-center gap-1 min-w-[34px] sm:min-w-[44px]"
                   >
-                    <span
-                      className={`text-[10px] sm:text-xs font-mono font-medium transition-opacity ${
-                        showPowersHelper
-                          ? isOn
-                            ? "text-sky-400 font-bold opacity-100"
-                            : "text-[var(--text-muted)] opacity-60"
-                          : "opacity-0 select-none"
-                      }`}
-                    >
-                      {powerVal}
-                    </span>
+                    <div className="flex flex-col items-center min-h-[30px] justify-end">
+                      {showPowersHelper && isMSB && (
+                        <span className="text-[8px] font-mono font-bold tracking-tight text-amber-400 bg-amber-400/10 px-1 py-0.5 rounded border border-amber-400/20 leading-none mb-0.5">
+                          MSB
+                        </span>
+                      )}
+                      {showPowersHelper && isLSB && (
+                        <span className="text-[8px] font-mono font-bold tracking-tight text-indigo-400 bg-indigo-400/10 px-1 py-0.5 rounded border border-indigo-400/20 leading-none mb-0.5">
+                          LSB
+                        </span>
+                      )}
+                      {showPowersHelper && !isMSB && !isLSB && (
+                        <span className="text-[9px] font-mono text-[var(--text-muted)] opacity-60 leading-none mb-0.5">
+                          {formatExponent(exponent)}
+                        </span>
+                      )}
+                      <span
+                        className={`text-[10px] sm:text-xs font-mono font-medium transition-opacity ${
+                          showPowersHelper
+                            ? isOn
+                              ? "text-sky-400 font-bold opacity-100"
+                              : "text-[var(--text-muted)] opacity-60"
+                            : "opacity-0 select-none"
+                        }`}
+                      >
+                        {powerVal}
+                      </span>
+                    </div>
                     <div
                       className={`w-8.5 h-11 xs:w-9.5 xs:h-12 sm:w-11 sm:h-14 rounded-xl font-mono text-base sm:text-xl font-bold border flex items-center justify-center select-none transition-all ${
                         isOn
@@ -265,27 +305,77 @@ export function BinToDecModule({
         )}
       </div>
 
-      {/* Lösungsweg */}
+      {/* Didaktischer Lösungsweg mit Polynomdarstellung */}
       {showSolution && (
-        <div className="p-4 sm:p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] animate-pop-in">
-          <h3 className="font-semibold text-xs sm:text-sm text-[var(--text-primary)] mb-2 flex items-center gap-2">
+        <div className="p-4 sm:p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] animate-pop-in space-y-4">
+          <div className="flex items-center gap-2">
             <span className="w-5 h-5 rounded-md bg-sky-500/20 text-sky-400 flex items-center justify-center text-xs">📖</span>
-            Mathematische Addition der gesetzten 1-Bits:
-          </h3>
-          <p className="text-xs text-[var(--text-secondary)] mb-3">
-            Jede gesetzte Eins repräsentiert ihre Zweierpotenz. Addiere alle Werte:
-          </p>
-          <div className="p-3.5 rounded-2xl bg-[var(--bg-card-subtle)] font-mono text-xs sm:text-sm border border-[var(--border-color)]">
+            <h3 className="font-semibold text-xs sm:text-sm text-[var(--text-primary)]">
+              Mathematische Herleitung (Polynomdarstellung):
+            </h3>
+          </div>
+
+          {/* Formel-Header */}
+          <div className="p-3 rounded-2xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)] text-xs font-mono">
+            <div className="text-[var(--text-muted)] text-[11px] mb-1">Stellenwert-Definition im Zweiersystem:</div>
+            <div className="text-sky-400 font-bold sm:text-sm">
+              N₁₀ = ∑ (bᵢ · 2ⁱ) = (b_{bitArray.length - 1} · 2^{bitArray.length - 1}) + … + (b₀ · 2⁰)
+            </div>
+          </div>
+
+          {/* Konkrete Terme-Aufschlüsselung */}
+          <div className="space-y-1.5">
+            <div className="text-[11px] text-[var(--text-secondary)] font-medium">
+              Eingesetzte Bitwerte & Potenzen:
+            </div>
+            <div className="p-3 rounded-2xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)] font-mono text-xs flex flex-wrap items-center gap-1.5 leading-relaxed">
+              {polynomialTerms.map((term, i) => (
+                <React.Fragment key={term.power}>
+                  <span
+                    className={`inline-flex items-center px-1.5 py-0.5 rounded-md border ${
+                      term.isActive
+                        ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-300 font-bold"
+                        : "bg-[var(--bg-input)] border-transparent text-[var(--text-muted)] opacity-60"
+                    }`}
+                    title={
+                      term.isActive
+                        ? `Bit ${term.power} ist 1: 1 × ${term.val} = ${term.val}`
+                        : `Bit ${term.power} ist 0: 0 × ${term.val} = 0`
+                    }
+                  >
+                    ({term.bit} · 2{formatExponent(term.power).slice(1)})
+                  </span>
+                  {i < polynomialTerms.length - 1 && (
+                    <span className="text-[var(--text-muted)]">+</span>
+                  )}
+                </React.Fragment>
+              ))}
+              <span className="text-[var(--text-muted)]">=</span>
+              <span className="font-bold text-sky-400 text-sm sm:text-base">{targetDec}₁₀</span>
+            </div>
+          </div>
+
+          {/* Summe der aktiven Werte */}
+          <div className="p-3 rounded-2xl bg-sky-500/10 border border-sky-500/25 font-mono text-xs">
+            <div className="text-[11px] text-sky-300 mb-1 font-medium">
+              Summe der aktiven Stellenwerte (nur gesetzte 1-Bits):
+            </div>
             {activePowers.length > 0 ? (
-              <div className="flex flex-wrap items-center gap-2">
-                <span>
-                  {activePowers.map((p) => `${p.val} (2^${p.power})`).join(" + ")}
+              <div className="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">
+                <span className="text-[var(--text-primary)] font-bold">
+                  {activePowers.map((p) => p.val).join(" + ")}
                 </span>
-                <span className="font-bold text-sky-400 text-sm sm:text-base">= {targetDec}₁₀</span>
+                <span className="text-sky-400 font-extrabold text-base">
+                  = {targetDec}₁₀
+                </span>
               </div>
             ) : (
-              <span>Kein Bit gesetzt = 0</span>
+              <span className="text-[var(--text-muted)]">Kein Bit gesetzt = 0</span>
             )}
+          </div>
+
+          <div className="text-[11px] text-[var(--text-muted)] leading-relaxed">
+            💡 <strong>Didaktischer Merksatz:</strong> Bits mit dem Wert <strong>0</strong> multiplizieren ihre Potenz mit 0 (z. B. 0 · 64 = 0) und leisten daher keinen Beitrag zur Gesamtsumme. Man addiert im Kopf lediglich die Potenzen der <strong>1-Bits</strong>.
           </div>
         </div>
       )}

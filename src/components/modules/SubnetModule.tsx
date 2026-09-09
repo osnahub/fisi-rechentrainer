@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { SUBNET_TABLE, SubnetEntry } from "@/lib/subnetData";
+import { Conversions } from "@/lib/conversions";
 import { Check, RefreshCw, Eye, BookOpen, Sparkles, CheckCircle2, AlertCircle } from "lucide-react";
 
 interface SubnetModuleProps {
@@ -252,24 +253,27 @@ export function SubnetModule({
         )}
       </div>
 
-      {/* Lösungsweg Details */}
+      {/* Lösungsweg Details mit mathematischer Herleitung und IP-Bereich */}
       {showSolution && (
-        <div className="p-4 sm:p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] font-mono text-xs animate-pop-in">
-          <h3 className="font-semibold text-xs sm:text-sm text-[var(--text-primary)] mb-3 flex items-center gap-2">
+        <div className="p-4 sm:p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] font-mono text-xs animate-pop-in space-y-4">
+          <div className="flex items-center gap-2">
             <span className="w-5 h-5 rounded-md bg-sky-500/20 text-sky-400 flex items-center justify-center text-xs">📖</span>
-            Vollständiges Profil für {currentEntry.cidr}:
-          </h3>
+            <h3 className="font-semibold text-xs sm:text-sm text-[var(--text-primary)]">
+              Vollständiges Profil & mathematischer Beweis für {currentEntry.cidr}:
+            </h3>
+          </div>
+
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
             <div className="p-3 rounded-2xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)]">
               <span className="text-[10px] text-[var(--text-muted)] block">Subnetzmaske</span>
               <span className="text-sm sm:text-base font-bold text-sky-400">255.255.255.{currentEntry.maskOctet}</span>
             </div>
             <div className="p-3 rounded-2xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)]">
-              <span className="text-[10px] text-[var(--text-muted)] block">Binärmuster</span>
+              <span className="text-[10px] text-[var(--text-muted)] block">Binärmuster (4. Oktett)</span>
               <span className="text-xs sm:text-sm font-bold text-sky-400">{currentEntry.binaryOctet}</span>
             </div>
             <div className="p-3 rounded-2xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)]">
-              <span className="text-[10px] text-[var(--text-muted)] block">Schrittweite</span>
+              <span className="text-[10px] text-[var(--text-muted)] block">Schrittweite (Blockgröße)</span>
               <span className="text-sm sm:text-base font-bold text-indigo-400">{currentEntry.magicNumber} Adressen</span>
             </div>
             <div className="p-3 rounded-2xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)]">
@@ -277,8 +281,57 @@ export function SubnetModule({
               <span className="text-sm sm:text-base font-bold text-emerald-400">{currentEntry.usableHosts} Hosts</span>
             </div>
           </div>
-          <div className="mt-3 text-[var(--text-muted)] text-[11px]">
-            Info: {currentEntry.notes} (Host-Bits: {currentEntry.hostBits})
+
+          {/* Mathematische Herleitung */}
+          <div className="p-3.5 rounded-2xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)] space-y-1.5">
+            <div className="text-sky-400 font-bold text-xs">
+              Mathematische Herleitung der Schrittweite (Magic Number):
+            </div>
+            <div className="text-[var(--text-secondary)] text-[11px] leading-relaxed">
+              Bei einem <strong className="text-[var(--text-primary)]">{currentEntry.cidr}</strong>-Netzwerk verbleiben im 32-Bit-IPv4-Raum genau{" "}
+              <strong className="text-sky-400">h = 32 - {parseInt(currentEntry.cidr.replace("/", ""), 10)} = {currentEntry.hostBits} Host-Bits</strong>.
+            </div>
+            <div className="p-2.5 rounded-xl bg-[var(--bg-input)] border border-[var(--border-color)]/60 text-xs sm:text-sm font-bold text-[var(--text-primary)]">
+              Schrittweite = 2ʰ = 2{currentEntry.hostBits === 0 ? "⁰" : currentEntry.hostBits === 1 ? "¹" : currentEntry.hostBits === 2 ? "²" : currentEntry.hostBits === 3 ? "³" : currentEntry.hostBits === 4 ? "⁴" : currentEntry.hostBits === 5 ? "⁵" : currentEntry.hostBits === 6 ? "⁶" : currentEntry.hostBits === 7 ? "⁷" : "^" + currentEntry.hostBits} = 256 - {currentEntry.maskOctet} = <span className="text-indigo-400">{currentEntry.magicNumber}</span>
+            </div>
+            <div className="text-[11px] text-[var(--text-muted)]">
+              Formel nutzbare Hosts: 2ʰ - 2 = {currentEntry.magicNumber} - 2 = <strong className="text-emerald-400">{currentEntry.usableHosts}</strong> (Erste Adresse ist Netz-ID, letzte ist Broadcast).
+            </div>
+          </div>
+
+          {/* Praxisnahes IP-Beispiel */}
+          {(() => {
+            const cidrNum = parseInt(currentEntry.cidr.replace("/", ""), 10);
+            const ex = Conversions.getSubnetExample(cidrNum);
+            return (
+              <div className="p-3.5 rounded-2xl bg-indigo-500/10 border border-indigo-500/25 space-y-2">
+                <div className="text-indigo-300 font-bold text-xs">
+                  Typisches IHK-Prüfungsbeispiel (Basisnetz 192.168.10.0{currentEntry.cidr}):
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+                  <div className="p-2 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)]">
+                    <span className="text-[var(--text-muted)] block">Netzwerkadresse (Netz-ID):</span>
+                    <span className="font-bold text-[var(--text-primary)]">{ex.networkAddress}</span>
+                  </div>
+                  <div className="p-2 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)]">
+                    <span className="text-[var(--text-muted)] block">Broadcastadresse:</span>
+                    <span className="font-bold text-rose-400">{ex.broadcastAddress}</span>
+                  </div>
+                  <div className="p-2 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)]">
+                    <span className="text-[var(--text-muted)] block">Erster nutzbarer Host:</span>
+                    <span className="font-bold text-emerald-400">{ex.firstHost}</span>
+                  </div>
+                  <div className="p-2 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)]">
+                    <span className="text-[var(--text-muted)] block">Letzter nutzbarer Host:</span>
+                    <span className="font-bold text-emerald-400">{ex.lastHost}</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+
+          <div className="text-[var(--text-muted)] text-[11px]">
+            Einsatzbereich: {currentEntry.notes}
           </div>
         </div>
       )}

@@ -18,7 +18,18 @@ export function BitRow({
   powers,
   showQuickActions = true,
 }: BitRowProps) {
+  const triggerHaptic = () => {
+    if (typeof window !== "undefined" && "vibrate" in navigator) {
+      try {
+        navigator.vibrate(10);
+      } catch {
+        // Haptic feedback not supported or blocked
+      }
+    }
+  };
+
   const toggleBit = (index: number) => {
+    triggerHaptic();
     onBitClick?.();
     const next = [...bits];
     next[index] = next[index] === 1 ? 0 : 1;
@@ -26,31 +37,52 @@ export function BitRow({
   };
 
   const handleClearAll = () => {
+    triggerHaptic();
     onBitClick?.();
     onChange(new Array(bits.length).fill(0));
   };
 
   const handleInvertAll = () => {
+    triggerHaptic();
     onBitClick?.();
     onChange(bits.map((b) => (b === 1 ? 0 : 1)));
   };
 
   const handleSetAll = () => {
+    triggerHaptic();
     onBitClick?.();
     onChange(new Array(bits.length).fill(1));
   };
 
   // Group into 4-bit nibbles for optimal readability and mobile sizing
   const chunkSize = 4;
-  const nibbles: { bit: number; originalIndex: number; powerVal: number }[][] = [];
+  const nibbles: {
+    bit: number;
+    originalIndex: number;
+    powerVal: number;
+    exponent: number;
+    isMSB: boolean;
+    isLSB: boolean;
+  }[][] = [];
+
+  const SUPERSCRIPTS: Record<number, string> = {
+    0: "⁰", 1: "¹", 2: "²", 3: "³", 4: "⁴",
+    5: "⁵", 6: "⁶", 7: "⁷", 8: "⁸", 9: "⁹",
+  };
+
+  const formatExponent = (exp: number) => {
+    const s = String(exp);
+    return "2" + s.split("").map((c) => SUPERSCRIPTS[Number(c)] ?? c).join("");
+  };
 
   for (let i = 0; i < bits.length; i += chunkSize) {
     const chunk = bits.slice(i, i + chunkSize).map((bit, subIdx) => {
       const originalIndex = i + subIdx;
-      const powerVal = powers
-        ? powers[originalIndex]
-        : Math.pow(2, bits.length - 1 - originalIndex);
-      return { bit, originalIndex, powerVal };
+      const exponent = bits.length - 1 - originalIndex;
+      const powerVal = powers ? powers[originalIndex] : Math.pow(2, exponent);
+      const isMSB = originalIndex === 0;
+      const isLSB = originalIndex === bits.length - 1;
+      return { bit, originalIndex, powerVal, exponent, isMSB, isLSB };
     });
     nibbles.push(chunk);
   }
@@ -62,7 +94,7 @@ export function BitRow({
         {nibbles.map((nibble, nibbleIdx) => (
           <React.Fragment key={nibbleIdx}>
             <div className="flex items-center gap-1 sm:gap-1.5 p-1 rounded-2xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)]/60">
-              {nibble.map(({ bit, originalIndex, powerVal }) => {
+              {nibble.map(({ bit, originalIndex, powerVal, exponent, isMSB, isLSB }) => {
                 const isOn = bit === 1;
 
                 return (
@@ -70,18 +102,38 @@ export function BitRow({
                     key={originalIndex}
                     className="flex flex-col items-center gap-1 min-w-[34px] sm:min-w-[44px]"
                   >
-                    <span
-                      className={`text-[10px] sm:text-xs font-mono transition-colors font-medium ${
-                        isOn ? "text-sky-400 font-bold" : "text-[var(--text-muted)]"
-                      }`}
-                    >
-                      {powerVal}
-                    </span>
+                    {/* Exponent & Stellenwert & MSB/LSB Badge */}
+                    <div className="flex flex-col items-center min-h-[30px] justify-end">
+                      {isMSB && (
+                        <span className="text-[8px] font-mono font-bold tracking-tight text-amber-400 bg-amber-400/10 px-1 py-0.5 rounded border border-amber-400/20 leading-none mb-0.5">
+                          MSB
+                        </span>
+                      )}
+                      {isLSB && (
+                        <span className="text-[8px] font-mono font-bold tracking-tight text-indigo-400 bg-indigo-400/10 px-1 py-0.5 rounded border border-indigo-400/20 leading-none mb-0.5">
+                          LSB
+                        </span>
+                      )}
+                      {!isMSB && !isLSB && (
+                        <span className="text-[9px] font-mono text-[var(--text-muted)] opacity-60 leading-none mb-0.5">
+                          {formatExponent(exponent)}
+                        </span>
+                      )}
+                      <span
+                        className={`text-[10px] sm:text-xs font-mono transition-colors font-medium ${
+                          isOn ? "text-sky-400 font-bold" : "text-[var(--text-muted)]"
+                        }`}
+                        title={`Stellenwert 2^${exponent} = ${powerVal}`}
+                      >
+                        {powerVal}
+                      </span>
+                    </div>
+
                     <button
                       type="button"
                       onClick={() => toggleBit(originalIndex)}
                       aria-pressed={isOn}
-                      aria-label={`Bit für Stellenwert ${powerVal}: ${isOn ? "gesetzt (1)" : "nicht gesetzt (0)"}`}
+                      aria-label={`Bit für Stellenwert ${powerVal} (2^${exponent}): ${isOn ? "gesetzt (1)" : "nicht gesetzt (0)"}`}
                       className={`w-8.5 h-11 xs:w-9.5 xs:h-12 sm:w-11 sm:h-14 rounded-xl font-mono text-base sm:text-xl font-bold border transition-all cursor-pointer select-none flex items-center justify-center ${
                         isOn
                           ? "bg-[var(--bit-on-bg)] border-[var(--bit-on-border)] text-white shadow-md shadow-sky-500/30 scale-105"
