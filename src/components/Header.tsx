@@ -25,9 +25,6 @@ export function Header({
             <h1 className="text-base sm:text-xl font-bold tracking-tight text-[var(--text-primary)] truncate">
               FiSi-Rechentrainer
             </h1>
-            <span className="hidden md:inline-flex text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-sky-500/10 text-sky-400 border border-sky-500/20">
-              IHK Prüfungsfit
-            </span>
           </div>
           <p className="text-[11px] sm:text-xs text-[var(--text-secondary)] truncate">
             Der interaktive Zahlensystem- & Subnetz-Trainer für Fachinformatiker
