@@ -95,7 +95,7 @@ export function SubnetModule({
               onClick={() => setTaskType(t.id)}
               className={`text-xs px-2.5 sm:px-3 py-1.5 rounded-xl border transition-all cursor-pointer font-medium ${
                 taskType === t.id
-                  ? "bg-sky-500 text-white border-sky-400 font-semibold shadow-sm"
+                  ? "bg-sky-600 dark:bg-sky-500 text-white border-sky-600 dark:border-sky-400 font-semibold shadow-sm"
                   : "border-[var(--border-color)] text-[var(--text-secondary)] hover:border-[var(--border-hover)]"
               }`}
             >
@@ -108,7 +108,7 @@ export function SubnetModule({
           onClick={() => setShowFullTable((prev) => !prev)}
           className={`text-xs px-3 py-1.5 rounded-xl border transition-all cursor-pointer flex items-center gap-1.5 font-medium ${
             showFullTable
-              ? "bg-sky-500 text-white border-sky-400 shadow-sm"
+              ? "bg-sky-600 dark:bg-sky-500 text-white border-sky-600 dark:border-sky-400 shadow-sm"
               : "border-[var(--border-color)] text-[var(--text-secondary)] hover:border-[var(--border-hover)]"
           }`}
         >
@@ -119,7 +119,7 @@ export function SubnetModule({
 
       {/* Aufgaben-Karte */}
       <div className="p-5 sm:p-8 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-center shadow-sm relative overflow-hidden">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/25 text-sky-400 text-xs font-bold uppercase tracking-wider mb-2">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/30 text-sky-700 dark:text-sky-300 text-xs font-bold uppercase tracking-wider mb-2">
           <Sparkles size={13} />
           <span>IHK-Prüfungsfrage</span>
         </div>
@@ -165,7 +165,7 @@ export function SubnetModule({
               <span className="text-5xl sm:text-6xl font-mono font-extrabold text-[var(--text-primary)]">
                 .{currentEntry.maskOctet}
               </span>
-              <span className="text-xs font-mono text-sky-400 block mt-2 font-medium">
+              <span className="text-xs font-mono text-sky-700 dark:text-sky-400 block mt-2 font-medium">
                 {currentEntry.cidr} ➔ Formel: 256 - {currentEntry.maskOctet} = ?
               </span>
             </div>
@@ -213,7 +213,7 @@ export function SubnetModule({
             </button>
             <button
               onClick={() => setShowSolution(true)}
-              className="flex-1 xs:flex-none min-h-[44px] flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-sky-400 hover:border-sky-500/40 transition-all cursor-pointer text-xs font-medium"
+              className="flex-1 xs:flex-none min-h-[44px] flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-sky-600 dark:hover:text-sky-400 hover:border-sky-500/40 transition-all cursor-pointer text-xs font-medium"
             >
               <Eye size={15} />
               <span>Lösungsweg</span>
@@ -244,7 +244,7 @@ export function SubnetModule({
       {showSolution && (
         <div className="p-4 sm:p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] font-mono text-xs animate-pop-in space-y-4">
           <div className="flex items-center gap-2">
-            <span className="w-5 h-5 rounded-md bg-sky-500/20 text-sky-400 flex items-center justify-center text-xs">📖</span>
+            <span className="w-6 h-6 rounded-lg bg-sky-500/15 text-sky-700 dark:text-sky-300 flex items-center justify-center text-xs">📖</span>
             <h3 className="font-semibold text-xs sm:text-sm text-[var(--text-primary)]">
               Vollständiges Profil & mathematischer Beweis für {currentEntry.cidr}:
             </h3>
@@ -253,36 +253,36 @@ export function SubnetModule({
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
             <div className="p-3 rounded-2xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)]">
               <span className="text-[10px] text-[var(--text-muted)] block">Subnetzmaske</span>
-              <span className="text-sm sm:text-base font-bold text-sky-400">255.255.255.{currentEntry.maskOctet}</span>
+              <span className="text-sm sm:text-base font-bold text-sky-700 dark:text-sky-400">255.255.255.{currentEntry.maskOctet}</span>
             </div>
             <div className="p-3 rounded-2xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)]">
               <span className="text-[10px] text-[var(--text-muted)] block">Binärmuster (4. Oktett)</span>
-              <span className="text-xs sm:text-sm font-bold text-sky-400">{currentEntry.binaryOctet}</span>
+              <span className="text-xs sm:text-sm font-bold text-sky-700 dark:text-sky-400">{currentEntry.binaryOctet}</span>
             </div>
             <div className="p-3 rounded-2xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)]">
               <span className="text-[10px] text-[var(--text-muted)] block">Schrittweite (Blockgröße)</span>
-              <span className="text-sm sm:text-base font-bold text-indigo-400">{currentEntry.magicNumber} Adressen</span>
+              <span className="text-sm sm:text-base font-bold text-indigo-700 dark:text-indigo-300">{currentEntry.magicNumber} Adressen</span>
             </div>
             <div className="p-3 rounded-2xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)]">
               <span className="text-[10px] text-[var(--text-muted)] block">Nutzbare Hosts</span>
-              <span className="text-sm sm:text-base font-bold text-emerald-400">{currentEntry.usableHosts} Hosts</span>
+              <span className="text-sm sm:text-base font-bold text-emerald-700 dark:text-emerald-400">{currentEntry.usableHosts} Hosts</span>
             </div>
           </div>
 
           {/* Mathematische Herleitung */}
           <div className="p-3.5 rounded-2xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)] space-y-1.5">
-            <div className="text-sky-400 font-bold text-xs">
+            <div className="text-sky-700 dark:text-sky-400 font-bold text-xs">
               Mathematische Herleitung der Schrittweite (Magic Number):
             </div>
             <div className="text-[var(--text-secondary)] text-[11px] leading-relaxed">
               Bei einem <strong className="text-[var(--text-primary)]">{currentEntry.cidr}</strong>-Netzwerk verbleiben im 32-Bit-IPv4-Raum genau{" "}
-              <strong className="text-sky-400">h = 32 - {parseInt(currentEntry.cidr.replace("/", ""), 10)} = {currentEntry.hostBits} Host-Bits</strong>.
+              <strong className="text-sky-700 dark:text-sky-400">h = 32 - {parseInt(currentEntry.cidr.replace("/", ""), 10)} = {currentEntry.hostBits} Host-Bits</strong>.
             </div>
             <div className="p-2.5 rounded-xl bg-[var(--bg-input)] border border-[var(--border-color)]/60 text-xs sm:text-sm font-bold text-[var(--text-primary)]">
-              Schrittweite = 2ʰ = 2{currentEntry.hostBits === 0 ? "⁰" : currentEntry.hostBits === 1 ? "¹" : currentEntry.hostBits === 2 ? "²" : currentEntry.hostBits === 3 ? "³" : currentEntry.hostBits === 4 ? "⁴" : currentEntry.hostBits === 5 ? "⁵" : currentEntry.hostBits === 6 ? "⁶" : currentEntry.hostBits === 7 ? "⁷" : "^" + currentEntry.hostBits} = 256 - {currentEntry.maskOctet} = <span className="text-indigo-400">{currentEntry.magicNumber}</span>
+              Schrittweite = 2ʰ = 2{currentEntry.hostBits === 0 ? "⁰" : currentEntry.hostBits === 1 ? "¹" : currentEntry.hostBits === 2 ? "²" : currentEntry.hostBits === 3 ? "³" : currentEntry.hostBits === 4 ? "⁴" : currentEntry.hostBits === 5 ? "⁵" : currentEntry.hostBits === 6 ? "⁶" : currentEntry.hostBits === 7 ? "⁷" : "^" + currentEntry.hostBits} = 256 - {currentEntry.maskOctet} = <span className="text-indigo-700 dark:text-indigo-300">{currentEntry.magicNumber}</span>
             </div>
             <div className="text-[11px] text-[var(--text-muted)]">
-              Formel nutzbare Hosts: 2ʰ - 2 = {currentEntry.magicNumber} - 2 = <strong className="text-emerald-400">{currentEntry.usableHosts}</strong> (Erste Adresse ist Netz-ID, letzte ist Broadcast).
+              Formel nutzbare Hosts: 2ʰ - 2 = {currentEntry.magicNumber} - 2 = <strong className="text-emerald-700 dark:text-emerald-400">{currentEntry.usableHosts}</strong> (Erste Adresse ist Netz-ID, letzte ist Broadcast).
             </div>
           </div>
 
@@ -292,7 +292,7 @@ export function SubnetModule({
             const ex = Conversions.getSubnetExample(cidrNum);
             return (
               <div className="p-3.5 rounded-2xl bg-indigo-500/10 border border-indigo-500/25 space-y-2">
-                <div className="text-indigo-300 font-bold text-xs">
+                <div className="text-indigo-800 dark:text-indigo-300 font-bold text-xs">
                   Typisches IHK-Prüfungsbeispiel (Basisnetz 192.168.10.0{currentEntry.cidr}):
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
@@ -302,15 +302,15 @@ export function SubnetModule({
                   </div>
                   <div className="p-2 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)]">
                     <span className="text-[var(--text-muted)] block">Broadcastadresse:</span>
-                    <span className="font-bold text-rose-400">{ex.broadcastAddress}</span>
+                    <span className="font-bold text-rose-700 dark:text-rose-400">{ex.broadcastAddress}</span>
                   </div>
                   <div className="p-2 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)]">
                     <span className="text-[var(--text-muted)] block">Erster nutzbarer Host:</span>
-                    <span className="font-bold text-emerald-400">{ex.firstHost}</span>
+                    <span className="font-bold text-emerald-700 dark:text-emerald-400">{ex.firstHost}</span>
                   </div>
                   <div className="p-2 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)]">
                     <span className="text-[var(--text-muted)] block">Letzter nutzbarer Host:</span>
-                    <span className="font-bold text-emerald-400">{ex.lastHost}</span>
+                    <span className="font-bold text-emerald-700 dark:text-emerald-400">{ex.lastHost}</span>
                   </div>
                 </div>
               </div>
@@ -349,12 +349,12 @@ export function SubnetModule({
                     row.cidr === currentEntry.cidr ? "bg-sky-500/10 font-bold" : ""
                   }`}
                 >
-                  <td className="py-2 px-2 text-sky-400">{row.cidr}</td>
-                  <td className="py-2 px-2 font-semibold">{row.maskOctet}</td>
+                  <td className="py-2 px-2 text-sky-700 dark:text-sky-400 font-bold">{row.cidr}</td>
+                  <td className="py-2 px-2 font-semibold text-[var(--text-primary)]">{row.maskOctet}</td>
                   <td className="py-2 px-2">{row.binaryOctet}</td>
-                  <td className="py-2 px-2 text-indigo-400 font-semibold">{row.magicNumber}</td>
+                  <td className="py-2 px-2 text-indigo-700 dark:text-indigo-400 font-semibold">{row.magicNumber}</td>
                   <td className="py-2 px-2">{row.totalHosts}</td>
-                  <td className="py-2 px-2 text-emerald-400 font-semibold">{row.usableHosts}</td>
+                  <td className="py-2 px-2 text-emerald-700 dark:text-emerald-400 font-semibold">{row.usableHosts}</td>
                   <td className="py-2 px-2 text-[var(--text-muted)] text-[11px]">{row.notes}</td>
                 </tr>
               ))}

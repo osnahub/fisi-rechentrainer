@@ -120,7 +120,7 @@ export function BinToDecModule({
       {/* Steuerungsleiste */}
       <div className="flex flex-wrap items-center justify-between gap-2.5 p-2.5 sm:p-3 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-color)]">
         <div className="flex items-center gap-1.5">
-          <span className="text-xs px-2.5 sm:px-3 py-1.5 rounded-xl border border-sky-500/30 bg-sky-500/10 text-sky-400 font-mono font-semibold">
+          <span className="text-xs px-2.5 sm:px-3 py-1.5 rounded-xl border border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-300 font-mono font-semibold">
             8-Bit (1 Byte · Bereich 0 bis 255)
           </span>
         </div>
@@ -129,7 +129,7 @@ export function BinToDecModule({
           onClick={() => setShowPowersHelper((prev) => !prev)}
           className={`text-xs px-3 py-1.5 rounded-xl border transition-all cursor-pointer font-medium flex items-center gap-1.5 ${
             showPowersHelper
-              ? "bg-sky-500 text-white border-sky-400 font-semibold shadow-sm"
+              ? "bg-sky-600 dark:bg-sky-500 text-white border-sky-600 dark:border-sky-400 font-semibold shadow-sm"
               : "border-[var(--border-color)] text-[var(--text-secondary)] hover:border-[var(--border-hover)]"
           }`}
         >
@@ -140,7 +140,7 @@ export function BinToDecModule({
 
       {/* Aufgaben-Karte */}
       <div className="p-5 sm:p-8 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-center shadow-sm relative overflow-hidden">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/25 text-sky-400 text-xs font-bold uppercase tracking-wider mb-2">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/30 text-sky-700 dark:text-sky-300 text-xs font-bold uppercase tracking-wider mb-2">
           <Sparkles size={13} />
           <span>Aufgabe</span>
         </div>
@@ -169,25 +169,25 @@ export function BinToDecModule({
                         }`}
                       >
                         {isMSB && (
-                          <span className="text-[8px] font-mono font-bold tracking-tight text-amber-400 bg-amber-400/10 px-1 py-0.5 rounded border border-amber-400/20 leading-none mb-0.5">
+                          <span className="text-[10px] font-mono font-bold tracking-wider text-amber-800 bg-amber-100 border-amber-300 dark:text-amber-300 dark:bg-amber-950/50 dark:border-amber-500/40 px-1 py-0.5 rounded leading-none mb-0.5">
                             MSB
                           </span>
                         )}
                         {isLSB && (
-                          <span className="text-[8px] font-mono font-bold tracking-tight text-indigo-400 bg-indigo-400/10 px-1 py-0.5 rounded border border-indigo-400/20 leading-none mb-0.5">
+                          <span className="text-[10px] font-mono font-bold tracking-wider text-indigo-800 bg-indigo-100 border-indigo-300 dark:text-indigo-300 dark:bg-indigo-950/50 dark:border-indigo-500/40 px-1 py-0.5 rounded leading-none mb-0.5">
                             LSB
                           </span>
                         )}
                         {!isMSB && !isLSB && (
-                          <span className="text-[9px] font-mono text-[var(--text-muted)] opacity-60 leading-none mb-0.5">
+                          <span className="text-[10px] font-mono text-[var(--text-muted)] font-medium leading-none mb-0.5">
                             {formatExponent(exponent)}
                           </span>
                         )}
                         <span
-                          className={`text-[10px] sm:text-xs font-mono font-medium ${
+                          className={`text-[10px] sm:text-xs font-mono ${
                             isOn
-                              ? "text-sky-400 font-bold"
-                              : "text-[var(--text-muted)] opacity-70"
+                              ? "text-sky-600 dark:text-sky-400 font-bold"
+                              : "text-[var(--text-muted)] font-medium"
                           }`}
                         >
                           {powerVal}
@@ -197,8 +197,8 @@ export function BinToDecModule({
                     <div
                       className={`w-8.5 h-11 xs:w-9.5 xs:h-12 sm:w-11 sm:h-14 rounded-xl font-mono text-base sm:text-xl font-bold border flex items-center justify-center select-none transition-all ${
                         isOn
-                          ? "bg-[var(--bit-on-bg)] border-[var(--bit-on-border)] text-white shadow-md shadow-sky-500/30 scale-105"
-                          : "bg-[var(--bg-input)] border-[var(--border-color)] text-[var(--bit-off-text)]"
+                          ? "bg-[var(--bit-on-bg)] border-[var(--bit-on-border)] text-white shadow-md shadow-sky-600/20 dark:shadow-sky-500/30 scale-105"
+                          : "bg-[var(--bg-input)] border-[var(--border-color)] text-[var(--bit-off-text)] font-semibold"
                       }`}
                     >
                       {bit}
@@ -251,7 +251,7 @@ export function BinToDecModule({
             </button>
             <button
               onClick={() => setShowSolution(true)}
-              className="flex-1 xs:flex-none min-h-[44px] flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-sky-400 hover:border-sky-500/40 transition-all cursor-pointer text-xs font-medium"
+              className="flex-1 xs:flex-none min-h-[44px] flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-sky-600 dark:hover:text-sky-400 hover:border-sky-500/40 transition-all cursor-pointer text-xs font-medium"
             >
               <Eye size={15} />
               <span>Lösungsweg</span>
@@ -282,7 +282,7 @@ export function BinToDecModule({
       {showSolution && (
         <div className="p-4 sm:p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] animate-pop-in space-y-4">
           <div className="flex items-center gap-2">
-            <span className="w-5 h-5 rounded-md bg-sky-500/20 text-sky-400 flex items-center justify-center text-xs">📖</span>
+            <span className="w-6 h-6 rounded-lg bg-sky-500/15 text-sky-700 dark:text-sky-300 flex items-center justify-center text-xs">📖</span>
             <h3 className="font-semibold text-xs sm:text-sm text-[var(--text-primary)]">
               Mathematische Herleitung (Polynomdarstellung):
             </h3>
@@ -291,7 +291,7 @@ export function BinToDecModule({
           {/* Formel-Header */}
           <div className="p-3 rounded-2xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)] text-xs font-mono">
             <div className="text-[var(--text-muted)] text-[11px] mb-1">Stellenwert-Definition im Zweiersystem:</div>
-            <div className="text-sky-400 font-bold sm:text-sm">
+            <div className="text-sky-700 dark:text-sky-400 font-bold sm:text-sm">
               N₁₀ = ∑ (bᵢ · 2ⁱ) = (b_{bitArray.length - 1} · 2^{bitArray.length - 1}) + … + (b₀ · 2⁰)
             </div>
           </div>
@@ -307,8 +307,8 @@ export function BinToDecModule({
                   <span
                     className={`inline-flex items-center px-1.5 py-0.5 rounded-md border ${
                       term.isActive
-                        ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-300 font-bold"
-                        : "bg-[var(--bg-input)] border-transparent text-[var(--text-muted)] opacity-60"
+                        ? "bg-emerald-100 border-emerald-300 text-emerald-800 dark:bg-emerald-950/40 dark:border-emerald-500/40 dark:text-emerald-300 font-bold"
+                        : "bg-[var(--bg-input)] border border-[var(--border-color)] text-[var(--text-muted)]"
                     }`}
                     title={
                       term.isActive
@@ -324,13 +324,13 @@ export function BinToDecModule({
                 </React.Fragment>
               ))}
               <span className="text-[var(--text-muted)]">=</span>
-              <span className="font-bold text-sky-400 text-sm sm:text-base">{targetDec}₁₀</span>
+              <span className="font-bold text-sky-700 dark:text-sky-400 text-sm sm:text-base">{targetDec}₁₀</span>
             </div>
           </div>
 
           {/* Summe der aktiven Werte */}
-          <div className="p-3 rounded-2xl bg-sky-500/10 border border-sky-500/25 font-mono text-xs">
-            <div className="text-[11px] text-sky-300 mb-1 font-medium">
+          <div className="p-3.5 rounded-2xl bg-sky-500/10 border border-sky-500/25 font-mono text-xs">
+            <div className="text-[11px] text-sky-800 dark:text-sky-300 mb-1 font-semibold">
               Summe der aktiven Stellenwerte (nur gesetzte 1-Bits):
             </div>
             {activePowers.length > 0 ? (
@@ -338,12 +338,12 @@ export function BinToDecModule({
                 <span className="text-[var(--text-primary)] font-bold">
                   {activePowers.map((p) => p.val).join(" + ")}
                 </span>
-                <span className="text-sky-400 font-extrabold text-base">
+                <span className="text-sky-700 dark:text-sky-400 font-extrabold text-base">
                   = {targetDec}₁₀
                 </span>
               </div>
             ) : (
-              <span className="text-[var(--text-muted)]">Kein Bit gesetzt = 0</span>
+              <span className="text-[var(--text-muted)] font-medium">Kein Bit gesetzt = 0</span>
             )}
           </div>
 

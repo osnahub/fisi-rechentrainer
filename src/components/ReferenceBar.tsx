@@ -34,7 +34,7 @@ export function ReferenceBar({ onPlayClick }: ReferenceBarProps) {
         aria-expanded={isOpen}
       >
         <div className="flex items-center gap-2 min-w-0">
-          <div className="w-6 h-6 rounded-lg bg-sky-500/10 text-sky-400 border border-sky-500/20 flex items-center justify-center shrink-0">
+          <div className="w-6 h-6 rounded-lg bg-sky-500/10 text-sky-700 dark:text-sky-400 border border-sky-500/20 flex items-center justify-center shrink-0">
             <Sparkles size={14} />
           </div>
           <span className="font-semibold text-xs sm:text-sm text-[var(--text-primary)] truncate">
@@ -46,7 +46,7 @@ export function ReferenceBar({ onPlayClick }: ReferenceBarProps) {
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <span className="text-[11px] font-medium text-sky-400">
+          <span className="text-[11px] font-medium text-sky-700 dark:text-sky-400">
             {isOpen ? "Ausblenden" : "Einblenden"}
           </span>
           <div className="w-6 h-6 rounded-lg border border-[var(--border-color)] flex items-center justify-center text-[var(--text-muted)]">
@@ -64,7 +64,7 @@ export function ReferenceBar({ onPlayClick }: ReferenceBarProps) {
               onClick={() => handleTabChange("powers")}
               className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-medium transition-all cursor-pointer ${
                 activeTab === "powers"
-                  ? "bg-sky-500 text-white font-semibold shadow-sm"
+                  ? "bg-sky-600 dark:bg-sky-500 text-white font-semibold shadow-sm"
                   : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
               }`}
             >
@@ -75,7 +75,7 @@ export function ReferenceBar({ onPlayClick }: ReferenceBarProps) {
               onClick={() => handleTabChange("subnet")}
               className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-medium transition-all cursor-pointer ${
                 activeTab === "subnet"
-                  ? "bg-sky-500 text-white font-semibold shadow-sm"
+                  ? "bg-sky-600 dark:bg-sky-500 text-white font-semibold shadow-sm"
                   : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
               }`}
             >
@@ -90,7 +90,7 @@ export function ReferenceBar({ onPlayClick }: ReferenceBarProps) {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-w-xl mx-auto font-mono text-xs">
                 {/* High Nibble */}
                 <div className="p-2.5 rounded-xl border border-sky-500/25 bg-[var(--bg-surface)]">
-                  <span className="text-[11px] font-bold text-sky-400 block mb-1.5 uppercase tracking-wider">
+                  <span className="text-[11px] font-bold text-sky-700 dark:text-sky-400 block mb-1.5 uppercase tracking-wider">
                     High Nibble (Bits 7..4)
                   </span>
                   <div className="grid grid-cols-4 gap-1 text-center">
@@ -110,7 +110,7 @@ export function ReferenceBar({ onPlayClick }: ReferenceBarProps) {
 
                 {/* Low Nibble */}
                 <div className="p-2.5 rounded-xl border border-indigo-500/25 bg-[var(--bg-surface)]">
-                  <span className="text-[11px] font-bold text-indigo-400 block mb-1.5 uppercase tracking-wider">
+                  <span className="text-[11px] font-bold text-indigo-700 dark:text-indigo-400 block mb-1.5 uppercase tracking-wider">
                     Low Nibble (Bits 3..0)
                   </span>
                   <div className="grid grid-cols-4 gap-1 text-center">
@@ -142,9 +142,9 @@ export function ReferenceBar({ onPlayClick }: ReferenceBarProps) {
                 <thead>
                   <tr className="text-[var(--text-muted)] border-b border-[var(--border-color)]">
                     <th className="py-1.5 px-1.5 text-left font-medium">CIDR</th>
-                    <th className="py-1.5 px-1.5 font-medium text-sky-400">Masken-Oktett</th>
-                    <th className="py-1.5 px-1.5 font-medium text-indigo-400">Schrittweite</th>
-                    <th className="py-1.5 px-1.5 font-medium text-emerald-400">Nutzbar</th>
+                    <th className="py-1.5 px-1.5 font-medium text-sky-700 dark:text-sky-400">Masken-Oktett</th>
+                    <th className="py-1.5 px-1.5 font-medium text-indigo-700 dark:text-indigo-400">Schrittweite</th>
+                    <th className="py-1.5 px-1.5 font-medium text-emerald-700 dark:text-emerald-400">Nutzbar</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -153,10 +153,10 @@ export function ReferenceBar({ onPlayClick }: ReferenceBarProps) {
                       key={row.cidr}
                       className="border-b border-[var(--border-color)]/30 hover:bg-[var(--bg-surface)] transition-colors"
                     >
-                      <td className="py-1.5 px-1.5 text-left font-bold text-sky-400">{row.cidr}</td>
-                      <td className="py-1.5 px-1.5 font-semibold">.{row.maskOctet}</td>
-                      <td className="py-1.5 px-1.5 text-indigo-400 font-medium">{row.magicNumber}</td>
-                      <td className="py-1.5 px-1.5 text-emerald-400 font-medium">{row.usableHosts}</td>
+                      <td className="py-1.5 px-1.5 text-left font-bold text-sky-700 dark:text-sky-400">{row.cidr}</td>
+                      <td className="py-1.5 px-1.5 font-semibold text-[var(--text-primary)]">.{row.maskOctet}</td>
+                      <td className="py-1.5 px-1.5 text-indigo-700 dark:text-indigo-400 font-medium">{row.magicNumber}</td>
+                      <td className="py-1.5 px-1.5 text-emerald-700 dark:text-emerald-400 font-medium">{row.usableHosts}</td>
                     </tr>
                   ))}
                 </tbody>

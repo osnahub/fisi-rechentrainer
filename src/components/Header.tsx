@@ -35,10 +35,10 @@ export function Header({
       <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
         {streak > 0 && (
           <div
-            className="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-xs font-bold animate-pop-in"
+            className="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-300 font-mono text-xs font-bold animate-pop-in"
             title={`Serie: ${streak} Aufgaben in Folge richtig!`}
           >
-            <Flame size={14} className="fill-amber-400 text-amber-400" />
+            <Flame size={14} className="fill-amber-600 text-amber-600 dark:fill-amber-400 dark:text-amber-400" />
             <span>{streak}</span>
           </div>
         )}

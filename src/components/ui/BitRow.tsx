@@ -105,23 +105,23 @@ export function BitRow({
                     {/* Exponent & Stellenwert & MSB/LSB Badge (feste 36px Höhe) */}
                     <div className="h-9 w-full flex flex-col items-center justify-end">
                       {isMSB && (
-                        <span className="text-[8px] font-mono font-bold tracking-tight text-amber-400 bg-amber-400/10 px-1 py-0.5 rounded border border-amber-400/20 leading-none mb-0.5">
+                        <span className="text-[10px] font-mono font-bold tracking-wider text-amber-800 bg-amber-100 border-amber-300 dark:text-amber-300 dark:bg-amber-950/50 dark:border-amber-500/40 px-1 py-0.5 rounded leading-none mb-0.5">
                           MSB
                         </span>
                       )}
                       {isLSB && (
-                        <span className="text-[8px] font-mono font-bold tracking-tight text-indigo-400 bg-indigo-400/10 px-1 py-0.5 rounded border border-indigo-400/20 leading-none mb-0.5">
+                        <span className="text-[10px] font-mono font-bold tracking-wider text-indigo-800 bg-indigo-100 border-indigo-300 dark:text-indigo-300 dark:bg-indigo-950/50 dark:border-indigo-500/40 px-1 py-0.5 rounded leading-none mb-0.5">
                           LSB
                         </span>
                       )}
                       {!isMSB && !isLSB && (
-                        <span className="text-[9px] font-mono text-[var(--text-muted)] opacity-60 leading-none mb-0.5">
+                        <span className="text-[10px] font-mono text-[var(--text-muted)] font-medium leading-none mb-0.5">
                           {formatExponent(exponent)}
                         </span>
                       )}
                       <span
-                        className={`text-[10px] sm:text-xs font-mono transition-colors font-medium ${
-                          isOn ? "text-sky-400 font-bold" : "text-[var(--text-muted)]"
+                        className={`text-[10px] sm:text-xs font-mono transition-colors ${
+                          isOn ? "text-sky-600 dark:text-sky-400 font-bold" : "text-[var(--text-muted)] font-medium"
                         }`}
                         title={`Stellenwert 2^${exponent} = ${powerVal}`}
                       >
@@ -136,8 +136,8 @@ export function BitRow({
                       aria-label={`Bit für Stellenwert ${powerVal} (2^${exponent}): ${isOn ? "gesetzt (1)" : "nicht gesetzt (0)"}`}
                       className={`w-8.5 h-11 xs:w-9.5 xs:h-12 sm:w-11 sm:h-14 rounded-xl font-mono text-base sm:text-xl font-bold border transition-all cursor-pointer select-none flex items-center justify-center ${
                         isOn
-                          ? "bg-[var(--bit-on-bg)] border-[var(--bit-on-border)] text-white shadow-md shadow-sky-500/30 scale-105"
-                          : "bg-[var(--bg-input)] border-[var(--border-color)] text-[var(--bit-off-text)] hover:border-[var(--border-hover)] hover:text-[var(--text-secondary)]"
+                          ? "bg-[var(--bit-on-bg)] border-[var(--bit-on-border)] text-white shadow-md shadow-sky-600/20 dark:shadow-sky-500/30 scale-105"
+                          : "bg-[var(--bg-input)] border-[var(--border-color)] text-[var(--bit-off-text)] font-semibold hover:border-[var(--border-hover)] hover:text-[var(--text-primary)]"
                       }`}
                     >
                       {bit}

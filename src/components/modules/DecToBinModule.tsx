@@ -89,7 +89,7 @@ export function DecToBinModule({
       {/* Steuerungsleiste: Eingabemodus */}
       <div className="flex items-center justify-between gap-2.5 p-2.5 sm:p-3 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-color)]">
         <div className="flex items-center gap-1.5 text-xs font-mono font-medium text-[var(--text-secondary)]">
-          <span className="px-2.5 py-1 rounded-xl bg-sky-500/10 border border-sky-500/25 text-sky-400 font-bold">
+          <span className="px-2.5 py-1 rounded-xl bg-sky-500/10 border border-sky-500/30 text-sky-700 dark:text-sky-300 font-bold">
             8-Bit
           </span>
           <span className="hidden sm:inline text-[var(--text-muted)]">
@@ -102,7 +102,7 @@ export function DecToBinModule({
             onClick={() => setInputMode("buttons")}
             className={`text-xs px-3 py-1 rounded-lg transition-all cursor-pointer font-medium ${
               inputMode === "buttons"
-                ? "bg-sky-500 text-white font-semibold shadow-sm"
+                ? "bg-sky-600 dark:bg-sky-500 text-white font-semibold shadow-sm"
                 : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
             }`}
           >
@@ -112,7 +112,7 @@ export function DecToBinModule({
             onClick={() => setInputMode("text")}
             className={`text-xs px-3 py-1 rounded-lg transition-all cursor-pointer font-medium ${
               inputMode === "text"
-                ? "bg-sky-500 text-white font-semibold shadow-sm"
+                ? "bg-sky-600 dark:bg-sky-500 text-white font-semibold shadow-sm"
                 : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
             }`}
           >
@@ -123,7 +123,7 @@ export function DecToBinModule({
 
       {/* Haupt-Aufgaben-Karte */}
       <div className="p-5 sm:p-8 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-center shadow-sm relative overflow-hidden">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/25 text-sky-400 text-xs font-bold uppercase tracking-wider mb-2">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/30 text-sky-700 dark:text-sky-300 text-xs font-bold uppercase tracking-wider mb-2">
           <Sparkles size={13} />
           <span>Aufgabe</span>
         </div>
@@ -152,10 +152,10 @@ export function DecToBinModule({
               <span
                 className={`font-bold text-sm ${
                   currentSum === targetDec
-                    ? "text-emerald-400"
+                    ? "text-emerald-600 dark:text-emerald-400"
                     : currentSum > targetDec
-                    ? "text-rose-400"
-                    : "text-sky-400"
+                    ? "text-rose-600 dark:text-rose-400"
+                    : "text-sky-600 dark:text-sky-400"
                 }`}
               >
                 {currentSum}
@@ -205,7 +205,7 @@ export function DecToBinModule({
             </button>
             <button
               onClick={handleRevealSolution}
-              className="flex-1 xs:flex-none min-h-[44px] flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-sky-400 hover:border-sky-500/40 transition-all cursor-pointer text-xs font-medium"
+              className="flex-1 xs:flex-none min-h-[44px] flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-sky-600 dark:hover:text-sky-400 hover:border-sky-500/40 transition-all cursor-pointer text-xs font-medium"
             >
               <Eye size={15} />
               <span>Lösungsweg</span>
@@ -236,7 +236,7 @@ export function DecToBinModule({
       {showSolution && solutionSteps.length > 0 && (
         <div className="p-4 sm:p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] animate-pop-in space-y-4">
           <div className="flex items-center gap-2">
-            <span className="w-5 h-5 rounded-md bg-sky-500/20 text-sky-400 flex items-center justify-center text-xs">📖</span>
+            <span className="w-6 h-6 rounded-lg bg-sky-500/15 text-sky-700 dark:text-sky-300 flex items-center justify-center text-xs">📖</span>
             <h3 className="font-semibold text-xs sm:text-sm text-[var(--text-primary)]">
               Schritt-für-Schritt Stellenwertmethode (Greedy-Subtraktion) für {targetDec}:
             </h3>
@@ -259,16 +259,16 @@ export function DecToBinModule({
               </thead>
               <tbody>
                 {solutionSteps.map((s, i) => (
-                  <tr key={i} className={`border-b border-[var(--border-color)]/30 ${s.fits ? "bg-emerald-500/5" : ""}`}>
-                    <td className="py-2 px-2 text-sky-400 font-medium">
+                  <tr key={i} className={`border-b border-[var(--border-color)]/30 ${s.fits ? "bg-emerald-500/10 dark:bg-emerald-500/5" : ""}`}>
+                    <td className="py-2 px-2 text-sky-700 dark:text-sky-400 font-semibold">
                       2^{s.power}
-                      {i === 0 && <span className="ml-1 text-[9px] text-amber-400 font-bold">MSB</span>}
-                      {i === solutionSteps.length - 1 && <span className="ml-1 text-[9px] text-indigo-400 font-bold">LSB</span>}
+                      {i === 0 && <span className="ml-1.5 text-[10px] text-amber-800 dark:text-amber-300 font-bold bg-amber-100 dark:bg-amber-950/40 px-1 py-0.5 rounded">MSB</span>}
+                      {i === solutionSteps.length - 1 && <span className="ml-1.5 text-[10px] text-indigo-800 dark:text-indigo-300 font-bold bg-indigo-100 dark:bg-indigo-950/40 px-1 py-0.5 rounded">LSB</span>}
                     </td>
-                    <td className="py-2 px-2 text-center font-bold">{s.val}</td>
+                    <td className="py-2 px-2 text-center font-bold text-[var(--text-primary)]">{s.val}</td>
                     <td className="py-2 px-2">
                       {s.fits ? (
-                        <span className="text-emerald-400 font-semibold">
+                        <span className="text-emerald-700 dark:text-emerald-400 font-semibold">
                           {s.prevRemainder} ≥ {s.val} ➔ {s.prevRemainder} - {s.val} = {s.newRemainder}
                         </span>
                       ) : (
@@ -278,7 +278,7 @@ export function DecToBinModule({
                       )}
                     </td>
                     <td className="py-2 px-2 text-center font-bold text-sm">
-                      <span className={s.bit === 1 ? "text-emerald-400 font-black" : "text-[var(--text-muted)]"}>
+                      <span className={s.bit === 1 ? "text-emerald-700 dark:text-emerald-400 font-black" : "text-[var(--text-muted)]"}>
                         {s.bit}
                       </span>
                     </td>
@@ -289,16 +289,16 @@ export function DecToBinModule({
             </table>
           </div>
 
-          <div className="p-3 rounded-2xl bg-sky-500/10 border border-sky-500/25 font-mono text-xs flex flex-wrap items-center justify-between gap-2">
+          <div className="p-3.5 rounded-2xl bg-sky-500/10 border border-sky-500/25 font-mono text-xs flex flex-wrap items-center justify-between gap-2">
             <div>
               <span className="text-[var(--text-muted)]">Gegenprobe: </span>
-              <span className="text-sky-300 font-bold">
+              <span className="text-sky-800 dark:text-sky-300 font-bold">
                 {solutionSteps.filter((s) => s.bit === 1).map((s) => s.val).join(" + ") || "0"} = {targetDec}₁₀
               </span>
             </div>
             <div>
               <span className="text-[var(--text-muted)]">Binärcode: </span>
-              <span className="font-bold text-sky-400 text-sm">
+              <span className="font-bold text-sky-700 dark:text-sky-400 text-sm">
                 {Conversions.formatNibbles(Conversions.decToBin(targetDec, bitRange))}₂
               </span>
             </div>

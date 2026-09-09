@@ -48,7 +48,7 @@ export function ExplainerModule() {
       <div className="p-5 sm:p-8 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4 sm:mb-5">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-sky-500/10 text-sky-400 border border-sky-500/20 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-sky-500/10 text-sky-700 dark:text-sky-400 border border-sky-500/20 flex items-center justify-center">
               <Calculator size={16} />
             </div>
             <div>
@@ -107,7 +107,7 @@ export function ExplainerModule() {
               <button
                 key={preset}
                 onClick={() => setPreset(preset)}
-                className="text-[11px] font-mono px-2.5 py-1 rounded-lg border border-[var(--border-color)] bg-[var(--bg-card-subtle)] text-[var(--text-secondary)] hover:border-sky-400 hover:text-sky-400 transition-all cursor-pointer"
+                className="text-[11px] font-mono px-2.5 py-1 rounded-lg border border-[var(--border-color)] bg-[var(--bg-card-subtle)] text-[var(--text-secondary)] hover:border-sky-500 hover:text-sky-700 dark:hover:text-sky-300 transition-all cursor-pointer font-medium"
               >
                 {preset}
               </button>
@@ -123,13 +123,13 @@ export function ExplainerModule() {
           </div>
           <div className="p-3 sm:p-4 rounded-2xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)]">
             <span className="text-[10px] sm:text-xs text-[var(--text-muted)] block">Dualsystem ({bitCount}-Bit)</span>
-            <span className="text-lg sm:text-xl font-bold text-sky-400">
+            <span className="text-lg sm:text-xl font-bold text-sky-700 dark:text-sky-400">
               {Conversions.formatNibbles(currentBin)}₂
             </span>
           </div>
           <div className="p-3 sm:p-4 rounded-2xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)]">
             <span className="text-[10px] sm:text-xs text-[var(--text-muted)] block">Bit-Status (1-Bits)</span>
-            <span className="text-lg sm:text-xl font-bold text-emerald-400">
+            <span className="text-lg sm:text-xl font-bold text-emerald-700 dark:text-emerald-400">
               {activeBitsCount} von {bitCount} gesetzt
             </span>
           </div>
@@ -142,7 +142,7 @@ export function ExplainerModule() {
         <div className="p-4 sm:p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm flex flex-col justify-between">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="w-6 h-6 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center font-bold text-xs">
+              <span className="w-6 h-6 rounded-lg bg-sky-500/20 text-sky-700 dark:text-sky-300 flex items-center justify-center font-bold text-xs">
                 1
               </span>
               <h3 className="font-semibold text-xs sm:text-sm text-[var(--text-primary)]">
@@ -164,15 +164,15 @@ export function ExplainerModule() {
               </thead>
               <tbody>
                 {stellenwertSteps.map((s, idx) => (
-                  <tr key={idx} className={`border-b border-[var(--border-color)]/20 ${s.fits ? "bg-emerald-500/5" : ""}`}>
-                    <td className="py-1 px-1 text-sky-400 font-medium whitespace-nowrap">
+                  <tr key={idx} className={`border-b border-[var(--border-color)]/20 ${s.fits ? "bg-emerald-500/10" : ""}`}>
+                    <td className="py-1 px-1 text-sky-700 dark:text-sky-400 font-medium whitespace-nowrap">
                       2^{s.power}
-                      {idx === 0 && <span className="ml-1 text-[8px] text-amber-400 font-bold">MSB</span>}
-                      {idx === stellenwertSteps.length - 1 && <span className="ml-1 text-[8px] text-indigo-400 font-bold">LSB</span>}
+                      {idx === 0 && <span className="ml-1 text-[8px] text-amber-800 bg-amber-100 dark:text-amber-300 dark:bg-amber-950/50 px-1 py-0.5 rounded font-bold">MSB</span>}
+                      {idx === stellenwertSteps.length - 1 && <span className="ml-1 text-[8px] text-indigo-800 bg-indigo-100 dark:text-indigo-300 dark:bg-indigo-950/50 px-1 py-0.5 rounded font-bold">LSB</span>}
                     </td>
                     <td className="py-1 px-1 font-bold text-[var(--text-primary)]">{s.val}</td>
                     <td className="py-1 px-1 text-center font-bold">
-                      <span className={s.bit === 1 ? "text-emerald-400 font-black" : "text-[var(--text-muted)]"}>
+                      <span className={s.bit === 1 ? "text-emerald-700 dark:text-emerald-400 font-black" : "text-[var(--text-muted)]"}>
                         {s.bit}
                       </span>
                     </td>
@@ -183,7 +183,7 @@ export function ExplainerModule() {
             </table>
           </div>
 
-          <div className="mt-4 p-2.5 rounded-xl bg-sky-500/10 border border-sky-500/20 text-[11px] text-sky-300 font-mono text-center">
+          <div className="mt-4 p-2.5 rounded-xl bg-sky-500/10 border border-sky-500/20 text-[11px] text-sky-800 dark:text-sky-200 font-mono text-center font-semibold">
             Gegenprobe: {stellenwertSteps.filter((s) => s.bit === 1).map((s) => s.val).join(" + ") || "0"} = {currentDec}₁₀
           </div>
         </div>
@@ -192,7 +192,7 @@ export function ExplainerModule() {
         <div className="p-4 sm:p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm flex flex-col justify-between">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="w-6 h-6 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-xs">
+              <span className="w-6 h-6 rounded-lg bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 flex items-center justify-center font-bold text-xs">
                 2
               </span>
               <h3 className="font-semibold text-xs sm:text-sm text-[var(--text-primary)]">
@@ -215,14 +215,14 @@ export function ExplainerModule() {
                   </span>
                   <div className="flex items-center gap-1.5 font-bold">
                     <span className="text-[var(--text-muted)] text-[10px]">Rest:</span>
-                    <span className="text-emerald-400 text-xs sm:text-sm">{step.remainder}</span>
+                    <span className="text-emerald-700 dark:text-emerald-400 text-xs sm:text-sm">{step.remainder}</span>
                     {step.isLSB && (
-                      <span className="text-[8px] bg-indigo-400/15 text-indigo-400 px-1 py-0.5 rounded border border-indigo-400/30">
+                      <span className="text-[8px] bg-indigo-100 text-indigo-800 dark:bg-indigo-950/50 dark:text-indigo-300 px-1 py-0.5 rounded border border-indigo-300 dark:border-indigo-700 font-bold">
                         LSB
                       </span>
                     )}
                     {step.isMSB && (
-                      <span className="text-[8px] bg-amber-400/15 text-amber-400 px-1 py-0.5 rounded border border-amber-400/30">
+                      <span className="text-[8px] bg-amber-100 text-amber-800 dark:bg-amber-950/50 dark:text-amber-300 px-1 py-0.5 rounded border border-amber-300 dark:border-amber-700 font-bold">
                         MSB
                       </span>
                     )}
@@ -232,13 +232,13 @@ export function ExplainerModule() {
             </div>
           </div>
 
-          <div className="mt-4 p-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-xs flex flex-col gap-1 text-indigo-300">
-            <div className="flex items-center gap-1.5 font-bold text-indigo-400">
+          <div className="mt-4 p-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-xs flex flex-col gap-1 text-indigo-900 dark:text-indigo-200">
+            <div className="flex items-center gap-1.5 font-bold text-indigo-700 dark:text-indigo-300">
               <ArrowUp size={16} className="shrink-0 animate-bounce" />
               <span>Leserichtung: Von unten (MSB) nach oben (LSB)</span>
             </div>
             <div className="font-mono text-[11px] text-[var(--text-secondary)]">
-              Endergebnis: <span className="text-emerald-400 font-bold">{Conversions.formatNibbles(currentBin)}₂</span>
+              Endergebnis: <span className="text-emerald-700 dark:text-emerald-400 font-bold">{Conversions.formatNibbles(currentBin)}₂</span>
             </div>
           </div>
         </div>
@@ -247,7 +247,7 @@ export function ExplainerModule() {
         <div className="p-4 sm:p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] shadow-sm flex flex-col justify-between">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">
+              <span className="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 flex items-center justify-center font-bold text-xs">
                 3
               </span>
               <h3 className="font-semibold text-xs sm:text-sm text-[var(--text-primary)]">
@@ -266,8 +266,8 @@ export function ExplainerModule() {
                     <span
                       className={`px-1 rounded border ${
                         term.isActive
-                          ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-400 font-bold"
-                          : "bg-[var(--bg-input)] border-transparent text-[var(--text-muted)] opacity-50"
+                          ? "bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-700 font-bold"
+                          : "bg-[var(--bg-input)] border-transparent text-[var(--text-muted)] opacity-60"
                       }`}
                     >
                       ({term.bit}·{formatExponent(term.power)})
@@ -279,19 +279,19 @@ export function ExplainerModule() {
             </div>
 
             <div className="p-3 rounded-2xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)] font-mono text-xs space-y-1.5">
-              <div className="text-[11px] text-sky-400 font-bold">4-Bit-Nibbles (Byte-Hälften):</div>
+              <div className="text-[11px] text-sky-700 dark:text-sky-400 font-bold">4-Bit-Nibbles (Byte-Hälften):</div>
               <div className="text-[11px] text-[var(--text-secondary)] flex justify-between">
                 <span>High-Nibble: <strong>{currentBin.slice(0, 4)}</strong></span>
-                <span className="text-sky-400 font-semibold">= {Conversions.binToDec(currentBin.slice(0, 4))}₁₀</span>
+                <span className="text-sky-700 dark:text-sky-400 font-semibold">= {Conversions.binToDec(currentBin.slice(0, 4))}₁₀</span>
               </div>
               <div className="text-[11px] text-[var(--text-secondary)] flex justify-between">
                 <span>Low-Nibble: <strong>{currentBin.slice(4, 8)}</strong></span>
-                <span className="text-indigo-400 font-semibold">= {Conversions.binToDec(currentBin.slice(4, 8))}₁₀</span>
+                <span className="text-indigo-700 dark:text-indigo-400 font-semibold">= {Conversions.binToDec(currentBin.slice(4, 8))}₁₀</span>
               </div>
             </div>
           </div>
 
-          <div className="mt-4 p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs font-mono text-center text-emerald-300">
+          <div className="mt-4 p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs font-mono text-center text-emerald-900 dark:text-emerald-200 font-semibold">
             Aktive Potenzen: {polynomialTerms.filter((t) => t.isActive).map((t) => t.val).join(" + ") || "0"} = <strong className="text-[var(--text-primary)]">{currentDec}₁₀</strong>
           </div>
         </div>

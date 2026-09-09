@@ -52,11 +52,11 @@ export default function Home() {
                 onClick={() => setActiveModule(item.id as ModuleType)}
                 className={`snap-start flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm font-medium whitespace-nowrap transition-all cursor-pointer border ${
                   isActive
-                    ? "bg-sky-500 text-white border-sky-400 font-semibold shadow-md shadow-sky-500/25 scale-[1.02]"
+                    ? "bg-sky-600 dark:bg-sky-500 text-white border-sky-600 dark:border-sky-400 font-semibold shadow-md shadow-sky-600/20 dark:shadow-sky-500/25 scale-[1.02]"
                     : "border-[var(--border-color)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-hover)]"
                 }`}
               >
-                <Icon size={16} className={isActive ? "text-white" : "text-sky-400"} />
+                <Icon size={16} className={isActive ? "text-white" : "text-sky-600 dark:text-sky-400"} />
                 <span className="inline sm:hidden">{item.label}</span>
                 <span className="hidden sm:inline">{item.fullLabel}</span>
               </button>
