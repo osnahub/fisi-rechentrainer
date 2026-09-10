@@ -88,6 +88,31 @@ export function ExplainerModule() {
     setInputValue(String(val));
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value;
+    if (format === "bin") {
+      // Nur 0, 1 und Leerzeichen erlauben; maximal 32 Bits zulassen
+      const filtered = raw.replace(/[^01\s]/g, "");
+      let bitCount = 0;
+      let result = "";
+      for (const ch of filtered) {
+        if (ch === "0" || ch === "1") {
+          if (bitCount < 32) {
+            result += ch;
+            bitCount++;
+          }
+        } else {
+          result += ch;
+        }
+      }
+      setInputValue(result);
+    } else {
+      // Nur Ziffern erlauben; maximal 10 Stellen (4294967295)
+      const digits = raw.replace(/[^0-9]/g, "").slice(0, 10);
+      setInputValue(digits);
+    }
+  };
+
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Eingabebereich */}
@@ -148,8 +173,9 @@ export function ExplainerModule() {
             pattern={format === "bin" ? "[01\\s]*" : "[0-9]*"}
             autoCorrect="off"
             spellCheck="false"
+            maxLength={format === "bin" ? 39 : 10}
             value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
+            onChange={handleInputChange}
             placeholder={
               format === "dec" ? "z. B. 173 oder 65535" : "z. B. 10101101"
             }

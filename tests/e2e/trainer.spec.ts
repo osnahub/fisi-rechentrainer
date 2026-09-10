@@ -103,16 +103,23 @@ test.describe("FiSi Rechentrainer E2E & Accessibility Suite", () => {
     }
   });
 
-  test("Erklär-Rechner renders calculation paths without crashing", async ({ page }) => {
+  test("Erklär-Rechner renders calculation paths without crashing and caps input to 32 bits", async ({ page }) => {
     await page.click("#tab-explainer");
 
-    const numInput = page.locator('input[type="number"], input[type="text"]').first();
+    const numInput = page.locator("#explainer-number-input");
     await numInput.fill("192");
 
     // Check that all 3 pathways are rendered
     await expect(page.locator("text=Stellenwertmethode (Subtraktion)")).toBeVisible();
     await expect(page.locator("text=Restwertmethode (:2)")).toBeVisible();
     await expect(page.locator("text=Polynom- & Potenzdarstellung")).toBeVisible();
+
+    // Switch to binary format and verify bit capping
+    await page.click('button:has-text("Binär (Basis 2)")');
+    // Type 40 bits
+    await numInput.fill("1111000011110000111100001111000011110000");
+    const val = await numInput.inputValue();
+    expect(val.replace(/\s+/g, "").length).toBeLessThanOrEqual(32);
   });
 
   test("Keyboard navigation (Skip-Link and Enter key flow)", async ({ page }) => {
