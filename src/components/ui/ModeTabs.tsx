@@ -89,9 +89,9 @@ export function ModeTabs<T extends string>({
             aria-controls={panelIdPrefix && isActive ? `${panelIdPrefix}-${tab.id}` : undefined}
             tabIndex={isActive ? 0 : -1}
             onClick={() => onChange(tab.id)}
-            className={`snap-start flex items-center justify-center gap-1.5 rounded-2xl font-medium transition-all cursor-pointer border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 ${
-              isSmall ? "px-2.5 sm:px-3 py-1.5 text-xs" : "px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm"
-            } ${
+            className={`snap-start flex items-center justify-center gap-1.5 ${
+              isSmall ? "rounded-xl px-2.5 sm:px-3 py-1.5 text-xs" : "rounded-2xl px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm"
+            } font-medium transition-all cursor-pointer border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 ${
               isActive
                 ? "bg-[var(--primary-btn-bg)] text-white border-[var(--primary-btn-bg)] font-semibold shadow-md"
                 : "border-[var(--border-color)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-hover)]"

@@ -369,7 +369,7 @@ export function ExplainerModule() {
                   {polynomialTerms.map((term, idx) => (
                     <React.Fragment key={term.power}>
                       <span
-                        className={`px-1 rounded border ${
+                        className={`inline-flex items-center px-1.5 py-0.5 rounded-md border ${
                           term.isActive
                             ? "bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-700 font-bold"
                             : "bg-[var(--bg-input)] border border-[var(--border-color)] text-[var(--text-muted)]"
