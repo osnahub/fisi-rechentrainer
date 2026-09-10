@@ -101,7 +101,7 @@ export function ExplainerModule() {
             result += ch;
             bitCount++;
           }
-        } else {
+        } else if (bitCount < 32) {
           result += ch;
         }
       }
