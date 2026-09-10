@@ -5,7 +5,7 @@
 }
 
 :root {
-  /* Dark Theme (Default) - High-contrast Engineering Slate & Tech Blue */
+  /* Dark Theme (Default) - WCAG 2.2 AA compliant tokens */
   --bg-app: #0b0f19;
   --bg-surface: #111827;
   --bg-card: #162032;
@@ -24,6 +24,11 @@
   --primary-text: #38bdf8;
   --primary-glow: rgba(56, 189, 248, 0.2);
   --primary-content: #ffffff;
+
+  /* Button and active element tokens with verified >= 4.5:1 contrast against text */
+  --primary-btn-bg: #0369a1;
+  --primary-btn-hover: #075985;
+  --primary-btn-text: #ffffff;
   
   --accent: #818cf8;
   --accent-hover: #6366f1;
@@ -55,7 +60,7 @@
 }
 
 [data-theme="light"] {
-  /* Light Theme - Clean High-Contrast Slate & Sapphire (WCAG AAA Compliant) */
+  /* Light Theme - Clean High-Contrast Slate & Sapphire (WCAG 2.2 AA) */
   --bg-app: #f8fafc;
   --bg-surface: #ffffff;
   --bg-card: #ffffff;
@@ -69,14 +74,18 @@
   --text-secondary: #334155;
   --text-muted: #475569;
   
-  --primary: #0284c7;
-  --primary-hover: #0369a1;
+  --primary: #0369a1;
+  --primary-hover: #075985;
   --primary-text: #0369a1;
   --primary-glow: rgba(2, 132, 199, 0.15);
   --primary-content: #ffffff;
+
+  --primary-btn-bg: #0369a1;
+  --primary-btn-hover: #075985;
+  --primary-btn-text: #ffffff;
   
-  --accent: #4f46e5;
-  --accent-hover: #4338ca;
+  --accent: #4338ca;
+  --accent-hover: #3730a3;
   --accent-glow: rgba(79, 70, 229, 0.15);
   
   --success: #059669;
@@ -94,10 +103,10 @@
   --warning-border: #fcd34d;
   --warning-text: #92400e;
 
-  --bit-on-bg: rgba(2, 132, 199, 0.12);
-  --bit-on-border: #0284c7;
-  --bit-on-text: #0284c7;
-  --bit-on-shadow: 0 4px 12px rgba(2, 132, 199, 0.18);
+  --bit-on-bg: rgba(3, 105, 161, 0.12);
+  --bit-on-border: #0369a1;
+  --bit-on-text: #0369a1;
+  --bit-on-shadow: 0 4px 12px rgba(3, 105, 161, 0.18);
 
   --bit-off-bg: #f8fafc;
   --bit-off-border: #cbd5e1;
@@ -135,6 +144,12 @@ button:active:not(:disabled) {
   font-variant-numeric: tabular-nums;
 }
 
+/* Accessible focus outlines */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
 /* Custom subtle scrollbar */
 ::-webkit-scrollbar {
   height: 6px;
@@ -165,4 +180,17 @@ button:active:not(:disabled) {
 
 .animate-pop-in {
   animation: popIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Respect user preference for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .animate-pop-in {
+    animation: none !important;
+  }
 }

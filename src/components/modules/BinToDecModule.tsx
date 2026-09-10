@@ -1,81 +1,58 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState } from "react";
 import { Conversions } from "@/lib/conversions";
-import { Check, RefreshCw, Eye, Sparkles, CheckCircle2, AlertCircle } from "lucide-react";
+import { Sparkles } from "lucide-react";
+import { useExerciseState } from "@/hooks/useExerciseState";
+import { FeedbackMessage } from "@/components/ui/FeedbackMessage";
+import { ExerciseActions } from "@/components/ui/ExerciseActions";
 
 interface BinToDecModuleProps {
-  onSuccess?: () => void;
-  onError?: () => void;
-  onPlayClick?: () => void;
   onStreakUpdate?: (correct: boolean) => void;
+  rng?: () => number;
 }
 
-export function BinToDecModule({
-  onSuccess,
-  onError,
-  onStreakUpdate,
-}: BinToDecModuleProps) {
-  const [targetBinary, setTargetBinary] = useState<string>("00000000");
+export function BinToDecModule({ onStreakUpdate, rng }: BinToDecModuleProps) {
   const [showPowersHelper, setShowPowersHelper] = useState<boolean>(true);
-  const [userDecInput, setUserDecInput] = useState<string>("");
-  const [feedback, setFeedback] = useState<{ isCorrect: boolean; message: string } | null>(null);
-  const [showSolution, setShowSolution] = useState<boolean>(false);
 
-  const generateNewTask = useCallback(() => {
-    let val = Math.floor(Math.random() * 256);
-    if (val === 0) val = Math.floor(Math.random() * 255) + 1;
+  const exercise = useExerciseState<string>({
+    generator: (prev, customRng) => {
+      const getR = customRng || rng || Math.random;
+      let val = Math.floor(getR() * 256);
+      let bin = Conversions.decToBin(val, 8);
+      while (bin === prev) {
+        val = Math.floor(getR() * 256);
+        bin = Conversions.decToBin(val, 8);
+      }
+      return bin;
+    },
+    validator: (input, target) => {
+      const parsed = Conversions.parseDecimalInput(input);
+      if (!parsed.ok) return false;
+      return parsed.value === Conversions.binToDec(target);
+    },
+    getSuccessMessage: (target) => {
+      const targetDec = Conversions.binToDec(target);
+      return `Richtig! ${Conversions.formatNibbles(target)}₂ entspricht exakt ${targetDec}₁₀.`;
+    },
+    getErrorMessage: (target, input) => {
+      const parsed = Conversions.parseDecimalInput(input);
+      if (!parsed.ok) {
+        return "Bitte eine gültige positive Dezimalzahl (0–255) eingeben.";
+      }
+      const targetDec = Conversions.binToDec(target);
+      const diff = parsed.value - targetDec;
+      return `Leider falsch: Deine Eingabe war ${parsed.value} (Differenz: ${diff > 0 ? "+" : ""}${diff}).`;
+    },
+    onStreakUpdate,
+    rng,
+  });
 
-    setTargetBinary(Conversions.decToBin(val, 8));
-    setUserDecInput("");
-    setFeedback(null);
-    setShowSolution(false);
-  }, []);
-
-  useEffect(() => {
-    generateNewTask();
-  }, [generateNewTask]);
-
+  const targetBinary = exercise.target;
   const targetDec = Conversions.binToDec(targetBinary);
   const bitArray = targetBinary.split("").map(Number);
 
-  const checkAnswer = () => {
-    const val = parseInt(userDecInput.trim(), 10);
-    if (isNaN(val)) {
-      setFeedback({ isCorrect: false, message: "Bitte eine gültige Dezimalzahl eingeben." });
-      onError?.();
-      onStreakUpdate?.(false);
-      return;
-    }
-
-    if (val === targetDec) {
-      setFeedback({
-        isCorrect: true,
-        message: `Richtig! ${Conversions.formatNibbles(targetBinary)}₂ entspricht ${targetDec}₁₀.`,
-      });
-      onSuccess?.();
-      onStreakUpdate?.(true);
-    } else {
-      const diff = val - targetDec;
-      setFeedback({
-        isCorrect: false,
-        message: `Leider falsch: ${val} ist nicht korrekt (Differenz: ${diff > 0 ? "+" : ""}${diff}). Versuche es noch einmal!`,
-      });
-      onError?.();
-      onStreakUpdate?.(false);
-    }
-  };
-
-  // Build active powers string for solution
-  const activePowers: { power: number; val: number }[] = [];
-  bitArray.forEach((b, idx) => {
-    if (b === 1) {
-      const p = bitArray.length - 1 - idx;
-      activePowers.push({ power: p, val: Math.pow(2, p) });
-    }
-  });
-
-  // Group bit display into 4-bit nibbles with mathematical annotations
+  // Group bit display into 4-bit nibbles
   const chunkSize = 4;
   const SUPERSCRIPTS: Record<number, string> = {
     0: "⁰", 1: "¹", 2: "²", 3: "³", 4: "⁴",
@@ -114,6 +91,7 @@ export function BinToDecModule({
   }
 
   const polynomialTerms = Conversions.getPolynomialExpansion(targetBinary);
+  const activePowers = polynomialTerms.filter((t) => t.isActive);
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -126,10 +104,11 @@ export function BinToDecModule({
         </div>
 
         <button
+          type="button"
           onClick={() => setShowPowersHelper((prev) => !prev)}
-          className={`text-xs px-3 py-1.5 rounded-xl border transition-all cursor-pointer font-medium flex items-center gap-1.5 ${
+          className={`text-xs px-3 py-1.5 rounded-xl border transition-all cursor-pointer font-medium flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 ${
             showPowersHelper
-              ? "bg-sky-600 dark:bg-sky-500 text-white border-sky-600 dark:border-sky-400 font-semibold shadow-sm"
+              ? "bg-[var(--primary-btn-bg)] text-white border-[var(--primary-btn-bg)] font-semibold shadow-sm"
               : "border-[var(--border-color)] text-[var(--text-secondary)] hover:border-[var(--border-hover)]"
           }`}
         >
@@ -149,7 +128,7 @@ export function BinToDecModule({
           Wandle dieses Bitmuster in die Dezimalzahl um:
         </h2>
 
-        {/* Visuelle Bit-Anzeige nach Nibbles gegliedert (Zero horizontal scroll needed on mobile) */}
+        {/* Visuelle Bit-Anzeige nach 4er-Nibbles gegliedert */}
         <div className="w-full max-w-xl mx-auto flex items-center justify-center gap-1.5 xs:gap-2 sm:gap-4 overflow-x-auto my-4 sm:my-7 py-1 px-0.5 sm:px-1">
           {nibbles.map((nibble, nIdx) => (
             <React.Fragment key={nIdx}>
@@ -159,8 +138,7 @@ export function BinToDecModule({
                     key={originalIndex}
                     className="flex flex-col items-center gap-0.5 sm:gap-1 min-w-[30px] xs:min-w-[36px] sm:min-w-[44px]"
                   >
-                    {/* Feste Höhe (h-9 = 36px): Verhindert jegliche Höhenänderung oder Springen beim Umschalten */}
-                    <div className="h-9 w-full flex flex-col items-center justify-end">
+                    <div className="h-10 w-full flex flex-col items-center justify-end">
                       <div
                         className={`flex flex-col items-center justify-end transition-opacity duration-200 ${
                           showPowersHelper
@@ -169,24 +147,24 @@ export function BinToDecModule({
                         }`}
                       >
                         {isMSB && (
-                          <span className="text-[9px] sm:text-[10px] font-mono font-bold tracking-wider text-amber-800 bg-amber-100 border border-amber-300 dark:text-amber-300 dark:bg-amber-950/50 dark:border-amber-500/40 px-0.5 sm:px-1 py-0.5 rounded leading-none mb-0.5">
+                          <span className="text-[10px] font-mono font-bold tracking-wider text-amber-900 bg-amber-200 border border-amber-400 dark:text-amber-200 dark:bg-amber-950 dark:border-amber-600 px-1 py-0.5 rounded leading-none mb-0.5">
                             MSB
                           </span>
                         )}
                         {isLSB && (
-                          <span className="text-[9px] sm:text-[10px] font-mono font-bold tracking-wider text-indigo-800 bg-indigo-100 border border-indigo-300 dark:text-indigo-300 dark:bg-indigo-950/50 dark:border-indigo-500/40 px-0.5 sm:px-1 py-0.5 rounded leading-none mb-0.5">
+                          <span className="text-[10px] font-mono font-bold tracking-wider text-indigo-900 bg-indigo-200 border border-indigo-400 dark:text-indigo-200 dark:bg-indigo-950 dark:border-indigo-600 px-1 py-0.5 rounded leading-none mb-0.5">
                             LSB
                           </span>
                         )}
                         {!isMSB && !isLSB && (
-                          <span className="text-[9px] sm:text-[10px] font-mono text-[var(--text-muted)] font-medium leading-none mb-0.5">
+                          <span className="text-[11px] font-mono text-[var(--text-muted)] font-medium leading-none mb-0.5">
                             {formatExponent(exponent)}
                           </span>
                         )}
                         <span
-                          className={`text-[10px] sm:text-xs font-mono ${
+                          className={`text-xs font-mono ${
                             isOn
-                              ? "text-sky-600 dark:text-sky-400 font-bold"
+                              ? "text-sky-700 dark:text-sky-300 font-bold"
                               : "text-[var(--text-muted)] font-medium"
                           }`}
                         >
@@ -197,7 +175,7 @@ export function BinToDecModule({
                     <div
                       className={`w-[30px] h-11 xs:w-9 xs:h-12 sm:w-11 sm:h-14 rounded-xl font-mono text-base sm:text-xl font-bold border flex items-center justify-center select-none transition-all ${
                         isOn
-                          ? "bg-sky-500/15 dark:bg-sky-500/20 border-sky-500 dark:border-sky-400 text-sky-700 dark:text-sky-300 font-extrabold shadow-md shadow-sky-500/20 dark:shadow-sky-400/20 scale-105"
+                          ? "bg-sky-500/20 dark:bg-sky-500/25 border-sky-600 dark:border-sky-400 text-sky-800 dark:text-sky-200 font-extrabold shadow-sm scale-105"
                           : "bg-[var(--bg-input)] border-[var(--border-color)] text-[var(--bit-off-text)] font-semibold"
                       }`}
                     >
@@ -216,69 +194,44 @@ export function BinToDecModule({
           ))}
         </div>
 
-        {/* Eingabefeld für Dezimalwert mit mobile-optimiertem inputMode */}
+        {/* Eingabefeld mit sichtbarem Label */}
         <div className="max-w-xs mx-auto my-4 sm:my-6">
+          <label htmlFor="bin2dec-input" className="block text-xs font-semibold text-[var(--text-secondary)] mb-2">
+            Dezimalwert eingeben:
+          </label>
           <input
+            id="bin2dec-input"
             type="text"
             inputMode="numeric"
             pattern="[0-9]*"
             autoComplete="off"
-            value={userDecInput}
-            onChange={(e) => setUserDecInput(e.target.value.replace(/[^0-9]/g, ""))}
-            onKeyDown={(e) => e.key === "Enter" && checkAnswer()}
-            placeholder="Dezimalwert eingeben..."
-            className="w-full text-center font-mono text-2xl sm:text-3xl py-3 px-4 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-input)] text-[var(--text-primary)] focus:outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-500/20 transition-all"
+            spellCheck="false"
+            value={exercise.userInput}
+            onChange={(e) => exercise.setUserInput(e.target.value.replace(/[^0-9]/g, "").slice(0, 3))}
+            onKeyDown={exercise.handleKeyDown}
+            placeholder="z. B. 173"
+            aria-describedby="bin2dec-hint"
+            className="w-full text-center font-mono text-2xl sm:text-3xl py-3 px-4 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-input)] text-[var(--text-primary)] focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all"
           />
+          <p id="bin2dec-hint" className="text-[11px] text-[var(--text-muted)] mt-2">
+            Addiere die aktiven Zweierpotenzen (nur 1-Bits). Mit Enter bestätigen.
+          </p>
         </div>
 
         {/* Aktionsleiste */}
-        <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5 mt-5">
-          <button
-            onClick={checkAnswer}
-            className="min-h-[42px] flex items-center justify-center gap-1.5 sm:gap-2 px-5 sm:px-6 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-600 hover:to-sky-700 text-white text-xs sm:text-sm font-semibold transition-all cursor-pointer shadow-md shadow-sky-500/25"
-          >
-            <Check size={16} />
-            <span>Ergebnis prüfen</span>
-          </button>
+        <ExerciseActions
+          isCompleted={exercise.isCompleted}
+          onCheck={exercise.checkAnswer}
+          onNext={exercise.nextTask}
+          onRevealSolution={exercise.revealSolution}
+        />
 
-          <button
-            onClick={() => generateNewTask()}
-            className="min-h-[42px] flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-hover)] transition-all cursor-pointer text-xs font-medium"
-          >
-            <RefreshCw size={14} />
-            <span>Neues Muster</span>
-          </button>
-
-          <button
-            onClick={() => setShowSolution(true)}
-            className="min-h-[42px] flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-sky-600 dark:hover:text-sky-400 hover:border-sky-500/40 transition-all cursor-pointer text-xs font-medium"
-          >
-            <Eye size={14} />
-            <span>Lösungsweg</span>
-          </button>
-        </div>
-
-        {/* Feedback Alert */}
-        {feedback && (
-          <div
-            className={`mt-5 p-3.5 sm:p-4 rounded-2xl text-xs sm:text-sm font-medium border flex items-center justify-center gap-2 animate-pop-in ${
-              feedback.isCorrect
-                ? "bg-[var(--success-bg)] border-[var(--success-border)] text-[var(--success-text)]"
-                : "bg-[var(--error-bg)] border-[var(--error-border)] text-[var(--error-text)]"
-            }`}
-          >
-            {feedback.isCorrect ? (
-              <CheckCircle2 size={18} className="shrink-0" />
-            ) : (
-              <AlertCircle size={18} className="shrink-0" />
-            )}
-            <span>{feedback.message}</span>
-          </div>
-        )}
+        {/* Barrierefreies Feedback */}
+        <FeedbackMessage feedback={exercise.feedback} />
       </div>
 
       {/* Didaktischer Lösungsweg mit Polynomdarstellung */}
-      {showSolution && (
+      {(exercise.solutionRevealed || exercise.status === "revealed") && (
         <div className="p-4 sm:p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] animate-pop-in space-y-4">
           <div className="flex items-center gap-2">
             <span className="w-6 h-6 rounded-lg bg-sky-500/15 text-sky-700 dark:text-sky-300 flex items-center justify-center text-xs">📖</span>
@@ -287,7 +240,6 @@ export function BinToDecModule({
             </h3>
           </div>
 
-          {/* Formel-Header */}
           <div className="p-3 rounded-2xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)] text-xs font-mono">
             <div className="text-[var(--text-muted)] text-[11px] mb-1">Stellenwert-Definition im Zweiersystem:</div>
             <div className="text-sky-700 dark:text-sky-400 font-bold sm:text-sm">
@@ -295,10 +247,9 @@ export function BinToDecModule({
             </div>
           </div>
 
-          {/* Konkrete Terme-Aufschlüsselung */}
           <div className="space-y-1.5">
-            <div className="text-[11px] text-[var(--text-secondary)] font-medium">
-              Eingesetzte Bitwerte & Potenzen:
+            <div className="text-xs text-[var(--text-secondary)] font-medium">
+              Eingesetzte Bitwerte &amp; Potenzen:
             </div>
             <div className="p-3 rounded-2xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)] font-mono text-xs flex flex-wrap items-center gap-1.5 leading-relaxed">
               {polynomialTerms.map((term, i) => (
@@ -309,11 +260,6 @@ export function BinToDecModule({
                         ? "bg-emerald-100 border-emerald-300 text-emerald-800 dark:bg-emerald-950/40 dark:border-emerald-500/40 dark:text-emerald-300 font-bold"
                         : "bg-[var(--bg-input)] border border-[var(--border-color)] text-[var(--text-muted)]"
                     }`}
-                    title={
-                      term.isActive
-                        ? `Bit ${term.power} ist 1: 1 × ${term.val} = ${term.val}`
-                        : `Bit ${term.power} ist 0: 0 × ${term.val} = 0`
-                    }
                   >
                     ({term.bit} · 2{formatExponent(term.power).slice(1)})
                   </span>
@@ -329,7 +275,7 @@ export function BinToDecModule({
 
           {/* Summe der aktiven Werte */}
           <div className="p-3.5 rounded-2xl bg-sky-500/10 border border-sky-500/25 font-mono text-xs">
-            <div className="text-[11px] text-sky-800 dark:text-sky-300 mb-1 font-semibold">
+            <div className="text-xs text-sky-800 dark:text-sky-300 mb-1 font-semibold">
               Summe der aktiven Stellenwerte (nur gesetzte 1-Bits):
             </div>
             {activePowers.length > 0 ? (
@@ -344,10 +290,6 @@ export function BinToDecModule({
             ) : (
               <span className="text-[var(--text-muted)] font-medium">Kein Bit gesetzt = 0</span>
             )}
-          </div>
-
-          <div className="text-[11px] text-[var(--text-muted)] leading-relaxed">
-            💡 <strong>Didaktischer Merksatz:</strong> Bits mit dem Wert <strong>0</strong> multiplizieren ihre Potenz mit 0 (z. B. 0 · 64 = 0) und leisten daher keinen Beitrag zur Gesamtsumme. Man addiert im Kopf lediglich die Potenzen der <strong>1-Bits</strong>.
           </div>
         </div>
       )}

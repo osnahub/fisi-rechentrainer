@@ -1,45 +1,89 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState } from "react";
 import { Conversions } from "@/lib/conversions";
 import { NIBBLE_TABLE } from "@/lib/subnetData";
-import { Check, RefreshCw, Eye, Sparkles, CheckCircle2, AlertCircle } from "lucide-react";
+import { Sparkles, Binary, ArrowRightLeft, Calculator, Hexagon } from "lucide-react";
+import { useExerciseState } from "@/hooks/useExerciseState";
+import { ModeTabs, TabItem } from "@/components/ui/ModeTabs";
+import { FeedbackMessage } from "@/components/ui/FeedbackMessage";
+import { ExerciseActions } from "@/components/ui/ExerciseActions";
+
+export type HexSubMode = "bin2hex" | "hex2bin" | "dec2hex" | "hex2dec";
 
 interface HexModuleProps {
-  onSuccess?: () => void;
-  onError?: () => void;
-  onPlayClick?: () => void;
   onStreakUpdate?: (correct: boolean) => void;
+  subMode?: HexSubMode;
+  onSubModeChange?: (mode: HexSubMode) => void;
+  rng?: () => number;
 }
 
-type HexSubMode = "bin2hex" | "hex2bin" | "dec2hex" | "hex2dec";
-
 export function HexModule({
-  onSuccess,
-  onError,
-  onPlayClick,
   onStreakUpdate,
+  subMode: externalSubMode,
+  onSubModeChange,
+  rng,
 }: HexModuleProps) {
-  const [subMode, setSubMode] = useState<HexSubMode>("bin2hex");
-  const [taskVal, setTaskVal] = useState<number>(0); // 0-255 (1 Byte)
-  const [userInput, setUserInput] = useState<string>("");
-  const [feedback, setFeedback] = useState<{ isCorrect: boolean; message: string } | null>(null);
-  const [showSolution, setShowSolution] = useState<boolean>(false);
+  const [internalSubMode, setInternalSubMode] = useState<HexSubMode>("bin2hex");
+  const subMode = externalSubMode || internalSubMode;
+  const setSubMode = (m: HexSubMode) => {
+    if (onSubModeChange) onSubModeChange(m);
+    else setInternalSubMode(m);
+  };
+
   const [showNibbleTable, setShowNibbleTable] = useState<boolean>(false);
 
-  const generateTask = useCallback(() => {
-    let val = Math.floor(Math.random() * 256);
-    if (val === 0) val = Math.floor(Math.random() * 255) + 1;
-    setTaskVal(val);
-    setUserInput("");
-    setFeedback(null);
-    setShowSolution(false);
-  }, []);
+  const exercise = useExerciseState<number>({
+    generator: (prev, customRng) => {
+      const getR = customRng || rng || Math.random;
+      let next = Math.floor(getR() * 256);
+      while (next === prev) {
+        next = Math.floor(getR() * 256);
+      }
+      return next;
+    },
+    validator: (input, target) => {
+      const raw = input.trim().toUpperCase().replace(/^0X/, "");
+      const targetBin = Conversions.decToBin(target, 8);
+      const targetHex = Conversions.decToHex(target, 2);
 
-  useEffect(() => {
-    generateTask();
-  }, [subMode, generateTask]);
+      switch (subMode) {
+        case "bin2hex":
+        case "dec2hex":
+          return raw.padStart(2, "0") === targetHex;
+        case "hex2bin":
+          return raw.replace(/\s+/g, "").padStart(8, "0") === targetBin;
+        case "hex2dec":
+          return Conversions.parseDecimalInput(raw).ok && parseInt(raw, 10) === target;
+      }
+    },
+    getSuccessMessage: (target) => {
+      const targetHex = Conversions.decToHex(target, 2);
+      return `Exzellent! Das Ergebnis für 0x${targetHex} (${target}₁₀) ist korrekt.`;
+    },
+    getErrorMessage: () => {
+      return "Leider nicht richtig. Überprüfe die Berechnung und versuche es erneut!";
+    },
+    getHint: (_input, _target, attemptCount) => {
+      if (attemptCount === 1) {
+        switch (subMode) {
+          case "bin2hex":
+            return "💡 Hinweis: Teile das 8-Bit-Byte in zwei 4-Bit-Nibbles auf und wandle jedes Nibble separat in eine Hex-Ziffer (0–F) um.";
+          case "hex2bin":
+            return "💡 Hinweis: Jede Hex-Ziffer expandiert in exakt 4 Bits (z. B. F ➔ 1111, A ➔ 1010).";
+          case "dec2hex":
+            return "💡 Hinweis: Teile die Zahl durch 16. Das ganzzahlige Ergebnis ist das High-Nibble, der Rest ist das Low-Nibble.";
+          case "hex2dec":
+            return "💡 Hinweis: Berechne (High-Hex-Ziffer × 16) + (Low-Hex-Ziffer × 1).";
+        }
+      }
+      return null;
+    },
+    onStreakUpdate,
+    rng,
+  });
 
+  const taskVal = exercise.target;
   const targetBin = Conversions.decToBin(taskVal, 8);
   const highNibbleBin = targetBin.substring(0, 4);
   const lowNibbleBin = targetBin.substring(4, 8);
@@ -48,83 +92,37 @@ export function HexModule({
   const lowNibbleHex = Conversions.binToHex(lowNibbleBin);
   const targetHex = highNibbleHex + lowNibbleHex;
 
-  const checkAnswer = () => {
-    const raw = userInput.trim().toUpperCase().replace(/^0X/, "");
-    let isCorrect = false;
-    let correctStr = "";
-
-    switch (subMode) {
-      case "bin2hex":
-        correctStr = targetHex;
-        isCorrect = raw.padStart(2, "0") === targetHex;
-        break;
-      case "hex2bin":
-        correctStr = targetBin;
-        isCorrect = raw.replace(/\s+/g, "").padStart(8, "0") === targetBin;
-        break;
-      case "dec2hex":
-        correctStr = targetHex;
-        isCorrect = raw.padStart(2, "0") === targetHex;
-        break;
-      case "hex2dec":
-        correctStr = String(taskVal);
-        isCorrect = /^\d+$/.test(raw) && parseInt(raw, 10) === taskVal;
-        break;
-    }
-
-    if (isCorrect) {
-      setFeedback({
-        isCorrect: true,
-        message: `Exzellent! Das Ergebnis ist korrekt (${correctStr}).`,
-      });
-      onSuccess?.();
-      onStreakUpdate?.(true);
-    } else {
-      setFeedback({
-        isCorrect: false,
-        message: `Leider nicht richtig. Gesucht war: ${correctStr}. Prüfe den Rechenweg unten!`,
-      });
-      onError?.();
-      onStreakUpdate?.(false);
-    }
-  };
+  const hexTabs: TabItem<HexSubMode>[] = [
+    { id: "bin2hex", label: "Bin ➔ Hex", fullLabel: "Binär ➔ Hex", detail: "(Nibbles)", icon: Binary },
+    { id: "hex2bin", label: "Hex ➔ Bin", fullLabel: "Hex ➔ Binär", detail: "(Expansion)", icon: ArrowRightLeft },
+    { id: "dec2hex", label: "Dez ➔ Hex", fullLabel: "Dezimal ➔ Hex", detail: "(:16)", icon: Calculator },
+    { id: "hex2dec", label: "Hex ➔ Dez", fullLabel: "Hex ➔ Dezimal", detail: "(Polynom)", icon: Hexagon },
+  ];
 
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Modus-Auswahl & Nibble-Tabelle-Toggle */}
       <div className="flex flex-wrap items-center justify-between gap-2.5 p-2 sm:p-2.5 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-color)]">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 flex-1 min-w-[280px]">
-          {(
-            [
-              { id: "bin2hex", label: "Binär ➔ Hex", detail: "(Nibble)" },
-              { id: "hex2bin", label: "Hex ➔ Binär", detail: "(Expansion)" },
-              { id: "dec2hex", label: "Dezimal ➔ Hex", detail: "(:16 oder Nibble)" },
-              { id: "hex2dec", label: "Hex ➔ Dezimal", detail: "(Polynom)" },
-            ] as const
-          ).map((m) => (
-            <button
-              key={m.id}
-              onClick={() => {
-                onPlayClick?.();
-                setSubMode(m.id);
-              }}
-              className={`text-xs py-2 px-2 rounded-xl border transition-all cursor-pointer font-medium text-center ${
-                subMode === m.id
-                  ? "bg-sky-600 dark:bg-sky-500 text-white border-sky-600 dark:border-sky-400 font-semibold shadow-sm"
-                  : "border-[var(--border-color)] text-[var(--text-secondary)] hover:border-[var(--border-hover)]"
-              }`}
-            >
-              <div>{m.label}</div>
-              {m.detail && <div className="text-[10px] opacity-75">{m.detail}</div>}
-            </button>
-          ))}
-        </div>
+        <ModeTabs
+          tabs={hexTabs}
+          activeTab={subMode}
+          onChange={(newMode) => {
+            setSubMode(newMode);
+            exercise.nextTask();
+          }}
+          ariaLabel="Hexadezimal Untermodi"
+          size="sm"
+          className="flex-1 min-w-[280px]"
+        />
 
         <button
+          type="button"
           onClick={() => setShowNibbleTable((prev) => !prev)}
-          className={`text-xs px-3 py-2 rounded-xl border transition-all cursor-pointer font-medium shrink-0 ${
+          aria-expanded={showNibbleTable}
+          aria-controls="nibble-table-panel"
+          className={`text-xs px-3 py-2 rounded-xl border transition-all cursor-pointer font-medium shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 ${
             showNibbleTable
-              ? "bg-sky-600 dark:bg-sky-500 text-white border-sky-600 dark:border-sky-400 font-semibold shadow-sm"
+              ? "bg-[var(--primary-btn-bg)] text-white border-[var(--primary-btn-bg)] font-semibold shadow-sm"
               : "border-[var(--border-color)] text-[var(--text-secondary)] hover:border-[var(--border-hover)]"
           }`}
         >
@@ -134,7 +132,7 @@ export function HexModule({
 
       {/* Zuschaltbare Nibble-Tabelle (0–15 ➔ 0–F) */}
       {showNibbleTable && (
-        <div className="p-3.5 sm:p-5 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] animate-pop-in">
+        <div id="nibble-table-panel" className="p-3.5 sm:p-5 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] animate-pop-in">
           <h3 className="font-semibold text-xs sm:text-sm text-[var(--text-primary)] mb-2.5">
             🧩 Das 4-Bit-Nibble-Prinzip (16 Zustände: 0 bis 15 ➔ 0 bis F):
           </h3>
@@ -149,8 +147,8 @@ export function HexModule({
                 }`}
               >
                 <div className="text-sm font-extrabold text-[var(--text-primary)]">{row.hex}</div>
-                <div className="text-[10px] text-[var(--text-muted)]">{row.dec} dez</div>
-                <div className="text-[10px] font-bold text-sky-700 dark:text-sky-400">{row.bin}</div>
+                <div className="text-[11px] text-[var(--text-muted)]">{row.dec} dez</div>
+                <div className="text-[11px] font-bold text-sky-700 dark:text-sky-400">{row.bin}</div>
               </div>
             ))}
           </div>
@@ -171,7 +169,7 @@ export function HexModule({
             </h2>
             <div className="flex justify-center items-center gap-2 sm:gap-4 my-5 sm:my-7">
               <div className="p-3 sm:p-4 rounded-2xl bg-[var(--bg-card-subtle)] border border-sky-500/30 flex flex-col items-center min-w-[100px] sm:min-w-[120px]">
-                <span className="text-[10px] sm:text-xs text-sky-700 dark:text-sky-400 font-bold uppercase tracking-wider mb-1">
+                <span className="text-xs text-sky-700 dark:text-sky-400 font-bold uppercase tracking-wider mb-1">
                   High-Nibble
                 </span>
                 <span className="font-mono text-2xl sm:text-3xl font-bold text-[var(--text-primary)]">
@@ -180,7 +178,7 @@ export function HexModule({
               </div>
               <div className="text-xl sm:text-2xl text-[var(--text-muted)] font-mono font-bold">+</div>
               <div className="p-3 sm:p-4 rounded-2xl bg-[var(--bg-card-subtle)] border border-indigo-500/30 flex flex-col items-center min-w-[100px] sm:min-w-[120px]">
-                <span className="text-[10px] sm:text-xs text-indigo-700 dark:text-indigo-400 font-bold uppercase tracking-wider mb-1">
+                <span className="text-xs text-indigo-700 dark:text-indigo-400 font-bold uppercase tracking-wider mb-1">
                   Low-Nibble
                 </span>
                 <span className="font-mono text-2xl sm:text-3xl font-bold text-[var(--text-primary)]">
@@ -229,17 +227,25 @@ export function HexModule({
           </div>
         )}
 
-        {/* Eingabefeld (Mobile-Optimiert) */}
+        {/* Eingabefeld mit sichtbarem Label */}
         <div className="max-w-xs mx-auto my-4 sm:my-6">
+          <label htmlFor="hex-user-input" className="block text-xs font-semibold text-[var(--text-secondary)] mb-2">
+            {subMode === "bin2hex" || subMode === "dec2hex"
+              ? "Hexadezimalwert eingeben:"
+              : subMode === "hex2bin"
+              ? "8-Bit-Binärmuster eingeben:"
+              : "Dezimalwert eingeben:"}
+          </label>
           <input
+            id="hex-user-input"
             type="text"
             inputMode={subMode === "hex2dec" ? "numeric" : "text"}
             autoCapitalize="characters"
             autoCorrect="off"
             spellCheck="false"
-            value={userInput}
-            onChange={(e) => setUserInput(e.target.value.toUpperCase())}
-            onKeyDown={(e) => e.key === "Enter" && checkAnswer()}
+            value={exercise.userInput}
+            onChange={(e) => exercise.setUserInput(e.target.value.toUpperCase())}
+            onKeyDown={exercise.handleKeyDown}
             placeholder={
               subMode === "bin2hex" || subMode === "dec2hex"
                 ? "z. B. 3F oder 0x3F"
@@ -247,64 +253,28 @@ export function HexModule({
                 ? "z. B. 00111111"
                 : "z. B. 63"
             }
-            className="w-full text-center font-mono text-2xl sm:text-3xl py-3 px-4 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-input)] text-[var(--text-primary)] focus:outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-500/20 transition-all uppercase"
+            aria-describedby="hex-user-hint"
+            className="w-full text-center font-mono text-2xl sm:text-3xl py-3 px-4 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-input)] text-[var(--text-primary)] focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all uppercase"
           />
+          <p id="hex-user-hint" className="text-[11px] text-[var(--text-muted)] mt-2">
+            Drücke Enter zum Prüfen.
+          </p>
         </div>
 
         {/* Aktionsleiste */}
-        <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5 mt-5">
-          <button
-            onClick={checkAnswer}
-            className="min-h-[42px] flex items-center justify-center gap-1.5 sm:gap-2 px-5 sm:px-6 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-600 hover:to-sky-700 text-white text-xs sm:text-sm font-semibold transition-all cursor-pointer shadow-md shadow-sky-500/25"
-          >
-            <Check size={16} />
-            <span>Ergebnis prüfen</span>
-          </button>
+        <ExerciseActions
+          isCompleted={exercise.isCompleted}
+          onCheck={exercise.checkAnswer}
+          onNext={exercise.nextTask}
+          onRevealSolution={exercise.revealSolution}
+        />
 
-          <button
-            onClick={() => {
-              onPlayClick?.();
-              generateTask();
-            }}
-            className="min-h-[42px] flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-hover)] transition-all cursor-pointer text-xs font-medium"
-          >
-            <RefreshCw size={14} />
-            <span>Neue Aufgabe</span>
-          </button>
-
-          <button
-            onClick={() => {
-              onPlayClick?.();
-              setShowSolution(true);
-            }}
-            className="min-h-[42px] flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-sky-600 dark:hover:text-sky-400 hover:border-sky-500/40 transition-all cursor-pointer text-xs font-medium"
-          >
-            <Eye size={14} />
-            <span>Lösungsweg</span>
-          </button>
-        </div>
-
-        {/* Feedback */}
-        {feedback && (
-          <div
-            className={`mt-5 p-3.5 sm:p-4 rounded-2xl text-xs sm:text-sm font-medium border flex items-center justify-center gap-2 animate-pop-in ${
-              feedback.isCorrect
-                ? "bg-[var(--success-bg)] border-[var(--success-border)] text-[var(--success-text)]"
-                : "bg-[var(--error-bg)] border-[var(--error-border)] text-[var(--error-text)]"
-            }`}
-          >
-            {feedback.isCorrect ? (
-              <CheckCircle2 size={18} className="shrink-0" />
-            ) : (
-              <AlertCircle size={18} className="shrink-0" />
-            )}
-            <span>{feedback.message}</span>
-          </div>
-        )}
+        {/* Barrierefreies Feedback */}
+        <FeedbackMessage feedback={exercise.feedback} />
       </div>
 
       {/* Lösungsweg & Mathematische Herleitung */}
-      {showSolution && (
+      {(exercise.solutionRevealed || exercise.status === "revealed") && (
         <div className="p-4 sm:p-6 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] animate-pop-in space-y-4">
           <div className="flex items-center gap-2">
             <span className="w-6 h-6 rounded-lg bg-sky-500/15 text-sky-700 dark:text-sky-300 flex items-center justify-center text-xs">📖</span>
@@ -313,7 +283,6 @@ export function HexModule({
             </h3>
           </div>
 
-          {/* Weg 1 bei dec2hex: 16er-Divisionsverfahren mit Rest */}
           {subMode === "dec2hex" && (
             <div className="p-3.5 rounded-2xl bg-[var(--bg-card-subtle)] border border-[var(--border-color)] font-mono text-xs space-y-2">
               <div className="text-sky-700 dark:text-sky-400 font-bold">
@@ -331,14 +300,14 @@ export function HexModule({
                     <span>
                       Rest: <strong className="text-sky-700 dark:text-sky-400">{step.remainder}</strong> ➔ Hex:{" "}
                       <strong className="text-emerald-700 dark:text-emerald-400 text-sm">{step.hexChar}</strong>{" "}
-                      <span className="text-[10px] text-[var(--text-muted)]">
+                      <span className="text-[11px] text-[var(--text-muted)]">
                         {idx === arr.length - 1 ? "(MSB)" : idx === 0 ? "(LSB)" : ""}
                       </span>
                     </span>
                   </div>
                 ))}
               </div>
-              <div className="text-[11px] text-[var(--text-secondary)]">
+              <div className="text-xs text-[var(--text-secondary)]">
                 Leserichtung von unten (MSB) nach oben (LSB) ➔ <strong className="text-sky-700 dark:text-sky-400">0x{targetHex}</strong>
               </div>
             </div>
@@ -350,14 +319,13 @@ export function HexModule({
               {subMode === "dec2hex" ? "2. Methode: " : ""}Das 4-Bit-Nibble-Prinzip (Basis-Äquivalenz 2⁴ = 16):
             </div>
             <div className="text-sky-700 dark:text-sky-400 font-bold sm:text-sm">
-              Genau 4 Bits codieren 16 Zustände (0 bis F). Jedes Byte besteht aus 2 Nibbles (High & Low).
+              Genau 4 Bits codieren 16 Zustände (0 bis F). Jedes Byte besteht aus 2 Nibbles (High &amp; Low).
             </div>
-            <div className="text-[var(--text-secondary)] text-[11px] mt-1.5 leading-relaxed">
+            <div className="text-[var(--text-secondary)] text-xs mt-1.5 leading-relaxed">
               Formel zur Basis 16: <strong className="text-[var(--text-primary)]">Wert₁₀ = (High-Nibble · 16¹) + (Low-Nibble · 16⁰) = (H · 16) + L</strong>
             </div>
           </div>
 
-          {/* Aufschlüsselung der beiden Nibbles */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 font-mono text-xs">
             <div className="p-3 sm:p-3.5 rounded-2xl bg-[var(--bg-card-subtle)] border border-sky-500/30">
               <span className="text-sky-700 dark:text-sky-400 font-bold block mb-1">
@@ -382,9 +350,8 @@ export function HexModule({
             </div>
           </div>
 
-          {/* Gesamtrechnung */}
           <div className="p-3 rounded-2xl bg-sky-500/10 border border-sky-500/25 font-mono text-xs sm:text-sm text-center">
-            <div className="text-[11px] text-sky-800 dark:text-sky-300 mb-1">Gesamtrechnung:</div>
+            <div className="text-xs text-sky-800 dark:text-sky-300 mb-1">Gesamtrechnung:</div>
             <div className="font-bold text-[var(--text-primary)]">
               ({Conversions.binToDec(highNibbleBin)} · 16) + ({Conversions.binToDec(lowNibbleBin)} · 1) = {Conversions.binToDec(highNibbleBin) * 16} + {Conversions.binToDec(lowNibbleBin)} = <span className="text-sky-700 dark:text-sky-400">{taskVal}₁₀</span>
             </div>
