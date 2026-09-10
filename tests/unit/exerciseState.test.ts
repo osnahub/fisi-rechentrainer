@@ -79,6 +79,32 @@ describe("useExerciseState - State Machine Logic", () => {
     expect(result.current.status).toBe("revealed");
     expect(result.current.solutionRevealed).toBe(true);
     expect(result.current.isCompleted).toBe(true);
+    expect(result.current.feedback).toBeNull();
+  });
+
+  it("clears previously set error feedback upon revealSolution", () => {
+    const { result } = renderHook(() =>
+      useExerciseState({
+        generator: () => 100,
+        validator: (input, target) => parseInt(input, 10) === target,
+      })
+    );
+
+    act(() => {
+      result.current.setUserInput("50");
+    });
+    act(() => {
+      result.current.checkAnswer();
+    });
+    expect(result.current.status).toBe("incorrect");
+    expect(result.current.feedback?.isCorrect).toBe(false);
+
+    act(() => {
+      result.current.revealSolution();
+    });
+    expect(result.current.status).toBe("revealed");
+    // Old error feedback must not dominate the solution
+    expect(result.current.feedback).toBeNull();
   });
 
   it("nextTask resets state and produces new target", () => {

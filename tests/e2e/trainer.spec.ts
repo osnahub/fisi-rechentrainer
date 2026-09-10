@@ -2,8 +2,26 @@ import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
 test.describe("FiSi Rechentrainer E2E & Accessibility Suite", () => {
+  const consoleErrors: string[] = [];
+  const pageErrors: Error[] = [];
+
   test.beforeEach(async ({ page }) => {
+    consoleErrors.length = 0;
+    pageErrors.length = 0;
+    page.on("console", (msg) => {
+      if (msg.type() === "error") {
+        consoleErrors.push(msg.text());
+      }
+    });
+    page.on("pageerror", (err) => {
+      pageErrors.push(err);
+    });
     await page.goto("/");
+  });
+
+  test.afterEach(async () => {
+    expect(pageErrors, `Unexpected page errors: ${pageErrors.map((e) => e.message).join(", ")}`).toEqual([]);
+    expect(consoleErrors, `Unexpected console errors: ${consoleErrors.join("; ")}`).toEqual([]);
   });
 
   test("Module navigation and URL query synchronization", async ({ page }) => {
@@ -205,18 +223,101 @@ test.describe("FiSi Rechentrainer E2E & Accessibility Suite", () => {
   });
 
 
-  test("Offline PWA: Service Worker registration and caching", async ({ page, context }) => {
+  test("REPRODUCE Befund 1: Multi-context hydration check without console or page errors", async ({ browser }) => {
+    // 3 fresh browser contexts must mount cleanly without React error #418 or hydration mismatches
+    for (let i = 0; i < 3; i++) {
+      const context = await browser.newContext();
+      const page = await context.newPage();
+      const contextErrors: string[] = [];
+      page.on("pageerror", (err) => contextErrors.push(`[PageError] ${err.message}`));
+      page.on("console", (msg) => {
+        if (msg.type() === "error") contextErrors.push(`[ConsoleError] ${msg.text()}`);
+      });
+      await page.goto("/");
+      await page.waitForLoadState("domcontentloaded");
+      expect(
+        contextErrors.filter((e) => e.includes("418") || e.includes("Hydration") || e.includes("server-rendered")),
+        `Hydration error detected in context ${i + 1}: ${contextErrors.join("; ")}`
+      ).toEqual([]);
+      await context.close();
+    }
+  });
+
+  test("REPRODUCE Befund 4: No duplicate IDs and valid ARIA controls when reference bar is open", async ({ page }) => {
     await page.goto("/");
-    // Let service worker register
-    await page.waitForTimeout(500);
+    await page.click("#reference-accordion-trigger");
+    await expect(page.locator("#reference-accordion-panel")).toBeVisible();
 
-    const isServiceWorkerRegistered = await page.evaluate(async () => {
-      if (!("serviceWorker" in navigator)) return false;
-      const regs = await navigator.serviceWorker.getRegistrations();
-      return regs.length > 0;
+    const duplicateIds = await page.evaluate(() => {
+      const allIds = Array.from(document.querySelectorAll("[id]")).map((el) => el.id);
+      return allIds.filter((id, index) => allIds.indexOf(id) !== index);
     });
+    expect(duplicateIds, `Found duplicate IDs: ${duplicateIds.join(", ")}`).toEqual([]);
 
-    // In desktop browser context, ServiceWorker is supported
-    expect(typeof isServiceWorkerRegistered).toBe("boolean");
+    const brokenControls = await page.evaluate(() => {
+      return Array.from(document.querySelectorAll("[aria-controls]"))
+        .map((el) => el.getAttribute("aria-controls")!)
+        .filter((id) => !document.getElementById(id));
+    });
+    expect(brokenControls, `Found broken aria-controls targets: ${brokenControls.join(", ")}`).toEqual([]);
+  });
+
+  test("REPRODUCE Befund 5: Browser Back/Forward keeps URL and UI in sync and preserves task state", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.locator("#tab-dec2bin")).toHaveAttribute("aria-selected", "true");
+
+    // Click on Hex
+    await page.click("#tab-hex");
+    await expect(page).toHaveURL(/.*module=hex/);
+
+    // Click on Subnet
+    await page.click("#tab-subnet");
+    await expect(page).toHaveURL(/.*module=subnet/);
+
+    // Go back to Hex
+    await page.goBack();
+    await expect(page).toHaveURL(/.*module=hex/);
+    await expect(page.locator("#tab-hex")).toHaveAttribute("aria-selected", "true");
+
+    // Go back to Root /
+    await page.goBack();
+    await expect(page.locator("#tab-dec2bin")).toHaveAttribute("aria-selected", "true");
+  });
+
+  test("REPRODUCE Befund 2: Hard offline PWA test with active controller and cleared HTTP cache", async ({ browser }) => {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    await page.goto("/");
+
+    // Wait for Service Worker registration
+    const isRegistered = await page.evaluate(async () => {
+      if (!("serviceWorker" in navigator)) return false;
+      const reg = await navigator.serviceWorker.ready;
+      return !!reg && !!reg.active;
+    });
+    expect(isRegistered).toBe(true);
+
+    // Clear browser HTTP cache via CDP
+    const cdp = await context.newCDPSession(page);
+    await cdp.send("Network.clearBrowserCache");
+
+    // Switch to offline
+    await context.setOffline(true);
+
+    // Reload offline
+    await page.reload({ waitUntil: "domcontentloaded" });
+
+    // Header must still render offline
+    await expect(page.locator("h1")).toContainText("FiSi-Rechentrainer");
+
+    await cdp.detach();
+    await context.close();
+  });
+
+  test("REPRODUCE Befund 8: Production CSP header does not allow unsafe-eval", async ({ request }) => {
+    const res = await request.get("/");
+    const headers = res.headers();
+    const csp = headers["content-security-policy"] || "";
+    expect(csp).not.toContain("'unsafe-eval'");
   });
 });

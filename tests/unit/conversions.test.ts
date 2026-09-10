@@ -20,6 +20,45 @@ describe("Conversions - Bug Reproductions (P0/P1)", () => {
   it("REPRODUCE P1: getDivisionSteps(1.5) must reject non-integers", () => {
     expect(() => Conversions.getDivisionSteps(1.5)).toThrow(RangeError);
   });
+
+  it("REPRODUCE Befund 7: decToBin(256, 8) must throw RangeError if value exceeds bitCount capacity", () => {
+    // 256 requires 9 bits (100000000). If bitCount is 8, it must throw RangeError.
+    expect(() => Conversions.decToBin(256, 8)).toThrow(RangeError);
+  });
+
+  it("REPRODUCE Befund 7: getPolynomialExpansion('10x') must reject invalid binary characters", () => {
+    // Currently 'x' is silently treated as 0 instead of rejecting
+    expect(() => Conversions.getPolynomialExpansion("10x")).toThrow();
+  });
+
+  it("REPRODUCE Befund 7: getStellenwertSteps(5, 0) must reject bitCount < 1 or > 32", () => {
+    expect(() => Conversions.getStellenwertSteps(5, 0)).toThrow(RangeError);
+    expect(() => Conversions.getStellenwertSteps(5, 33)).toThrow(RangeError);
+  });
+
+  it("REPRODUCE Befund 7: getSubnetExample must reject NaN, non-integers, and CIDR outside 24..32", () => {
+    expect(() => Conversions.getSubnetExample(NaN)).toThrow();
+    expect(() => Conversions.getSubnetExample(23)).toThrow(RangeError);
+    expect(() => Conversions.getSubnetExample(33)).toThrow(RangeError);
+    expect(() => Conversions.getSubnetExample(24.5)).toThrow();
+  });
+
+  it("REPRODUCE Befund 7: parseHexInput('  0x1A') must handle leading whitespace before 0x", () => {
+    const res = Conversions.parseHexInput("  0x1A");
+    expect(res.ok).toBe(true);
+    if (res.ok) {
+      expect(res.value.clean).toBe("1A");
+      expect(res.value.value).toBe(26);
+    }
+  });
+
+  it("REPRODUCE Befund 7: Conversions methods must not crash when destructured without 'this'", () => {
+    const { binToDec, hexToDec, hexToBin, binToHex } = Conversions;
+    expect(binToDec("1010")).toBe(10);
+    expect(hexToDec("1A")).toBe(26);
+    expect(hexToBin("A")).toBe("1010");
+    expect(binToHex("1010")).toBe("A");
+  });
 });
 
 describe("Conversions - Boundaries and Validation", () => {
