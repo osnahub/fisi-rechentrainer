@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { SUBNET_TABLE, SubnetEntry, isValidSubnetMaskAnswer } from "@/lib/subnetData";
 import { Conversions } from "@/lib/conversions";
+import { validateExactBitPattern } from "@/lib/validation";
 import { Sparkles, BookOpen, Network, Binary, Compass } from "lucide-react";
 import { useExerciseState } from "@/hooks/useExerciseState";
 import { ModeTabs, TabItem } from "@/components/ui/ModeTabs";
@@ -47,8 +48,11 @@ export function SubnetModule({
       switch (taskType) {
         case "cidr2mask":
           return isValidSubnetMaskAnswer(raw, target.maskOctet);
-        case "mask2bin":
-          return raw.replace(/\s+/g, "") === target.binaryOctet;
+        case "mask2bin": {
+          const check = validateExactBitPattern(input, 8);
+          if (!check.ok) return false;
+          return check.clean === target.binaryOctet;
+        }
         case "magicNumber":
           return /^\d+$/.test(raw) && parseInt(raw, 10) === target.magicNumber;
       }
@@ -56,11 +60,23 @@ export function SubnetModule({
     getSuccessMessage: (target) => {
       return `Hervorragend! Richtig gelöst für ${target.cidr}.`;
     },
-    getErrorMessage: () => {
-      return "Leider nicht richtig. Überprüfe die Werte und versuche es erneut!";
+    getErrorMessage: (target, input) => {
+      switch (taskType) {
+        case "cidr2mask":
+          return "Leider nicht richtig. Erwartet wird der Dezimalwert des 4. Oktetts (z. B. 128) oder die Vollmaske (255.255.255.128).";
+        case "mask2bin": {
+          const check = validateExactBitPattern(input, 8);
+          if (!check.ok) {
+            return check.error || "Ungültiges Binärmuster (exakt 8 Bits erforderlich).";
+          }
+          return `Leider falsch: Für .${target.maskOctet} lautet das 8-Bit-Muster ${target.binaryOctet}.`;
+        }
+        case "magicNumber":
+          return `Leider falsch: Die Schrittweite (256 - ${target.maskOctet}) ist ${target.magicNumber}.`;
+      }
     },
     getHint: (_input, target, attemptCount) => {
-      if (attemptCount === 1) {
+      if (attemptCount >= 1) {
         switch (taskType) {
           case "cidr2mask":
             return `💡 Hinweis: Für ${target.cidr} verbleiben ${target.hostBits} Host-Bits. Die Maske ist 256 - 2^${target.hostBits} (oder 255.255.255.X).`;
@@ -74,6 +90,19 @@ export function SubnetModule({
     },
     rng,
   });
+
+  if (!exercise.isMounted) {
+    return (
+      <div className="space-y-4 sm:space-y-6">
+        <div className="h-14 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-color)] animate-pulse" />
+        <div className="p-5 sm:p-8 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] min-h-[360px] flex flex-col items-center justify-center animate-pulse">
+          <div className="w-32 h-6 bg-[var(--bg-card-subtle)] rounded-full mb-4" />
+          <div className="w-64 h-12 bg-[var(--bg-card-subtle)] rounded-2xl mb-6" />
+          <div className="w-48 h-10 bg-[var(--bg-card-subtle)] rounded-xl" />
+        </div>
+      </div>
+    );
+  }
 
   const currentEntry = exercise.target;
 
@@ -96,6 +125,8 @@ export function SubnetModule({
           }}
           ariaLabel="Subnetz Übungsziele"
           size="sm"
+          idPrefix="subnet"
+          panelIdPrefix="subnet-panel"
           className="flex-1"
         />
 
@@ -103,7 +134,7 @@ export function SubnetModule({
           type="button"
           onClick={() => setShowFullTable((prev) => !prev)}
           aria-expanded={showFullTable}
-          aria-controls="subnet-table-panel"
+          aria-controls={showFullTable ? "subnet-table-panel" : undefined}
           className={`text-xs px-3 py-1.5 rounded-xl border transition-all cursor-pointer flex items-center gap-1.5 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 ${
             showFullTable
               ? "bg-[var(--primary-btn-bg)] text-white border-[var(--primary-btn-bg)] shadow-sm"
@@ -116,7 +147,13 @@ export function SubnetModule({
       </div>
 
       {/* Aufgaben-Karte */}
-      <div className="p-3.5 sm:p-8 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-center shadow-sm relative overflow-hidden">
+      <div
+        id={`subnet-panel-${taskType}`}
+        role="tabpanel"
+        aria-labelledby={`subnet-tab-${taskType}`}
+        tabIndex={0}
+        className="p-3.5 sm:p-8 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-center shadow-sm relative overflow-hidden focus:outline-none"
+      >
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/30 text-sky-700 dark:text-sky-300 text-xs font-bold uppercase tracking-wider mb-2">
           <Sparkles size={13} />
           <span>IHK-Prüfungsfrage</span>
@@ -194,6 +231,7 @@ export function SubnetModule({
                 ? "z. B. 10000000"
                 : "z. B. 128"
             }
+            aria-invalid={exercise.status === "incorrect"}
             aria-describedby="subnet-user-hint"
             className="w-full text-center font-mono text-2xl sm:text-3xl py-3 px-4 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-input)] text-[var(--text-primary)] focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all"
           />

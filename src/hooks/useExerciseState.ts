@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useSyncExternalStore } from "react";
 
 export type ExerciseStatus = "unanswered" | "incorrect" | "correct" | "revealed";
 
@@ -17,7 +17,10 @@ export interface UseExerciseStateOptions<T> {
   getErrorMessage?: (target: T, userInput: string, attemptCount: number) => string;
   getHint?: (userInput: string, target: T, attemptCount: number) => string | null;
   rng?: () => number;
+  initialTarget?: T;
 }
+
+const emptySubscribe = () => () => {};
 
 export function useExerciseState<T>({
   generator,
@@ -26,27 +29,34 @@ export function useExerciseState<T>({
   getErrorMessage,
   getHint,
   rng,
+  initialTarget,
 }: UseExerciseStateOptions<T>) {
-  // Use lazy initialization so that generator is called once synchronously on initial mount
-  const [taskCount, setTaskCount] = useState<number>(1);
-  const [target, setTarget] = useState<T>(() => generator(undefined, rng));
+  const isMounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
+
+  const [target, setTarget] = useState<T>(() => {
+    if (initialTarget !== undefined) return initialTarget;
+    return generator(undefined, rng);
+  });
+
   const [status, setStatus] = useState<ExerciseStatus>("unanswered");
   const [attemptCount, setAttemptCount] = useState<number>(0);
   const [solutionRevealed, setSolutionRevealed] = useState<boolean>(false);
   const [userInput, setUserInput] = useState<string>("");
   const [feedback, setFeedback] = useState<ExerciseFeedback | null>(null);
 
-  const taskId = `task-${taskCount}`;
-
   const nextTask = useCallback(() => {
-    setTarget((prevTarget) => generator(prevTarget, rng));
-    setTaskCount((prev) => prev + 1);
+    const next = generator(target, rng);
+    setTarget(next);
     setStatus("unanswered");
     setAttemptCount(0);
     setSolutionRevealed(false);
     setUserInput("");
     setFeedback(null);
-  }, [generator, rng]);
+  }, [generator, rng, target]);
 
   const checkAnswer = useCallback(() => {
     // If already correct, do nothing
@@ -94,6 +104,8 @@ export function useExerciseState<T>({
   const revealSolution = useCallback(() => {
     setSolutionRevealed(true);
     setStatus("revealed");
+    // Clear old error feedback so it doesn't dominate the revealed solution
+    setFeedback(null);
   }, []);
 
   const handleKeyDown = useCallback(
@@ -111,15 +123,14 @@ export function useExerciseState<T>({
   );
 
   return {
-    taskId,
-    target,
+    target: target as T,
+    isMounted,
     status,
     attemptCount,
     solutionRevealed,
     userInput,
     setUserInput,
     feedback,
-    setFeedback,
     checkAnswer,
     revealSolution,
     nextTask,

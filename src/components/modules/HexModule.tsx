@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { Conversions } from "@/lib/conversions";
+import { validateExactBitPattern } from "@/lib/validation";
 import { NIBBLE_TABLE } from "@/lib/subnetData";
 import { Sparkles, Binary, ArrowRightLeft, Calculator, Hexagon } from "lucide-react";
 import { useExerciseState } from "@/hooks/useExerciseState";
@@ -41,29 +42,67 @@ export function HexModule({
       return next;
     },
     validator: (input, target) => {
-      const raw = input.trim().toUpperCase().replace(/^0X/, "");
+      const raw = input.trim();
       const targetBin = Conversions.decToBin(target, 8);
       const targetHex = Conversions.decToHex(target, 2);
 
       switch (subMode) {
         case "bin2hex":
-        case "dec2hex":
-          return raw.padStart(2, "0") === targetHex;
-        case "hex2bin":
-          return raw.replace(/\s+/g, "").padStart(8, "0") === targetBin;
-        case "hex2dec":
-          return Conversions.parseDecimalInput(raw).ok && parseInt(raw, 10) === target;
+        case "dec2hex": {
+          const parsed = Conversions.parseHexInput(raw);
+          if (!parsed.ok) return false;
+          return parsed.value.clean.padStart(2, "0") === targetHex;
+        }
+        case "hex2bin": {
+          const check = validateExactBitPattern(input, 8);
+          if (!check.ok) return false;
+          return check.clean === targetBin;
+        }
+        case "hex2dec": {
+          const parsed = Conversions.parseDecimalInput(raw);
+          if (!parsed.ok) return false;
+          return parsed.value === target;
+        }
       }
     },
     getSuccessMessage: (target) => {
       const targetHex = Conversions.decToHex(target, 2);
       return `Exzellent! Das Ergebnis für 0x${targetHex} (${target}₁₀) ist korrekt.`;
     },
-    getErrorMessage: () => {
-      return "Leider nicht richtig. Überprüfe die Berechnung und versuche es erneut!";
+    getErrorMessage: (target, input) => {
+      switch (subMode) {
+        case "hex2bin": {
+          const check = validateExactBitPattern(input, 8);
+          if (!check.ok) {
+            return check.error || "Ungültiges Binärmuster (exakt 8 Bits erforderlich).";
+          }
+          const userDec = Conversions.binToDec(check.clean!);
+          const diff = userDec - target;
+          return `Leider falsch: Deine Eingabe entspricht ${userDec}₁₀ (Differenz: ${diff > 0 ? "+" : ""}${diff}).`;
+        }
+        case "hex2dec": {
+          const parsed = Conversions.parseDecimalInput(input);
+          if (!parsed.ok) {
+            return "Bitte eine gültige positive Dezimalzahl (0–255) eingeben.";
+          }
+          if (parsed.value > 255) {
+            return `Wert zu groß (${parsed.value}): Ein 8-Bit-Wert kann maximal 255 sein.`;
+          }
+          const diff = parsed.value - target;
+          return `Leider falsch: Deine Eingabe war ${parsed.value} (Differenz: ${diff > 0 ? "+" : ""}${diff}).`;
+        }
+        case "bin2hex":
+        case "dec2hex": {
+          const parsed = Conversions.parseHexInput(input);
+          if (!parsed.ok) {
+            return parsed.error || "Ungültiges Hexadezimalformat (z. B. 3F oder 0x3F).";
+          }
+          return `Leider nicht richtig. Deine Eingabe 0x${parsed.value.clean} entspricht ${parsed.value.value}₁₀. Versuche es erneut!`;
+        }
+      }
     },
     getHint: (_input, _target, attemptCount) => {
-      if (attemptCount === 1) {
+      if (attemptCount >= 1) {
         switch (subMode) {
           case "bin2hex":
             return "💡 Hinweis: Teile das 8-Bit-Byte in zwei 4-Bit-Nibbles auf und wandle jedes Nibble separat in eine Hex-Ziffer (0–F) um.";
@@ -79,6 +118,19 @@ export function HexModule({
     },
     rng,
   });
+
+  if (!exercise.isMounted) {
+    return (
+      <div className="space-y-4 sm:space-y-6">
+        <div className="h-14 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-color)] animate-pulse" />
+        <div className="p-5 sm:p-8 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] min-h-[360px] flex flex-col items-center justify-center animate-pulse">
+          <div className="w-32 h-6 bg-[var(--bg-card-subtle)] rounded-full mb-4" />
+          <div className="w-64 h-12 bg-[var(--bg-card-subtle)] rounded-2xl mb-6" />
+          <div className="w-48 h-10 bg-[var(--bg-card-subtle)] rounded-xl" />
+        </div>
+      </div>
+    );
+  }
 
   const taskVal = exercise.target;
   const targetBin = Conversions.decToBin(taskVal, 8);
@@ -109,6 +161,8 @@ export function HexModule({
           }}
           ariaLabel="Hexadezimal Untermodi"
           size="sm"
+          idPrefix="hex"
+          panelIdPrefix="hex-panel"
           className="flex-1 min-w-[280px]"
         />
 
@@ -116,7 +170,7 @@ export function HexModule({
           type="button"
           onClick={() => setShowNibbleTable((prev) => !prev)}
           aria-expanded={showNibbleTable}
-          aria-controls="nibble-table-panel"
+          aria-controls={showNibbleTable ? "nibble-table-panel" : undefined}
           className={`text-xs px-3 py-2 rounded-xl border transition-all cursor-pointer font-medium shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 ${
             showNibbleTable
               ? "bg-[var(--primary-btn-bg)] text-white border-[var(--primary-btn-bg)] font-semibold shadow-sm"
@@ -153,7 +207,13 @@ export function HexModule({
       )}
 
       {/* Aufgaben-Karte */}
-      <div className="p-5 sm:p-8 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-center shadow-sm relative overflow-hidden">
+      <div
+        id={`hex-panel-${subMode}`}
+        role="tabpanel"
+        aria-labelledby={`hex-tab-${subMode}`}
+        tabIndex={0}
+        className="p-5 sm:p-8 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-center shadow-sm relative overflow-hidden focus:outline-none"
+      >
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/25 text-sky-700 dark:text-sky-400 text-xs font-bold uppercase tracking-wider mb-2">
           <Sparkles size={13} />
           <span>Hex-Aufgabe</span>
@@ -173,7 +233,12 @@ export function HexModule({
                   {highNibbleBin}
                 </span>
               </div>
-              <div className="text-xl sm:text-2xl text-[var(--text-muted)] font-mono font-bold">+</div>
+              <div className="flex flex-col items-center justify-center px-1">
+                <span className="text-[10px] font-mono font-bold text-[var(--text-muted)] uppercase tracking-wider">
+                  Byte
+                </span>
+                <div className="text-xl sm:text-2xl text-[var(--text-muted)] font-mono font-bold">|</div>
+              </div>
               <div className="p-3 sm:p-4 rounded-2xl bg-[var(--bg-card-subtle)] border border-indigo-500/30 flex flex-col items-center min-w-[100px] sm:min-w-[120px]">
                 <span className="text-xs text-indigo-700 dark:text-indigo-400 font-bold uppercase tracking-wider mb-1">
                   Low-Nibble
@@ -250,6 +315,7 @@ export function HexModule({
                 ? "z. B. 00111111"
                 : "z. B. 63"
             }
+            aria-invalid={exercise.status === "incorrect"}
             aria-describedby="hex-user-hint"
             className="w-full text-center font-mono text-2xl sm:text-3xl py-3 px-4 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-input)] text-[var(--text-primary)] focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all uppercase"
           />

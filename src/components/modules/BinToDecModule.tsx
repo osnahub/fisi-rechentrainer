@@ -39,15 +39,38 @@ export function BinToDecModule({ rng }: BinToDecModuleProps) {
       if (!parsed.ok) {
         return "Bitte eine gültige positive Dezimalzahl (0–255) eingeben.";
       }
+      if (parsed.value > 255) {
+        return `Wert zu groß (${parsed.value}): Ein 8-Bit-Wert kann maximal 255 sein.`;
+      }
       const targetDec = Conversions.binToDec(target);
       const diff = parsed.value - targetDec;
       return `Leider falsch: Deine Eingabe war ${parsed.value} (Differenz: ${diff > 0 ? "+" : ""}${diff}).`;
     },
+    getHint: (_input, target, attemptCount) => {
+      if (attemptCount >= 1) {
+        const terms = Conversions.getPolynomialExpansion(target).filter((t) => t.isActive);
+        return `💡 Tipp: Addiere die Werte der aktiven 1-Bits: ${terms.map((t) => t.val).join(" + ")}.`;
+      }
+      return null;
+    },
     rng,
   });
 
-  const targetBinary = exercise.target;
-  const targetDec = Conversions.binToDec(targetBinary);
+  if (!exercise.isMounted) {
+    return (
+      <div className="space-y-4 sm:space-y-6">
+        <div className="h-14 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-color)] animate-pulse" />
+        <div className="p-5 sm:p-8 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] min-h-[360px] flex flex-col items-center justify-center animate-pulse">
+          <div className="w-32 h-6 bg-[var(--bg-card-subtle)] rounded-full mb-4" />
+          <div className="w-64 h-12 bg-[var(--bg-card-subtle)] rounded-2xl mb-6" />
+          <div className="w-48 h-10 bg-[var(--bg-card-subtle)] rounded-xl" />
+        </div>
+      </div>
+    );
+  }
+
+  const targetBinary = exercise.target ?? "00000000";
+  const targetDec = exercise.isMounted ? Conversions.binToDec(targetBinary) : 0;
   const bitArray = targetBinary.split("").map(Number);
 
   // Group bit display into 4-bit nibbles
@@ -205,9 +228,10 @@ export function BinToDecModule({ rng }: BinToDecModuleProps) {
             autoComplete="off"
             spellCheck="false"
             value={exercise.userInput}
-            onChange={(e) => exercise.setUserInput(e.target.value.replace(/[^0-9]/g, "").slice(0, 3))}
+            onChange={(e) => exercise.setUserInput(e.target.value.replace(/[^0-9]/g, "").slice(0, 6))}
             onKeyDown={exercise.handleKeyDown}
             placeholder="z. B. 173"
+            aria-invalid={exercise.status === "incorrect"}
             aria-describedby="bin2dec-hint"
             className="w-full text-center font-mono text-2xl sm:text-3xl py-3 px-4 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-input)] text-[var(--text-primary)] focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all"
           />

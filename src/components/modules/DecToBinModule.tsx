@@ -8,6 +8,8 @@ import { useExerciseState } from "@/hooks/useExerciseState";
 import { FeedbackMessage } from "@/components/ui/FeedbackMessage";
 import { ExerciseActions } from "@/components/ui/ExerciseActions";
 
+import { validateExactBitPattern } from "@/lib/validation";
+
 interface DecToBinModuleProps {
   rng?: () => number;
 }
@@ -34,8 +36,8 @@ export function DecToBinModule({ rng }: DecToBinModuleProps) {
       if (inputMethod === "click") {
         return bits.join("") === targetBinary;
       } else {
-        const clean = input.replace(/\s+/g, "");
-        return clean.padStart(bitRange, "0") === targetBinary;
+        const check = validateExactBitPattern(input, bitRange);
+        return check.ok && check.clean === targetBinary;
       }
     },
     getSuccessMessage: (target) => {
@@ -43,24 +45,46 @@ export function DecToBinModule({ rng }: DecToBinModuleProps) {
       return `Perfekt! ${target}₁₀ ist exakt ${Conversions.formatNibbles(targetBin)}₂ binär.`;
     },
     getErrorMessage: (target, input) => {
-      const userDec =
-        inputMethod === "click"
-          ? Conversions.binToDec(bits.join(""))
-          : Conversions.parseBinaryInput(input).ok
-          ? Conversions.binToDec(input)
-          : NaN;
-
-      if (isNaN(userDec)) {
-        return "Ungültiges Binärmuster. Bitte nur '0' und '1' eingeben.";
+      if (inputMethod === "type") {
+        const check = validateExactBitPattern(input, bitRange);
+        if (!check.ok) {
+          return check.error || "Ungültiges Binärmuster.";
+        }
+        const userDec = Conversions.binToDec(check.clean!);
+        const diff = userDec - target;
+        return `Noch nicht ganz: Deine Eingabe entspricht ${userDec}₁₀ (Differenz: ${diff > 0 ? "+" : ""}${diff}).`;
       }
+      const userDec = Conversions.binToDec(bits.join(""));
       const diff = userDec - target;
-      return `Noch nicht ganz: Deine Eingabe entspricht ${userDec}₁₀ (Differenz: ${diff > 0 ? "+" : ""}${diff}).`;
+      return `Noch nicht ganz: Deine Auswahl entspricht ${userDec}₁₀ (Differenz: ${diff > 0 ? "+" : ""}${diff}).`;
+    },
+    getHint: (_input, target, attemptCount) => {
+      if (attemptCount >= 1) {
+        return `💡 Tipp: Zerlege ${target} mittels Stellenwertmethode: Größte passende Zweierpotenz abziehen (${
+          target >= 128
+            ? "128"
+            : target >= 64
+            ? "64"
+            : target >= 32
+            ? "32"
+            : target >= 16
+            ? "16"
+            : target >= 8
+            ? "8"
+            : target >= 4
+            ? "4"
+            : target >= 2
+            ? "2"
+            : "1"
+        }).`;
+      }
+      return null;
     },
     rng,
   });
 
-  const targetDec = exercise.target;
-  const targetBinary = Conversions.decToBin(targetDec, bitRange);
+  const targetDec = exercise.target ?? 0;
+  const targetBinary = exercise.isMounted ? Conversions.decToBin(targetDec, bitRange) : "00000000";
 
   // Sync bits with reset on next task
   const handleNextTask = () => {
@@ -78,7 +102,22 @@ export function DecToBinModule({ rng }: DecToBinModuleProps) {
     0
   );
 
-  const solutionSteps = Conversions.getStellenwertSteps(targetDec, bitRange);
+  const solutionSteps = exercise.isMounted
+    ? Conversions.getStellenwertSteps(targetDec, bitRange)
+    : [];
+
+  if (!exercise.isMounted) {
+    return (
+      <div className="space-y-4 sm:space-y-6">
+        <div className="h-14 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-color)] animate-pulse" />
+        <div className="p-5 sm:p-8 rounded-3xl bg-[var(--bg-surface)] border border-[var(--border-color)] min-h-[360px] flex flex-col items-center justify-center animate-pulse">
+          <div className="w-32 h-6 bg-[var(--bg-card-subtle)] rounded-full mb-4" />
+          <div className="w-48 h-12 bg-[var(--bg-card-subtle)] rounded-2xl mb-6" />
+          <div className="w-64 h-10 bg-[var(--bg-card-subtle)] rounded-xl" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -193,18 +232,18 @@ export function DecToBinModule({ rng }: DecToBinModuleProps) {
               id="dec2bin-type-input"
               type="text"
               inputMode="numeric"
-              pattern="[01]*"
               autoComplete="off"
               spellCheck="false"
               value={exercise.userInput}
-              onChange={(e) => exercise.setUserInput(e.target.value.replace(/[^01]/g, "").slice(0, 8))}
+              onChange={(e) => exercise.setUserInput(e.target.value)}
               onKeyDown={exercise.handleKeyDown}
               placeholder="z. B. 10101010"
-              aria-describedby="dec2bin-type-hint"
+              aria-describedby="dec2bin-hint"
+              aria-invalid={exercise.status === "incorrect"}
               className="w-full text-center font-mono text-2xl sm:text-3xl py-3 px-4 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-input)] text-[var(--text-primary)] focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all"
             />
-            <p id="dec2bin-type-hint" className="text-[11px] text-[var(--text-muted)] mt-2">
-              Tipp: Genau 8 Stellen aus 0 und 1. Mit Enter bestätigen.
+            <p id="dec2bin-hint" className="text-[11px] text-[var(--text-muted)] mt-2">
+              Genau 8 Stellen (0 oder 1). Drücke Enter zum Prüfen.
             </p>
           </div>
         )}
