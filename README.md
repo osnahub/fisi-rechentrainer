@@ -22,8 +22,7 @@ Dieses Tool trainiert gezielt:
 * **Dualer Eingabemodus:**
   * **Bits klicken:** Interaktive 8-Bit-Schalter mit Live-Zweierpotenz-Anzeige und Echtzeit-Summierung.
   * **Binär tippen:** Direkte Zifferneingabe über Tastatur mit automatischer Eingabebereinigung (0/1) und <kbd>Enter</kbd>-Prüfung.
-* **Didaktische Fehlerbehandlung:** Beim ersten Fehlversuch wird ein hilfreicher Tipp (z. B. größter passender Stellenwert) eingeblendet, ohne die Lösung vorwegzunehmen.
-* **Lösungsweg & Streak-Schutz:** Detaillierter Subtraktionsweg. Nach Klick auf „Lösung anzeigen“ wird für diese Aufgabe kein Streak-Punkt vergeben.
+* **Ausführlicher Lösungsweg:** Detaillierter Subtraktionsweg mit Zweierpotenzzerlegung per Klick auf „Lösungsweg“.
 * **Zahlenbereich:** 1 Byte / 8 Bits (\(0 \dots 255\)), passend für einzelne IPv4-Oktette.
 
 ### 2. Binär ➔ Dezimal (8-Bit)

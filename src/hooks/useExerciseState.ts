@@ -16,7 +16,6 @@ export interface UseExerciseStateOptions<T> {
   getSuccessMessage?: (target: T, userInput: string) => string;
   getErrorMessage?: (target: T, userInput: string, attemptCount: number) => string;
   getHint?: (userInput: string, target: T, attemptCount: number) => string | null;
-  onStreakUpdate?: (isCorrect: boolean) => void;
   rng?: () => number;
 }
 
@@ -26,7 +25,6 @@ export function useExerciseState<T>({
   getSuccessMessage,
   getErrorMessage,
   getHint,
-  onStreakUpdate,
   rng,
 }: UseExerciseStateOptions<T>) {
   // Use lazy initialization so that generator is called once synchronously on initial mount
@@ -35,7 +33,6 @@ export function useExerciseState<T>({
   const [status, setStatus] = useState<ExerciseStatus>("unanswered");
   const [attemptCount, setAttemptCount] = useState<number>(0);
   const [solutionRevealed, setSolutionRevealed] = useState<boolean>(false);
-  const [streakAwarded, setStreakAwarded] = useState<boolean>(false);
   const [userInput, setUserInput] = useState<string>("");
   const [feedback, setFeedback] = useState<ExerciseFeedback | null>(null);
 
@@ -47,13 +44,12 @@ export function useExerciseState<T>({
     setStatus("unanswered");
     setAttemptCount(0);
     setSolutionRevealed(false);
-    setStreakAwarded(false);
     setUserInput("");
     setFeedback(null);
   }, [generator, rng]);
 
   const checkAnswer = useCallback(() => {
-    // If already correct, do nothing to prevent multi-increment
+    // If already correct, do nothing
     if (status === "correct") {
       return true;
     }
@@ -66,21 +62,10 @@ export function useExerciseState<T>({
         ? getSuccessMessage(target, userInput)
         : "Hervorragend! Die Antwort ist richtig.";
       setFeedback({ isCorrect: true, message: msg });
-
-      // Streak point is ONLY awarded if the solution was not revealed and not already awarded
-      if (!solutionRevealed && !streakAwarded) {
-        setStreakAwarded(true);
-        onStreakUpdate?.(true);
-      }
       return true;
     } else {
       const newAttempts = attemptCount + 1;
       setAttemptCount(newAttempts);
-
-      // Streak is reset on first incorrect answer (if not revealed)
-      if (status !== "incorrect" && !solutionRevealed) {
-        onStreakUpdate?.(false);
-      }
       setStatus("incorrect");
 
       const hint = getHint ? getHint(userInput, target, newAttempts) : null;
@@ -101,9 +86,6 @@ export function useExerciseState<T>({
     target,
     validator,
     getSuccessMessage,
-    solutionRevealed,
-    streakAwarded,
-    onStreakUpdate,
     attemptCount,
     getHint,
     getErrorMessage,
@@ -134,7 +116,6 @@ export function useExerciseState<T>({
     status,
     attemptCount,
     solutionRevealed,
-    streakAwarded,
     userInput,
     setUserInput,
     feedback,

@@ -12,14 +12,12 @@ import { ExerciseActions } from "@/components/ui/ExerciseActions";
 export type HexSubMode = "bin2hex" | "hex2bin" | "dec2hex" | "hex2dec";
 
 interface HexModuleProps {
-  onStreakUpdate?: (correct: boolean) => void;
   subMode?: HexSubMode;
   onSubModeChange?: (mode: HexSubMode) => void;
   rng?: () => number;
 }
 
 export function HexModule({
-  onStreakUpdate,
   subMode: externalSubMode,
   onSubModeChange,
   rng,
@@ -79,7 +77,6 @@ export function HexModule({
       }
       return null;
     },
-    onStreakUpdate,
     rng,
   });
 

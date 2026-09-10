@@ -12,14 +12,12 @@ import { ExerciseActions } from "@/components/ui/ExerciseActions";
 export type SubnetTaskType = "cidr2mask" | "mask2bin" | "magicNumber";
 
 interface SubnetModuleProps {
-  onStreakUpdate?: (correct: boolean) => void;
   taskType?: SubnetTaskType;
   onTaskTypeChange?: (type: SubnetTaskType) => void;
   rng?: () => number;
 }
 
 export function SubnetModule({
-  onStreakUpdate,
   taskType: externalTaskType,
   onTaskTypeChange,
   rng,
@@ -74,7 +72,6 @@ export function SubnetModule({
       }
       return null;
     },
-    onStreakUpdate,
     rng,
   });
 

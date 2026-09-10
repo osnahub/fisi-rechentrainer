@@ -197,31 +197,6 @@ test.describe("FiSi Rechentrainer E2E & Accessibility Suite", () => {
     }
   });
 
-  test("Streak mechanics: increment on correct, reset on incorrect, no point when revealed", async ({ page }) => {
-    // Navigate to Subnetz -> Schrittweite mode where answers are predictable
-    await page.click("#tab-subnet");
-    const stepModeBtn = page.locator('button[role="tab"]:has-text("Schrittweite")');
-    await stepModeBtn.click();
-
-    // Wrong answer first
-    const input = page.locator('input[type="text"]');
-    await input.fill("99999");
-    await input.press("Enter");
-
-    // Streak badge should not be visible or count 0
-    await expect(page.locator('header span:has-text("1")')).toHaveCount(0);
-
-    // Click 'Lösung anzeigen' / 'Lösungsweg'
-    const revealBtn = page.locator('button:has-text("Lösungsweg"), button:has-text("Lösung anzeigen")').first();
-    await revealBtn.click();
-
-    // Now click 'Nächste Aufgabe'
-    const nextBtn = page.locator('button:has-text("Nächste Aufgabe")');
-    await nextBtn.click();
-
-    // Streak should still not be awarded
-    await expect(page.locator('header span:has-text("1")')).toHaveCount(0);
-  });
 
   test("Offline PWA: Service Worker registration and caching", async ({ page, context }) => {
     await page.goto("/");

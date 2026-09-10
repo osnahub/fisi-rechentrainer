@@ -8,11 +8,10 @@ import { FeedbackMessage } from "@/components/ui/FeedbackMessage";
 import { ExerciseActions } from "@/components/ui/ExerciseActions";
 
 interface BinToDecModuleProps {
-  onStreakUpdate?: (correct: boolean) => void;
   rng?: () => number;
 }
 
-export function BinToDecModule({ onStreakUpdate, rng }: BinToDecModuleProps) {
+export function BinToDecModule({ rng }: BinToDecModuleProps) {
   const [showPowersHelper, setShowPowersHelper] = useState<boolean>(true);
 
   const exercise = useExerciseState<string>({
@@ -44,7 +43,6 @@ export function BinToDecModule({ onStreakUpdate, rng }: BinToDecModuleProps) {
       const diff = parsed.value - targetDec;
       return `Leider falsch: Deine Eingabe war ${parsed.value} (Differenz: ${diff > 0 ? "+" : ""}${diff}).`;
     },
-    onStreakUpdate,
     rng,
   });
 

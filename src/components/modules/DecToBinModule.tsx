@@ -9,13 +9,12 @@ import { FeedbackMessage } from "@/components/ui/FeedbackMessage";
 import { ExerciseActions } from "@/components/ui/ExerciseActions";
 
 interface DecToBinModuleProps {
-  onStreakUpdate?: (correct: boolean) => void;
   rng?: () => number;
 }
 
 type InputMethod = "click" | "type";
 
-export function DecToBinModule({ onStreakUpdate, rng }: DecToBinModuleProps) {
+export function DecToBinModule({ rng }: DecToBinModuleProps) {
   const bitRange = 8;
   const [showPowersHelper, setShowPowersHelper] = useState<boolean>(true);
   const [inputMethod, setInputMethod] = useState<InputMethod>("click");
@@ -57,7 +56,6 @@ export function DecToBinModule({ onStreakUpdate, rng }: DecToBinModuleProps) {
       const diff = userDec - target;
       return `Noch nicht ganz: Deine Eingabe entspricht ${userDec}₁₀ (Differenz: ${diff > 0 ? "+" : ""}${diff}).`;
     },
-    onStreakUpdate,
     rng,
   });
 

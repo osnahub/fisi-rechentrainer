@@ -2,62 +2,73 @@ import { describe, it, expect } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useExerciseState } from "@/hooks/useExerciseState";
 
-describe("useExerciseState - Streak and State Machine Logic", () => {
-  it("REPRODUCE BUG: checking the same correct answer multiple times must only increase streak ONCE", () => {
-    let streak = 0;
-    const onStreakUpdate = (isCorrect: boolean) => {
-      streak = isCorrect ? streak + 1 : 0;
-    };
-
+describe("useExerciseState - State Machine Logic", () => {
+  it("initializes in unanswered state and transitions to correct upon valid answer", () => {
     const { result } = renderHook(() =>
       useExerciseState({
         generator: () => 42,
         validator: (input, target) => parseInt(input, 10) === target,
-        onStreakUpdate,
+        getSuccessMessage: (target) => `Success ${target}`,
       })
     );
 
     // Initial state
     expect(result.current.status).toBe("unanswered");
-    expect(result.current.streakAwarded).toBe(false);
-    expect(streak).toBe(0);
+    expect(result.current.attemptCount).toBe(0);
+    expect(result.current.isCompleted).toBe(false);
+    expect(result.current.solutionRevealed).toBe(false);
 
-    // Submit correct answer first time
+    // Submit correct answer
     act(() => {
       result.current.setUserInput("42");
     });
     act(() => {
-      result.current.checkAnswer();
+      const ok = result.current.checkAnswer();
+      expect(ok).toBe(true);
     });
 
     expect(result.current.status).toBe("correct");
-    expect(result.current.streakAwarded).toBe(true);
-    expect(streak).toBe(1);
+    expect(result.current.isCompleted).toBe(true);
+    expect(result.current.feedback?.isCorrect).toBe(true);
+    expect(result.current.feedback?.message).toBe("Success 42");
 
-    // Submit correct answer second time (bug would make streak = 2)
+    // Repeated checkAnswer when already correct should stay correct
     act(() => {
-      result.current.checkAnswer();
+      const ok = result.current.checkAnswer();
+      expect(ok).toBe(true);
     });
-    expect(streak).toBe(1); // Streak must remain 1!
-
-    // Submit correct answer third time
-    act(() => {
-      result.current.checkAnswer();
-    });
-    expect(streak).toBe(1); // Streak must remain 1!
+    expect(result.current.status).toBe("correct");
   });
 
-  it("revealing the solution forfeits streak points for this task", () => {
-    let streak = 5;
-    const onStreakUpdate = (isCorrect: boolean) => {
-      streak = isCorrect ? streak + 1 : 0;
-    };
-
+  it("handles incorrect answer, increments attempts, and provides hint", () => {
     const { result } = renderHook(() =>
       useExerciseState({
         generator: () => 100,
         validator: (input, target) => parseInt(input, 10) === target,
-        onStreakUpdate,
+        getHint: (_input, target, attempts) => attempts === 1 ? `Hint for ${target}` : null,
+      })
+    );
+
+    act(() => {
+      result.current.setUserInput("99");
+    });
+    act(() => {
+      const ok = result.current.checkAnswer();
+      expect(ok).toBe(false);
+    });
+
+    expect(result.current.status).toBe("incorrect");
+    expect(result.current.attemptCount).toBe(1);
+    expect(result.current.isCompleted).toBe(false);
+    expect(result.current.feedback?.isCorrect).toBe(false);
+    expect(result.current.feedback?.hint).toBe("Hint for 100");
+  });
+
+  it("revealSolution sets status to revealed and completes exercise", () => {
+    const { result } = renderHook(() =>
+      useExerciseState({
+        generator: () => 100,
+        validator: (input, target) => parseInt(input, 10) === target,
       })
     );
 
@@ -67,43 +78,38 @@ describe("useExerciseState - Streak and State Machine Logic", () => {
 
     expect(result.current.status).toBe("revealed");
     expect(result.current.solutionRevealed).toBe(true);
-
-    // Even if user now submits correct answer, no streak point is awarded
-    act(() => {
-      result.current.setUserInput("100");
-    });
-    act(() => {
-      result.current.checkAnswer();
-    });
-
-    expect(streak).toBe(5); // streak not increased
-    expect(result.current.streakAwarded).toBe(false);
+    expect(result.current.isCompleted).toBe(true);
   });
 
-  it("incorrect answer resets streak on first failure", () => {
-    let streak = 3;
-    const onStreakUpdate = (isCorrect: boolean) => {
-      streak = isCorrect ? streak + 1 : 0;
-    };
-
+  it("nextTask resets state and produces new target", () => {
+    let nextVal = 10;
     const { result } = renderHook(() =>
       useExerciseState({
-        generator: () => 100,
+        generator: () => nextVal++,
         validator: (input, target) => parseInt(input, 10) === target,
-        onStreakUpdate,
       })
     );
 
+    expect(result.current.target).toBe(10);
+
     act(() => {
-      result.current.setUserInput("99");
+      result.current.setUserInput("10");
     });
     act(() => {
       result.current.checkAnswer();
     });
+    expect(result.current.status).toBe("correct");
 
-    expect(result.current.status).toBe("incorrect");
-    expect(result.current.attemptCount).toBe(1);
-    expect(streak).toBe(0);
+    act(() => {
+      result.current.nextTask();
+    });
+
+    expect(result.current.status).toBe("unanswered");
+    expect(result.current.attemptCount).toBe(0);
+    expect(result.current.solutionRevealed).toBe(false);
+    expect(result.current.userInput).toBe("");
+    expect(result.current.feedback).toBe(null);
+    expect(result.current.target).toBe(11);
   });
 
   it("supports injectable RNG and includes 0 without immediate repetition", () => {
@@ -121,7 +127,7 @@ describe("useExerciseState - Streak and State Machine Logic", () => {
           }
           return val;
         },
-        validator: (input, target) => parseInt(input, 10) === target,
+        validator: () => true,
         rng: mockRng,
       })
     );

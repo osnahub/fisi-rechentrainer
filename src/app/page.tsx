@@ -20,7 +20,6 @@ function TrainerContent() {
   const [activeModule, setActiveModule] = useState<ModuleType>("dec2bin");
   const [hexSubMode, setHexSubMode] = useState<HexSubMode>("bin2hex");
   const [subnetTaskType, setSubnetTaskType] = useState<SubnetTaskType>("cidr2mask");
-  const [streak, setStreak] = useState<number>(0);
   const { theme, toggleTheme } = useTheme();
 
   // Read URL params on initial mount
@@ -80,10 +79,6 @@ function TrainerContent() {
     updateUrl("subnet", type);
   };
 
-  const handleStreakUpdate = (isCorrect: boolean) => {
-    setStreak((prev) => (isCorrect ? prev + 1 : 0));
-  };
-
   const navItems: TabItem<ModuleType>[] = [
     { id: "dec2bin", label: "Dez ➔ Bin", fullLabel: "Dezimal ➔ Binär", icon: Binary },
     { id: "bin2dec", label: "Bin ➔ Dez", fullLabel: "Binär ➔ Dezimal", icon: ArrowRightLeft },
@@ -109,7 +104,7 @@ function TrainerContent() {
       </a>
 
       {/* Header */}
-      <Header theme={theme} onToggleTheme={toggleTheme} streak={streak} />
+      <Header theme={theme} onToggleTheme={toggleTheme} />
 
       {/* Didaktischer Spickzettel */}
       <ReferenceBar />
@@ -130,18 +125,17 @@ function TrainerContent() {
       <main id="main-content" tabIndex={-1} className="flex-1 outline-none">
         {activeModule === "dec2bin" && (
           <div role="tabpanel" id="panel-dec2bin" aria-labelledby="tab-dec2bin">
-            <DecToBinModule onStreakUpdate={handleStreakUpdate} />
+            <DecToBinModule />
           </div>
         )}
         {activeModule === "bin2dec" && (
           <div role="tabpanel" id="panel-bin2dec" aria-labelledby="tab-bin2dec">
-            <BinToDecModule onStreakUpdate={handleStreakUpdate} />
+            <BinToDecModule />
           </div>
         )}
         {activeModule === "hex" && (
           <div role="tabpanel" id="panel-hex" aria-labelledby="tab-hex">
             <HexModule
-              onStreakUpdate={handleStreakUpdate}
               subMode={hexSubMode}
               onSubModeChange={handleHexSubModeChange}
             />
@@ -150,7 +144,6 @@ function TrainerContent() {
         {activeModule === "subnet" && (
           <div role="tabpanel" id="panel-subnet" aria-labelledby="tab-subnet">
             <SubnetModule
-              onStreakUpdate={handleStreakUpdate}
               taskType={subnetTaskType}
               onTaskTypeChange={handleSubnetTaskTypeChange}
             />
