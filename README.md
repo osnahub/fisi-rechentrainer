@@ -106,23 +106,27 @@ Die Anwendung ist unter [http://localhost:3000](http://localhost:3000) erreichba
 
 ### 3. Qualitätsprüfungen & Tests
 ```bash
-# TypeScript Typenprüfung
-npm run typecheck
+# Gesamte Validierungspipeline auf einmal ausführen
+npm run verify
 
-# ESLint statische Code-Analyse
-npm run lint
-
-# Vitest Unit- und Zustandstests ausführen
-npm test
-
-# Playwright E2E- und Accessibility-Tests (WCAG 2.2) ausführen
-npm run test:e2e
+# Oder einzelne Prüfungen:
+npm run typecheck    # TypeScript Typenprüfung
+npm run lint         # ESLint statische Code-Analyse
+npm test             # Vitest Unit- und Zustandstests
+npm run build        # Produktions-Build
+npm run test:e2e     # Playwright E2E- und WCAG 2.2 Accessibility-Tests
 ```
 
 ### 4. Produktions-Build erstellen
 ```bash
 npm run build
 ```
+
+---
+
+## ℹ️ Rechtlicher Hinweis
+
+Dieses Projekt ist ein unabhängiges Open-Source-Lern- und Trainingswerkzeug und steht in keiner offiziellen Verbindung zur Industrie- und Handelskammer (IHK). Alle Aufgaben und didaktischen Erklärungen basieren auf frei zugänglichen Ausbildungsinhalten für IT-Berufe und offiziellen IETF RFC-Standards (u. a. RFC 3021, RFC 4632).
 
 ---
 

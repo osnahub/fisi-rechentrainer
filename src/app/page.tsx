@@ -11,10 +11,7 @@ import { ExplainerModule } from "@/components/modules/ExplainerModule";
 import { useTheme } from "@/hooks/useTheme";
 import { ModeTabs, TabItem } from "@/components/ui/ModeTabs";
 import { Binary, Network, Calculator, ArrowRightLeft, Hexagon } from "lucide-react";
-
-type ModuleType = "dec2bin" | "bin2dec" | "hex" | "subnet" | "explainer";
-
-const VALID_MODULES: ModuleType[] = ["dec2bin", "bin2dec", "hex", "subnet", "explainer"];
+import { parseUrlState, ModuleType } from "@/lib/urlState";
 
 function TrainerContent() {
   const [activeModule, setActiveModule] = useState<ModuleType>("dec2bin");
@@ -22,25 +19,15 @@ function TrainerContent() {
   const [subnetTaskType, setSubnetTaskType] = useState<SubnetTaskType>("cidr2mask");
   const { theme, toggleTheme } = useTheme();
 
-  // Read URL params on initial mount
+  // Read URL params on initial mount and on history navigation
   useEffect(() => {
     if (typeof window === "undefined") return;
 
     const syncFromUrl = () => {
-      const params = new URLSearchParams(window.location.search);
-      const mod = params.get("module") as ModuleType | null;
-      if (mod && VALID_MODULES.includes(mod)) {
-        setActiveModule(mod);
-      }
-      const sub = params.get("sub");
-      if (sub) {
-        if (["bin2hex", "hex2bin", "dec2hex", "hex2dec"].includes(sub)) {
-          setHexSubMode(sub as HexSubMode);
-        }
-        if (["cidr2mask", "mask2bin", "magicNumber"].includes(sub)) {
-          setSubnetTaskType(sub as SubnetTaskType);
-        }
-      }
+      const parsed = parseUrlState(new URLSearchParams(window.location.search));
+      setActiveModule(parsed.module);
+      setHexSubMode(parsed.hexSubMode);
+      setSubnetTaskType(parsed.subnetTaskType);
     };
 
     syncFromUrl();
