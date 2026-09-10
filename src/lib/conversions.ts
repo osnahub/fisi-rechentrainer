@@ -41,46 +41,164 @@ export interface SubnetExampleProfile {
   hostBits: number;
 }
 
+export type ParseResult<T> =
+  | { ok: true; value: T }
+  | { ok: false; error: string };
+
+export const MAX_UINT32 = 4294967295;
+export const MIN_UINT32 = 0;
+
 const HEX_CHARS = "0123456789ABCDEF";
 
 export const Conversions = {
+  /**
+   * Parses and validates a decimal string representation.
+   * Only non-negative integers between 0 and 4294967295 (unsigned 32-bit) are allowed.
+   */
+  parseDecimalInput(input: string): ParseResult<number> {
+    const trimmed = input.trim();
+    if (!trimmed) {
+      return { ok: false, error: "Eingabe darf nicht leer sein." };
+    }
+    if (!/^\d+$/.test(trimmed)) {
+      return { ok: false, error: "Ungültige Dezimalzahl. Nur Ziffern (0–9) erlaubt." };
+    }
+
+    try {
+      const big = BigInt(trimmed);
+      if (big < BigInt(0) || big > BigInt(MAX_UINT32)) {
+        return {
+          ok: false,
+          error: `Zahl außerhalb des 32-Bit-Bereichs (0 bis ${MAX_UINT32}).`,
+        };
+      }
+      return { ok: true, value: Number(big) };
+    } catch {
+      return { ok: false, error: "Ungültiges Zahlenformat." };
+    }
+  },
+
+  /**
+   * Parses and validates a binary string input (1 to 32 bits).
+   */
+  parseBinaryInput(input: string): ParseResult<{ clean: string; value: number }> {
+    const clean = input.replace(/\s+/g, "");
+    if (!clean) {
+      return { ok: false, error: "Eingabe darf nicht leer sein." };
+    }
+    if (!/^[01]+$/.test(clean)) {
+      return { ok: false, error: "Ungültiges Binärmuster. Nur '0' und '1' erlaubt." };
+    }
+    if (clean.length > 32) {
+      return {
+        ok: false,
+        error: `Maximal 32 Bit unterstützt (Eingabe hat ${clean.length} Stellen).`,
+      };
+    }
+
+    const value = parseInt(clean, 2);
+    return { ok: true, value: { clean, value } };
+  },
+
+  /**
+   * Parses and validates a hexadecimal string input (1 to 8 hex digits, 32-bit max).
+   */
+  parseHexInput(input: string): ParseResult<{ clean: string; value: number }> {
+    const clean = input.replace(/^0x/i, "").trim().toUpperCase();
+    if (!clean) {
+      return { ok: false, error: "Eingabe darf nicht leer sein." };
+    }
+    if (!/^[0-9A-F]+$/.test(clean)) {
+      return { ok: false, error: "Ungültige Hexadezimal-Zahl. Nur 0–9 und A–F erlaubt." };
+    }
+    if (clean.length > 8) {
+      return {
+        ok: false,
+        error: `Maximal 8 Hex-Stellen (32 Bit) unterstützt (Eingabe hat ${clean.length} Zeichen).`,
+      };
+    }
+
+    const value = parseInt(clean, 16);
+    return { ok: true, value: { clean, value } };
+  },
+
+  /**
+   * Converts a decimal number to binary with exact padding and range verification.
+   * Throws RangeError for values exceeding 32-bit unsigned range (0..4294967295)
+   * instead of silent bitwise wrap.
+   */
   decToBin(dec: number, bitCount = 8): string {
-    if (isNaN(dec) || dec < 0) return "0".repeat(bitCount);
-    const raw = (dec >>> 0).toString(2);
+    if (!Number.isInteger(dec) || dec < MIN_UINT32 || dec > MAX_UINT32) {
+      throw new RangeError(
+        `decToBin: Wert ${dec} liegt außerhalb des gültigen 32-Bit-Bereichs (0..${MAX_UINT32}).`
+      );
+    }
+    if (bitCount < 1 || bitCount > 32) {
+      throw new RangeError(`decToBin: bitCount muss zwischen 1 und 32 liegen.`);
+    }
+
+    const raw = dec.toString(2);
     return raw.padStart(bitCount, "0");
   },
 
+  /**
+   * Converts a valid binary string to a decimal number.
+   * Throws if binary string is invalid or exceeds 32 bits.
+   */
   binToDec(binStr: string): number {
-    const clean = binStr.replace(/\s+/g, "");
-    if (!/^[01]+$/.test(clean)) return 0;
-    return parseInt(clean, 2);
+    const parsed = this.parseBinaryInput(binStr);
+    if (!parsed.ok) {
+      throw new Error(parsed.error);
+    }
+    return parsed.value.value;
   },
 
+  /**
+   * Converts a decimal number to hexadecimal with padding.
+   */
   decToHex(dec: number, pad = 2): string {
-    if (isNaN(dec) || dec < 0) return "0".padStart(pad, "0");
+    if (!Number.isInteger(dec) || dec < MIN_UINT32 || dec > MAX_UINT32) {
+      throw new RangeError(
+        `decToHex: Wert ${dec} liegt außerhalb des gültigen 32-Bit-Bereichs (0..${MAX_UINT32}).`
+      );
+    }
     return dec.toString(16).toUpperCase().padStart(pad, "0");
   },
 
+  /**
+   * Converts a hexadecimal string to a decimal number.
+   */
   hexToDec(hexStr: string): number {
-    const clean = hexStr.replace(/^0x/i, "").trim();
-    if (!/^[0-9A-Fa-f]+$/.test(clean)) return 0;
-    return parseInt(clean, 16);
+    const parsed = this.parseHexInput(hexStr);
+    if (!parsed.ok) {
+      throw new Error(parsed.error);
+    }
+    return parsed.value.value;
   },
 
+  /**
+   * Converts a hexadecimal string to binary (each hex digit -> 4 bits).
+   */
   hexToBin(hexStr: string): string {
-    const clean = hexStr.replace(/^0x/i, "").trim().toUpperCase();
-    return clean
+    const parsed = this.parseHexInput(hexStr);
+    if (!parsed.ok) {
+      throw new Error(parsed.error);
+    }
+    return parsed.value.clean
       .split("")
-      .map((c) => {
-        const val = parseInt(c, 16);
-        return isNaN(val) ? "0000" : val.toString(2).padStart(4, "0");
-      })
+      .map((c) => parseInt(c, 16).toString(2).padStart(4, "0"))
       .join("");
   },
 
+  /**
+   * Converts a binary string to hexadecimal representation.
+   */
   binToHex(binStr: string): string {
-    const clean = binStr.replace(/\s+/g, "");
-    if (!/^[01]+$/.test(clean)) return "00";
+    const parsed = this.parseBinaryInput(binStr);
+    if (!parsed.ok) {
+      throw new Error(parsed.error);
+    }
+    const clean = parsed.value.clean;
     const padLen = Math.ceil(clean.length / 4) * 4;
     const padded = clean.padStart(padLen, "0");
     let hex = "";
@@ -88,7 +206,7 @@ export const Conversions = {
       const chunk = padded.substring(i, i + 4);
       hex += parseInt(chunk, 2).toString(16).toUpperCase();
     }
-    return hex;
+    return hex || "0";
   },
 
   formatNibbles(binStr: string): string {
@@ -107,7 +225,7 @@ export const Conversions = {
     const len = clean.length;
 
     for (let i = 0; i < len; i++) {
-      const bit = Number(clean[i]) || 0;
+      const bit = clean[i] === "1" ? 1 : 0;
       const power = len - 1 - i;
       const val = Math.pow(2, power);
       terms.push({
@@ -122,8 +240,14 @@ export const Conversions = {
   },
 
   getStellenwertSteps(decimalNumber: number, bitCount = 8): StellenwertStep[] {
+    if (!Number.isInteger(decimalNumber) || decimalNumber < MIN_UINT32 || decimalNumber > MAX_UINT32) {
+      throw new RangeError(
+        `getStellenwertSteps: Wert muss eine ganzzahlige 32-Bit-Zahl (0..${MAX_UINT32}) sein.`
+      );
+    }
+
     const steps: StellenwertStep[] = [];
-    let remainder = Math.max(0, Math.floor(decimalNumber));
+    let remainder = decimalNumber;
 
     const neededPower = remainder > 0 ? Math.floor(Math.log2(remainder)) : 0;
     const maxPower = Math.max(bitCount - 1, neededPower);
@@ -149,6 +273,12 @@ export const Conversions = {
   },
 
   getDivisionSteps(decimalNumber: number): DivisionStep[] {
+    if (!Number.isInteger(decimalNumber) || decimalNumber < MIN_UINT32 || decimalNumber > MAX_UINT32) {
+      throw new RangeError(
+        `getDivisionSteps: Wert muss eine ganzzahlige 32-Bit-Zahl (0..${MAX_UINT32}) sein.`
+      );
+    }
+
     if (decimalNumber === 0) {
       return [{ stepIndex: 1, original: 0, divResult: 0, remainder: 0, isLSB: true, isMSB: true }];
     }
@@ -165,7 +295,7 @@ export const Conversions = {
         divResult,
         remainder: rem,
         isLSB: index === 1,
-        isMSB: false, // will update last element
+        isMSB: false,
       });
       current = divResult;
       index++;
@@ -179,6 +309,12 @@ export const Conversions = {
   },
 
   getHexDivisionSteps(decimalNumber: number): HexDivisionStep[] {
+    if (!Number.isInteger(decimalNumber) || decimalNumber < MIN_UINT32 || decimalNumber > MAX_UINT32) {
+      throw new RangeError(
+        `getHexDivisionSteps: Wert muss eine ganzzahlige 32-Bit-Zahl (0..${MAX_UINT32}) sein.`
+      );
+    }
+
     if (decimalNumber === 0) {
       return [{ original: 0, divResult: 0, remainder: 0, hexChar: "0" }];
     }
@@ -199,8 +335,7 @@ export const Conversions = {
   },
 
   getSubnetExample(cidrSuffix: number): SubnetExampleProfile {
-    // Clamped between 24 and 32
-    const cidr = Math.min(32, Math.max(24, cidrSuffix));
+    const cidr = Math.min(32, Math.max(24, Math.floor(cidrSuffix)));
     const hostBits = 32 - cidr;
     const totalAddresses = Math.pow(2, hostBits);
 
@@ -208,7 +343,7 @@ export const Conversions = {
     const netStart = 0;
 
     if (cidr === 31) {
-      // RFC 3021 Point-to-Point link: both addresses are usable hosts, no separate broadcast
+      // RFC 3021 Point-to-Point link: both addresses are usable interface hosts
       return {
         networkAddress: `${basePrefix}${netStart} (P2P-Link)`,
         firstHost: `${basePrefix}${netStart}`,
@@ -221,7 +356,7 @@ export const Conversions = {
     }
 
     if (cidr === 32) {
-      // Host-Route / Loopback: exactly 1 single host IP
+      // Single host route: exactly 1 host IP
       return {
         networkAddress: `${basePrefix}${netStart} (Host-Route)`,
         firstHost: `${basePrefix}${netStart}`,
@@ -250,4 +385,3 @@ export const Conversions = {
     };
   },
 };
-
