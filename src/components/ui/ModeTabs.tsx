@@ -17,6 +17,7 @@ interface ModeTabsProps<T extends string> {
   ariaLabel: string;
   size?: "sm" | "md";
   className?: string;
+  idPrefix?: string;
   panelIdPrefix?: string;
 }
 
@@ -27,6 +28,7 @@ export function ModeTabs<T extends string>({
   ariaLabel,
   size = "md",
   className = "",
+  idPrefix,
   panelIdPrefix,
 }: ModeTabsProps<T>) {
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -77,6 +79,9 @@ export function ModeTabs<T extends string>({
         const Icon = tab.icon;
         const isActive = activeTab === tab.id;
 
+        const tabElementId = idPrefix ? `${idPrefix}-tab-${tab.id}` : `tab-${tab.id}`;
+        const panelElementId = panelIdPrefix && isActive ? `${panelIdPrefix}-${tab.id}` : undefined;
+
         return (
           <button
             key={tab.id}
@@ -84,9 +89,9 @@ export function ModeTabs<T extends string>({
               tabRefs.current[idx] = el;
             }}
             role="tab"
-            id={`tab-${tab.id}`}
+            id={tabElementId}
             aria-selected={isActive}
-            aria-controls={panelIdPrefix && isActive ? `${panelIdPrefix}-${tab.id}` : undefined}
+            aria-controls={panelElementId}
             tabIndex={isActive ? 0 : -1}
             onClick={() => onChange(tab.id)}
             className={`snap-start flex items-center justify-center gap-1.5 ${
