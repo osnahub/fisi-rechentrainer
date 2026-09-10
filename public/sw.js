@@ -1,8 +1,10 @@
-const CACHE_NAME = "fisi-trainer-v1";
+const CACHE_NAME = "fisi-trainer-v2";
 
 const PRECACHE_ASSETS = [
   "/",
   "/favicon.ico",
+  "/icon-192.png",
+  "/icon-512.png",
   "/manifest.webmanifest",
 ];
 
@@ -16,7 +18,7 @@ self.addEventListener("install", (event) => {
   );
 });
 
-// Activate: clean up outdated version caches
+// Activate: clean up outdated version caches and immediately claim clients
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches
@@ -32,7 +34,7 @@ self.addEventListener("activate", (event) => {
   );
 });
 
-// Fetch: network-first for navigation/HTML, stale-while-revalidate for static same-origin assets
+// Fetch: network-first for navigation, stale-while-revalidate for static assets
 self.addEventListener("fetch", (event) => {
   const req = event.request;
   const url = new URL(req.url);
@@ -49,45 +51,61 @@ self.addEventListener("fetch", (event) => {
         .then((response) => {
           if (response.ok) {
             const clone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(req, clone));
+            event.waitUntil(
+              caches.open(CACHE_NAME).then((cache) => cache.put(req, clone))
+            );
           }
           return response;
         })
-        .catch(() =>
-          caches.match(req).then((cached) => cached || caches.match("/"))
-        )
+        .catch(async () => {
+          const cached = await caches.match(req);
+          if (cached) return cached;
+          const rootCached = await caches.match("/");
+          if (rootCached) return rootCached;
+          return new Response("Offline", { status: 503, statusText: "Offline" });
+        })
     );
     return;
   }
 
-  // Static assets: Cache-first with background revalidation
+  // Static assets: Cache-first, fallback to network and update cache
   event.respondWith(
     caches.match(req).then((cachedResponse) => {
       if (cachedResponse) {
-        // Revalidate in background
-        fetch(req)
-          .then((networkResponse) => {
-            if (networkResponse && networkResponse.ok) {
-              caches
-                .open(CACHE_NAME)
-                .then((cache) => cache.put(req, networkResponse));
-            }
-          })
-          .catch(() => {
-            // Ignore background revalidation failure when offline
-          });
+        // Revalidate in background via event.waitUntil
+        event.waitUntil(
+          fetch(req)
+            .then((networkResponse) => {
+              if (networkResponse && networkResponse.ok) {
+                return caches
+                  .open(CACHE_NAME)
+                  .then((cache) => cache.put(req, networkResponse));
+              }
+            })
+            .catch(() => {
+              // Ignore background fetch failures when offline
+            })
+        );
         return cachedResponse;
       }
 
-      // Not in cache: fetch and store
-      return fetch(req).then((networkResponse) => {
-        if (!networkResponse || !networkResponse.ok) {
+      // Not in cache: fetch from network and store in cache
+      return fetch(req)
+        .then((networkResponse) => {
+          if (!networkResponse || !networkResponse.ok) {
+            return networkResponse;
+          }
+          const responseToCache = networkResponse.clone();
+          event.waitUntil(
+            caches
+              .open(CACHE_NAME)
+              .then((cache) => cache.put(req, responseToCache))
+          );
           return networkResponse;
-        }
-        const responseToCache = networkResponse.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(req, responseToCache));
-        return networkResponse;
-      });
+        })
+        .catch(() => {
+          return caches.match(req);
+        });
     })
   );
 });
