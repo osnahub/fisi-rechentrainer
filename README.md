@@ -132,6 +132,6 @@ Dieses Projekt ist ein unabhängiges Open-Source-Lern- und Trainingswerkzeug und
 
 ## ☁️ Deployment auf Vercel
 
-1. Repository auf GitHub pushen ([osnahub/fisi-dec-bin-hex-trainer](https://github.com/osnahub/fisi-dec-bin-hex-trainer)).
+1. Repository auf GitHub pushen ([osnahub/fisi-rechentrainer](https://github.com/osnahub/fisi-rechentrainer)).
 2. Bei [Vercel](https://vercel.com) anmelden und das Repository importieren.
 3. Vercel erkennt das Next.js-Projekt automatisch und stellt es als statische Applikation bereit.
