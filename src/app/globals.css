@@ -1,0 +1,198 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+@theme {
+  --breakpoint-xs: 420px;
+}
+
+:root {
+  /* Dark Theme (Default) - WCAG 2.2 AA compliant tokens */
+  --bg-app: #0b0f19;
+  --bg-surface: #111827;
+  --bg-card: #162032;
+  --bg-card-subtle: #1e293b;
+  --bg-input: #0f172a;
+  --border-color: #334155;
+  --border-hover: #475569;
+  --border-glow: rgba(56, 189, 248, 0.2);
+  
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  
+  --primary: #38bdf8;
+  --primary-hover: #0ea5e9;
+  --primary-text: #38bdf8;
+  --primary-glow: rgba(56, 189, 248, 0.2);
+  --primary-content: #ffffff;
+
+  /* Button and active element tokens with verified >= 4.5:1 contrast against text */
+  --primary-btn-bg: #0369a1;
+  --primary-btn-hover: #075985;
+  --primary-btn-text: #ffffff;
+  
+  --accent: #818cf8;
+  --accent-hover: #6366f1;
+  --accent-glow: rgba(99, 102, 241, 0.2);
+  
+  --success: #10b981;
+  --success-bg: rgba(16, 185, 129, 0.15);
+  --success-border: rgba(52, 211, 153, 0.4);
+  --success-text: #34d399;
+  
+  --error: #f43f5e;
+  --error-bg: rgba(244, 63, 94, 0.15);
+  --error-border: rgba(251, 113, 133, 0.4);
+  --error-text: #fb7185;
+
+  --warning: #f59e0b;
+  --warning-bg: rgba(245, 158, 11, 0.15);
+  --warning-border: rgba(251, 191, 36, 0.4);
+  --warning-text: #fbbf24;
+
+  --bit-on-bg: rgba(56, 189, 248, 0.16);
+  --bit-on-border: #38bdf8;
+  --bit-on-text: #38bdf8;
+  --bit-on-shadow: 0 4px 14px rgba(56, 189, 248, 0.25);
+
+  --bit-off-bg: #0f172a;
+  --bit-off-border: #334155;
+  --bit-off-text: #94a3b8;
+}
+
+[data-theme="light"] {
+  /* Light Theme - Clean High-Contrast Slate & Sapphire (WCAG 2.2 AA) */
+  --bg-app: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-subtle: #f1f5f9;
+  --bg-input: #ffffff;
+  --border-color: #cbd5e1;
+  --border-hover: #94a3b8;
+  --border-glow: rgba(2, 132, 199, 0.2);
+  
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #475569;
+  
+  --primary: #0369a1;
+  --primary-hover: #075985;
+  --primary-text: #0369a1;
+  --primary-glow: rgba(2, 132, 199, 0.15);
+  --primary-content: #ffffff;
+
+  --primary-btn-bg: #0369a1;
+  --primary-btn-hover: #075985;
+  --primary-btn-text: #ffffff;
+  
+  --accent: #4338ca;
+  --accent-hover: #3730a3;
+  --accent-glow: rgba(79, 70, 229, 0.15);
+  
+  --success: #059669;
+  --success-bg: #ecfdf5;
+  --success-border: #6ee7b7;
+  --success-text: #065f46;
+  
+  --error: #e11d48;
+  --error-bg: #fff1f2;
+  --error-border: #fda4af;
+  --error-text: #9f1239;
+
+  --warning: #d97706;
+  --warning-bg: #fffbeb;
+  --warning-border: #fcd34d;
+  --warning-text: #92400e;
+
+  --bit-on-bg: rgba(3, 105, 161, 0.12);
+  --bit-on-border: #0369a1;
+  --bit-on-text: #0369a1;
+  --bit-on-shadow: 0 4px 12px rgba(3, 105, 161, 0.18);
+
+  --bit-off-bg: #f8fafc;
+  --bit-off-border: #cbd5e1;
+  --bit-off-text: #475569;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  min-height: 100vh;
+  margin: 0;
+  transition: background-color 0.25s ease, color 0.25s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Touch & Mobile Optimizations */
+button, input, select, textarea, a {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.font-mono {
+  font-family: "JetBrains Mono", "SF Mono", ui-monospace, Menlo, Monaco, Consolas, monospace;
+  font-feature-settings: "tnum" 1, "zero" 1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Accessible focus outlines */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Custom subtle scrollbar */
+::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-hover);
+}
+
+/* Smooth animations */
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-pop-in {
+  animation: popIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Respect user preference for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .animate-pop-in {
+    animation: none !important;
+  }
+}
