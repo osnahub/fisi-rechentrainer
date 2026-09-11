@@ -124,7 +124,7 @@ export function DecToBinModule({ rng }: DecToBinModuleProps) {
       {/* Steuerungsleiste: Modus-Wahl & Stellenwerte-Toggle */}
       <div className="flex flex-wrap items-center justify-between gap-2.5 p-2.5 sm:p-3 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-color)]">
         <div className="flex items-center gap-1.5 text-xs font-mono font-medium text-[var(--text-secondary)]">
-          <span className="px-2.5 py-1 rounded-xl bg-sky-500/10 border border-sky-500/30 text-sky-700 dark:text-sky-300 font-bold">
+          <span className="h-9 inline-flex items-center px-2.5 sm:px-3 rounded-xl bg-sky-500/10 border border-sky-500/30 text-sky-700 dark:text-sky-300 font-bold">
             8-Bit
           </span>
           <span className="hidden sm:inline text-[var(--text-muted)]">
@@ -132,33 +132,33 @@ export function DecToBinModule({ rng }: DecToBinModuleProps) {
           </span>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {/* Umschalter: Bits klicken vs. Freie Tastatureingabe */}
-          <div className="flex items-center rounded-xl border border-[var(--border-color)] bg-[var(--bg-card-subtle)] p-0.5" role="group" aria-label="Eingabemodus">
+          <div className="flex items-center gap-1.5" role="group" aria-label="Eingabemodus">
             <button
               type="button"
               onClick={() => setInputMethod("click")}
               aria-pressed={inputMethod === "click"}
-              className={`text-xs px-2.5 py-1 rounded-lg font-medium transition-all cursor-pointer flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 ${
+              className={`h-9 text-xs px-2.5 sm:px-3 rounded-xl font-medium transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap shrink-0 border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 ${
                 inputMethod === "click"
-                  ? "bg-[var(--bg-surface)] text-[var(--text-primary)] shadow-sm font-semibold border border-[var(--border-color)]"
-                  : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                  ? "bg-[var(--primary-btn-bg)] text-white border-[var(--primary-btn-bg)] font-semibold shadow-sm"
+                  : "border-[var(--border-color)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-hover)]"
               }`}
             >
-              <ToggleLeft size={13} className="text-sky-700 dark:text-sky-400" />
+              <ToggleLeft size={13} className={inputMethod === "click" ? "text-white shrink-0" : "text-sky-700 dark:text-sky-400 shrink-0"} />
               <span>Bits klicken</span>
             </button>
             <button
               type="button"
               onClick={() => setInputMethod("type")}
               aria-pressed={inputMethod === "type"}
-              className={`text-xs px-2.5 py-1 rounded-lg font-medium transition-all cursor-pointer flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 ${
+              className={`h-9 text-xs px-2.5 sm:px-3 rounded-xl font-medium transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap shrink-0 border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 ${
                 inputMethod === "type"
-                  ? "bg-[var(--bg-surface)] text-[var(--text-primary)] shadow-sm font-semibold border border-[var(--border-color)]"
-                  : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                  ? "bg-[var(--primary-btn-bg)] text-white border-[var(--primary-btn-bg)] font-semibold shadow-sm"
+                  : "border-[var(--border-color)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-hover)]"
               }`}
             >
-              <Keyboard size={13} className="text-sky-700 dark:text-sky-400" />
+              <Keyboard size={13} className={inputMethod === "type" ? "text-white shrink-0" : "text-sky-700 dark:text-sky-400 shrink-0"} />
               <span>Binär tippen</span>
             </button>
           </div>
@@ -167,7 +167,7 @@ export function DecToBinModule({ rng }: DecToBinModuleProps) {
           <button
             type="button"
             onClick={() => setShowPowersHelper((prev) => !prev)}
-            className={`text-xs px-3 py-1.5 rounded-xl border transition-all cursor-pointer font-medium flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 ${
+            className={`h-9 text-xs px-3 rounded-xl border transition-all cursor-pointer font-medium flex items-center gap-1.5 whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 ${
               showPowersHelper
                 ? "bg-[var(--primary-btn-bg)] text-white border-[var(--primary-btn-bg)] font-semibold shadow-sm"
                 : "border-[var(--border-color)] text-[var(--text-secondary)] hover:border-[var(--border-hover)]"

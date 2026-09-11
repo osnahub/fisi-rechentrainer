@@ -132,7 +132,7 @@ export function ExplainerModule() {
             </div>
           </div>
 
-          <div className="flex items-center gap-1 bg-[var(--bg-input)] p-1 rounded-xl border border-[var(--border-color)]">
+          <div className="h-9 flex items-center gap-1 bg-[var(--bg-input)] p-1 rounded-xl border border-[var(--border-color)]">
             {(
               [
                 { id: "dec", label: "Dezimal (Basis 10)" },
@@ -147,7 +147,7 @@ export function ExplainerModule() {
                   if (f.id === "dec") setInputValue(String(currentDec));
                   if (f.id === "bin") setInputValue(currentBin);
                 }}
-                className={`text-xs px-3 py-1.5 rounded-lg transition-all cursor-pointer font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 ${
+                className={`h-full text-xs px-3 rounded-lg transition-all cursor-pointer font-medium whitespace-nowrap shrink-0 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 ${
                   format === f.id
                     ? "bg-[var(--primary-btn-bg)] text-white font-semibold shadow-sm"
                     : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
@@ -203,7 +203,7 @@ export function ExplainerModule() {
                 key={preset}
                 type="button"
                 onClick={() => setPreset(preset)}
-                className="text-[11px] font-mono px-2.5 py-1 rounded-lg border border-[var(--border-color)] bg-[var(--bg-card-subtle)] text-[var(--text-secondary)] hover:border-sky-500 hover:text-sky-700 dark:hover:text-sky-300 transition-all cursor-pointer font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+                className="h-7 inline-flex items-center text-[11px] font-mono px-2.5 rounded-lg border border-[var(--border-color)] bg-[var(--bg-card-subtle)] text-[var(--text-secondary)] hover:border-sky-500 hover:text-sky-700 dark:hover:text-sky-300 transition-all cursor-pointer font-medium whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
               >
                 {preset}
               </button>

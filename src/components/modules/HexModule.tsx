@@ -171,7 +171,7 @@ export function HexModule({
           onClick={() => setShowNibbleTable((prev) => !prev)}
           aria-expanded={showNibbleTable}
           aria-controls={showNibbleTable ? "nibble-table-panel" : undefined}
-          className={`text-xs px-3 py-2 rounded-xl border transition-all cursor-pointer font-medium shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 ${
+          className={`h-9 text-xs px-3 rounded-xl border transition-all cursor-pointer font-medium shrink-0 whitespace-nowrap flex items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 ${
             showNibbleTable
               ? "bg-[var(--primary-btn-bg)] text-white border-[var(--primary-btn-bg)] font-semibold shadow-sm"
               : "border-[var(--border-color)] text-[var(--text-secondary)] hover:border-[var(--border-hover)]"

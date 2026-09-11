@@ -97,7 +97,7 @@ function TrainerContent() {
       <ReferenceBar />
 
       {/* Hauptnavigation / Modul-Tabs */}
-      <nav className="relative mb-5 sm:mb-6" aria-label="Hauptnavigation">
+      <nav className="relative mb-5 sm:mb-6 w-full max-w-full min-w-0" aria-label="Hauptnavigation">
         <ModeTabs
           tabs={navItems}
           activeTab={activeModule}

@@ -24,7 +24,7 @@ export function ExerciseActions({
         <button
           type="button"
           onClick={onNext}
-          className="min-h-[42px] flex items-center justify-center gap-1.5 sm:gap-2 px-6 sm:px-7 py-2 sm:py-2.5 rounded-xl bg-[var(--primary-btn-bg)] hover:bg-[var(--primary-btn-hover)] text-white text-xs sm:text-sm font-semibold transition-all cursor-pointer shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2"
+          className="h-10 sm:h-11 flex items-center justify-center gap-1.5 sm:gap-2 px-6 sm:px-7 rounded-xl bg-[var(--primary-btn-bg)] hover:bg-[var(--primary-btn-hover)] text-white text-xs sm:text-sm font-semibold transition-all cursor-pointer shadow-md border border-[var(--primary-btn-bg)] whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2"
         >
           <ArrowRight size={16} />
           <span>Nächste Aufgabe (Enter ↵)</span>
@@ -34,7 +34,7 @@ export function ExerciseActions({
           <button
             type="button"
             onClick={onCheck}
-            className="min-h-[42px] flex items-center justify-center gap-1.5 sm:gap-2 px-5 sm:px-6 py-2 sm:py-2.5 rounded-xl bg-[var(--primary-btn-bg)] hover:bg-[var(--primary-btn-hover)] text-white text-xs sm:text-sm font-semibold transition-all cursor-pointer shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2"
+            className="h-10 sm:h-11 flex items-center justify-center gap-1.5 sm:gap-2 px-5 sm:px-6 rounded-xl bg-[var(--primary-btn-bg)] hover:bg-[var(--primary-btn-hover)] text-white text-xs sm:text-sm font-semibold transition-all cursor-pointer shadow-md border border-[var(--primary-btn-bg)] whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2"
           >
             <Check size={16} />
             <span>Ergebnis prüfen</span>
@@ -43,7 +43,7 @@ export function ExerciseActions({
           <button
             type="button"
             onClick={onNext}
-            className="min-h-[42px] flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-hover)] transition-all cursor-pointer text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2"
+            className="h-10 sm:h-11 flex items-center justify-center gap-1.5 px-3.5 sm:px-4 rounded-xl border border-[var(--border-color)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-hover)] transition-all cursor-pointer text-xs sm:text-sm font-medium whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2"
           >
             <RefreshCw size={14} />
             <span>Überspringen</span>
@@ -52,7 +52,7 @@ export function ExerciseActions({
           <button
             type="button"
             onClick={onRevealSolution}
-            className="min-h-[42px] flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-sky-700 dark:hover:text-sky-400 hover:border-sky-500/40 transition-all cursor-pointer text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2"
+            className="h-10 sm:h-11 flex items-center justify-center gap-1.5 px-3.5 sm:px-4 rounded-xl border border-[var(--border-color)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-sky-700 dark:hover:text-sky-400 hover:border-sky-500/40 transition-all cursor-pointer text-xs sm:text-sm font-medium whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2"
           >
             <Eye size={14} />
             <span>{showSolutionText}</span>

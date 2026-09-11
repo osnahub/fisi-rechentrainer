@@ -135,7 +135,7 @@ export function SubnetModule({
           onClick={() => setShowFullTable((prev) => !prev)}
           aria-expanded={showFullTable}
           aria-controls={showFullTable ? "subnet-table-panel" : undefined}
-          className={`text-xs px-3 py-1.5 rounded-xl border transition-all cursor-pointer flex items-center gap-1.5 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 ${
+          className={`h-9 text-xs px-3 rounded-xl border transition-all cursor-pointer flex items-center justify-center gap-1.5 font-medium shrink-0 whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 ${
             showFullTable
               ? "bg-[var(--primary-btn-bg)] text-white border-[var(--primary-btn-bg)] shadow-sm"
               : "border-[var(--border-color)] text-[var(--text-secondary)] hover:border-[var(--border-hover)]"

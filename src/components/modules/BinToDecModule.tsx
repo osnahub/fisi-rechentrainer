@@ -119,7 +119,7 @@ export function BinToDecModule({ rng }: BinToDecModuleProps) {
       {/* Steuerungsleiste */}
       <div className="flex flex-wrap items-center justify-between gap-2.5 p-2.5 sm:p-3 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-color)]">
         <div className="flex items-center gap-1.5">
-          <span className="text-xs px-2.5 sm:px-3 py-1.5 rounded-xl border border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-300 font-mono font-semibold">
+          <span className="h-9 inline-flex items-center text-xs px-2.5 sm:px-3 rounded-xl border border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-300 font-mono font-semibold">
             8-Bit (1 Byte · Bereich 0 bis 255)
           </span>
         </div>
@@ -127,7 +127,7 @@ export function BinToDecModule({ rng }: BinToDecModuleProps) {
         <button
           type="button"
           onClick={() => setShowPowersHelper((prev) => !prev)}
-          className={`text-xs px-3 py-1.5 rounded-xl border transition-all cursor-pointer font-medium flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 ${
+          className={`h-9 text-xs px-3 rounded-xl border transition-all cursor-pointer font-medium flex items-center gap-1.5 whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 ${
             showPowersHelper
               ? "bg-[var(--primary-btn-bg)] text-white border-[var(--primary-btn-bg)] font-semibold shadow-sm"
               : "border-[var(--border-color)] text-[var(--text-secondary)] hover:border-[var(--border-hover)]"
